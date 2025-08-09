@@ -23,6 +23,7 @@ using KdxDesigner.Utils;
 using KdxDesigner.Views;
 
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -149,6 +150,12 @@ namespace KdxDesigner.ViewModels
         [ObservableProperty] private int memoryProgressValue;
         [ObservableProperty] private string memoryStatusMessage = string.Empty;
         [ObservableProperty] private List<OutputError> outputErrors = new();
+        
+        // メモリ設定状態の表示用プロパティ
+        [ObservableProperty] private int totalMemoryDeviceCount = 0;
+        [ObservableProperty] private string memoryConfigurationStatus = "未設定";
+        [ObservableProperty] private bool isMemoryConfigured = false;
+        [ObservableProperty] private string lastMemoryConfigTime = string.Empty;
 
         private List<ProcessDetail> allDetails = new();
         private List<Process> allProcesses = new();
@@ -304,6 +311,9 @@ namespace KdxDesigner.ViewModels
             if (value == null) return;
             Cycles = new ObservableCollection<Cycle>(_repository!.GetCycles().Where(c => c.PlcId == value.Id));
             SelectedCycle = null;
+            
+            // PLCが変更されたらメモリ設定状態を更新
+            UpdateMemoryConfigurationStatus();
         }
 
         partial void OnSelectedCycleChanged(Cycle? value)
@@ -317,6 +327,9 @@ namespace KdxDesigner.ViewModels
             // 選択したサイクルIDを保存
             SettingsManager.Settings.LastSelectedCycleId = value.Id;
             SettingsManager.Save();
+            
+            // サイクルが変更されたらメモリ設定状態を更新
+            UpdateMemoryConfigurationStatus();
         }
         public void OnProcessDetailSelected(ProcessDetail selected)
         {
@@ -509,6 +522,31 @@ namespace KdxDesigner.ViewModels
         {
             SettingsManager.Settings.LastUsedMemoryProfileId = profileId;
             SettingsManager.Save();
+        }
+        
+        [RelayCommand]
+        private void ShowMemoryDeviceList()
+        {
+            try
+            {
+                // メモリストアを取得
+                var memoryStore = App.Services?.GetService<IMnemonicDeviceMemoryStore>() 
+                    ?? new MnemonicDeviceMemoryStore();
+                
+                // 現在選択中のPLCとCycleを渡してウィンドウを開く
+                var window = new MemoryDeviceListWindow(
+                    memoryStore, 
+                    SelectedPlc?.Id, 
+                    SelectedCycle?.Id);
+                
+                window.Owner = Application.Current.MainWindow;
+                window.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"メモリデバイス一覧の表示に失敗しました。\n{ex.Message}", 
+                    "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         #endregion
@@ -802,6 +840,9 @@ namespace KdxDesigner.ViewModels
         [RelayCommand]
         private async Task MemorySetting()
         {
+            // メモリ設定状態を「設定中」に更新
+            MemoryConfigurationStatus = "設定中...";
+            IsMemoryConfigured = false;
             if (!ValidateMemorySettings()) return;
 
             // 3. データ準備
@@ -962,6 +1003,10 @@ namespace KdxDesigner.ViewModels
             }
 
             MemoryStatusMessage = "保存完了！";
+            
+            // メモリ設定状態を更新
+            UpdateMemoryConfigurationStatus();
+            
             MessageBox.Show("すべてのメモリ保存が完了しました。");
         }
 
@@ -987,6 +1032,77 @@ namespace KdxDesigner.ViewModels
             return true;
         }
 
+        #endregion
+        
+        #region Memory Status Methods
+        
+        /// <summary>
+        /// メモリ設定状態を更新する
+        /// </summary>
+        private void UpdateMemoryConfigurationStatus()
+        {
+            if (SelectedPlc == null || SelectedCycle == null)
+            {
+                MemoryConfigurationStatus = "未設定";
+                IsMemoryConfigured = false;
+                TotalMemoryDeviceCount = 0;
+                return;
+            }
+            
+            try
+            {
+                // メモリに保存されたデバイスの数をカウント
+                var devices = _mnemonicService?.GetMnemonicDevice(SelectedPlc.Id) ?? new List<Models.MnemonicDevice>();
+                var timerDevices = _timerService?.GetMnemonicTimerDevice(SelectedPlc.Id, SelectedCycle.Id) ?? new List<MnemonicTimerDevice>();
+                var speedDevices = _speedService?.GetMnemonicSpeedDevice(SelectedPlc.Id) ?? new List<Models.MnemonicSpeedDevice>();
+                
+                int totalCount = devices.Count + timerDevices.Count + speedDevices.Count;
+                TotalMemoryDeviceCount = totalCount;
+                
+                if (totalCount > 0)
+                {
+                    IsMemoryConfigured = true;
+                    LastMemoryConfigTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+                    
+                    // 設定状態の詳細を作成
+                    var statusBuilder = new System.Text.StringBuilder();
+                    statusBuilder.AppendLine($"設定済み (合計: {totalCount} デバイス)");
+                    
+                    if (devices.Count > 0)
+                    {
+                        var processCount = devices.Count(d => d.MnemonicId == (int)MnemonicType.Process);
+                        var detailCount = devices.Count(d => d.MnemonicId == (int)MnemonicType.ProcessDetail);
+                        var operationCount = devices.Count(d => d.MnemonicId == (int)MnemonicType.Operation);
+                        var cylinderCount = devices.Count(d => d.MnemonicId == (int)MnemonicType.CY);
+                        
+                        if (processCount > 0) statusBuilder.AppendLine($"  工程: {processCount}");
+                        if (detailCount > 0) statusBuilder.AppendLine($"  工程詳細: {detailCount}");
+                        if (operationCount > 0) statusBuilder.AppendLine($"  操作: {operationCount}");
+                        if (cylinderCount > 0) statusBuilder.AppendLine($"  シリンダ: {cylinderCount}");
+                    }
+                    
+                    if (timerDevices.Count > 0)
+                        statusBuilder.AppendLine($"  タイマー: {timerDevices.Count}");
+                    
+                    if (speedDevices.Count > 0)
+                        statusBuilder.AppendLine($"  速度: {speedDevices.Count}");
+                    
+                    MemoryConfigurationStatus = statusBuilder.ToString().TrimEnd();
+                }
+                else
+                {
+                    MemoryConfigurationStatus = "未設定";
+                    IsMemoryConfigured = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MemoryConfigurationStatus = $"エラー: {ex.Message}";
+                IsMemoryConfigured = false;
+                TotalMemoryDeviceCount = 0;
+            }
+        }
+        
         #endregion
 
         #region Data Migration Commands

@@ -1,11 +1,12 @@
-﻿using Dapper;
+using Dapper;
 
-using KdxDesigner.Models;
-using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Access;
 
 using System.Data;
 using System.Data.OleDb;
+using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Enums;
+
 
 namespace KdxDesigner.Services.ErrorService
 {
@@ -44,16 +45,16 @@ namespace KdxDesigner.Services.ErrorService
             return messages;
         }
 
-        public List<Models.Error> GetErrors(int plcId, int cycleId, int mnemonicId)
+        public List<Kdx.Contracts.DTOs.Error> GetErrors(int plcId, int cycleId, int mnemonicId)
         {
-            List<Models.Error> errors = new();
+            List<Kdx.Contracts.DTOs.Error> errors = new();
 
             using var connection = new OleDbConnection(_connectionString);
             var sql = "SELECT * FROM Error " +
                 "WHERE PlcId = @PlcId " +
                 "AND CycleId = @CycleId " +
                 "AND MnemonicId = @MnemonicId";
-            errors = connection.Query<Models.Error>(sql, new
+            errors = connection.Query<Kdx.Contracts.DTOs.Error>(sql, new
             {
                 PlcId = plcId,
                 CycleId = cycleId,
@@ -65,8 +66,8 @@ namespace KdxDesigner.Services.ErrorService
 
         // Operationのリストを受け取り、Errorテーブルに保存する
         public void SaveMnemonicDeviceOperation(
-            List<Operation> operations,
-            List<IO> iOs,
+            List<Kdx.Contracts.DTOs.Operation> operations,
+            List<Kdx.Contracts.DTOs.IO> iOs,
             int startNum,
             int startNumTimer,
             int plcId,

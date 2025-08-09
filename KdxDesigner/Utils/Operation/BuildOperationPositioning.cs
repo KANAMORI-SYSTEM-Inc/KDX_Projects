@@ -1,9 +1,10 @@
-﻿using KdxDesigner.Models;
+using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
+using Kdx.Contracts.DTOs;
 namespace KdxDesigner.Utils.Operation
 
 {
@@ -31,7 +32,7 @@ namespace KdxDesigner.Utils.Operation
             List<MnemonicDeviceWithOperation> operations,
             List<MnemonicDeviceWithCylinder> cylinders,
             List<MnemonicTimerDeviceWithOperation> timers,
-            List<KdxDesigner.Models.Error> mnemonicError,
+            List<Error> mnemonicError,
             List<ProsTime> prosTimes,
             List<MnemonicSpeedDevice> speeds,
             List<IO> ioList,

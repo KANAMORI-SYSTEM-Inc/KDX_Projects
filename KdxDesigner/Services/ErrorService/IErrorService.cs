@@ -1,4 +1,5 @@
-﻿using KdxDesigner.Models;
+using Kdx.Contracts.DTOs;
+using KdxDesigner.Models;
 
 using System.Collections.Generic;
 
@@ -28,7 +29,7 @@ namespace KdxDesigner.Services.ErrorService
         /// <param name="cycleId">サイクルID</param>
         /// <param name="mnemonicId">ニーモニックID</param>
         /// <returns>エラー情報のリスト</returns>
-        List<Models.Error> GetErrors(int plcId, int cycleId, int mnemonicId);
+        List<Kdx.Contracts.DTOs.Error> GetErrors(int plcId, int cycleId, int mnemonicId);
 
         /// <summary>
         /// 操作リストからエラー情報を生成し保存する

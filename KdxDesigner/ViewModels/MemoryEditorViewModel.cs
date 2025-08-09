@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 
 using KdxDesigner.Services.Memory;
 using KdxDesigner.Models;
+using Kdx.Contracts.DTOs;
 
 using Microsoft.Win32;
 

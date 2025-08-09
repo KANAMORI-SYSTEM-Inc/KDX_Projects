@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 
 using DocumentFormat.OpenXml.Bibliography;
 
@@ -6,6 +6,8 @@ using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Access;
 using KdxDesigner.Services.Memory;
+using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Enums;
 
 using System.Data;
 using System.Data.OleDb;
@@ -19,7 +21,7 @@ namespace KdxDesigner.Services.MnemonicDevice
     {
         private readonly string _connectionString;
         private readonly IAccessRepository _repository;
-        private readonly MemoryService _memoryService;
+        private readonly IMemoryService _memoryService;
 
         static MnemonicDeviceService()
         {
@@ -97,7 +99,7 @@ namespace KdxDesigner.Services.MnemonicDevice
             {
                 var allExisting = GetMnemonicDeviceByMnemonic(plcId, (int)MnemonicType.Process);
                 var existingLookup = allExisting.ToDictionary(m => m.RecordId, m => m);
-                var allMemoriesToSave = new List<Models.Memory>(); // ★ 保存するメモリを蓄積するリスト
+                var allMemoriesToSave = new List<Kdx.Contracts.DTOs.Memory>(); // ★ 保存するメモリを蓄積するリスト
                 int count = 0;
                 foreach (Process process in processes)
                 {
@@ -114,8 +116,8 @@ namespace KdxDesigner.Services.MnemonicDevice
                     parameters.Add("StartNum", count * 5 + startNum, DbType.Int32);
                     parameters.Add("OutCoilCount", 5, DbType.Int32);
                     parameters.Add("PlcId", plcId, DbType.Int32);
-                    parameters.Add("Comment1", process.Comment1, DbType.String); // Memoryのrow_3兼用
-                    parameters.Add("Comment2", process.Comment2, DbType.String); // Memoryのrow_4兼用
+                    parameters.Add("Comment1", process.Comment1, DbType.String); // Kdx.Contracts.DTOs.Memoryのrow_3兼用
+                    parameters.Add("Comment2", process.Comment2, DbType.String); // Kdx.Contracts.DTOs.Memoryのrow_4兼用
 
                     if (existing != null) // Update
                     {
@@ -156,7 +158,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                             parameters, transaction);
                     }
 
-                    // --- 2. 対応するMemoryレコードを生成し、リストに蓄積 ---
+                    // --- 2. 対応するKdx.Contracts.DTOs.Memoryレコードを生成し、リストに蓄積 ---
                     int mnemonicStartNum = count * 5 + startNum;
                     for (int i = 0; i < 5; i++) // OutCoilCount=5 は固定と仮定
                     {
@@ -170,7 +172,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                             _ => ""
                         };
 
-                        var memory = new Models.Memory
+                        var memory = new Kdx.Contracts.DTOs.Memory
                         {
                             PlcId = plcId,
                             Device = "L" + (mnemonicStartNum + i), // デバイス名の形式を修正
@@ -196,7 +198,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     count++;
                 }
 
-                // --- 3. ループ完了後、蓄積した全Memoryレコードを同じトランザクションで一括保存 ---
+                // --- 3. ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
@@ -227,7 +229,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                 var allExisting = GetMnemonicDeviceByMnemonic(plcId, (int)MnemonicType.ProcessDetail);
                 var existingLookup = allExisting.ToDictionary(m => m.RecordId, m => m);
 
-                var allMemoriesToSave = new List<Models.Memory>();
+                var allMemoriesToSave = new List<Kdx.Contracts.DTOs.Memory>();
                 int count = 0;
 
                 foreach (ProcessDetail detail in processes)
@@ -271,11 +273,11 @@ namespace KdxDesigner.Services.MnemonicDevice
                         // 2. IDを使ってCYオブジェクトを取得
                         CY? cY = repository.GetCYById(operation.CYId!.Value);
 
-                        // 3. CYオブジェクトが取得でき、かつその中にMacineIdが存在するかチェック
-                        if (cY != null && cY.MacineId.HasValue)
+                        // 3. CYオブジェクトが取得でき、かつその中にMachineIdが存在するかチェック
+                        if (cY != null && cY.MachineId.HasValue)
                         {
-                            // 4. MacineIdを使ってMachineオブジェクトを取得
-                            Machine? machine = repository.GetMachineById(cY.MacineId.Value);
+                            // 4. MachineIdを使ってMachineオブジェクトを取得
+                            Machine? machine = repository.GetMachineById(cY.MachineId.Value);
 
                             // 5. Machineオブジェクトが取得できたことを確認してから、コメントを生成
                             if (machine != null)
@@ -291,7 +293,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                         }
                         else
                         {
-                            // CYが見つからなかったか、CYにMacineIdがなかった場合のエラーハンドリング（任意）
+                            // CYが見つからなかったか、CYにMachineIdがなかった場合のエラーハンドリング（任意）
                         }
                     }
                     else
@@ -344,7 +346,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                             parameters, transaction);
                     }
 
-                    // --- 対応するMemoryレコードを生成し、リストに蓄積 ---
+                    // --- 対応するKdx.Contracts.DTOs.Memoryレコードを生成し、リストに蓄積 ---
                     for (int i = 0; i < 5; i++) // OutCoilCount=10
                     {
                         string row_2 = i switch
@@ -357,7 +359,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                             _ => ""
                         };
 
-                        var memory = new Models.Memory
+                        var memory = new Kdx.Contracts.DTOs.Memory
                         {
                             PlcId = plcId,
                             Device = "L" + (mnemonicStartNum + i),
@@ -378,7 +380,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     count++;
                 }
 
-                // --- ループ完了後、蓄積した全Memoryレコードを同じトランザクションで一括保存 ---
+                // --- ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
@@ -403,7 +405,7 @@ namespace KdxDesigner.Services.MnemonicDevice
             {
                 var allExisting = GetMnemonicDeviceByMnemonic(plcId, (int)MnemonicType.Operation);
                 var existingLookup = allExisting.ToDictionary(m => m.RecordId, m => m);
-                var allMemoriesToSave = new List<Models.Memory>(); // ★ 保存するメモリを蓄積するリスト
+                var allMemoriesToSave = new List<Kdx.Contracts.DTOs.Memory>(); // ★ 保存するメモリを蓄積するリスト
 
                 int count = 0;
                 foreach (Operation operation in operations)
@@ -471,11 +473,11 @@ namespace KdxDesigner.Services.MnemonicDevice
                         // 2. IDを使ってCYオブジェクトを取得
                         CY? cY = repository.GetCYById(operation.CYId.Value);
 
-                        // 3. CYオブジェクトが取得でき、かつその中にMacineIdが存在するかチェック
-                        if (cY != null && cY.MacineId.HasValue)
+                        // 3. CYオブジェクトが取得でき、かつその中にMachineIdが存在するかチェック
+                        if (cY != null && cY.MachineId.HasValue)
                         {
-                            // 4. MacineIdを使ってMachineオブジェクトを取得
-                            Machine? machine = repository.GetMachineById(cY.MacineId.Value);
+                            // 4. MachineIdを使ってMachineオブジェクトを取得
+                            Machine? machine = repository.GetMachineById(cY.MachineId.Value);
 
                             // 5. Machineオブジェクトが取得できたことを確認してから、コメントを生成
                             if (machine != null)
@@ -491,7 +493,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                         }
                         else
                         {
-                            // CYが見つからなかったか、CYにMacineIdがなかった場合のエラーハンドリング（任意）
+                            // CYが見つからなかったか、CYにMachineIdがなかった場合のエラーハンドリング（任意）
                         }
                     }
                     else
@@ -527,7 +529,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                             _ => ""
                         };
 
-                        var memory = new Models.Memory
+                        var memory = new Kdx.Contracts.DTOs.Memory
                         {
                             PlcId = plcId,
                             Device = "M" + (mnemonicStartNum + i), // デバイス名の形式を修正
@@ -552,7 +554,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     }
                     count++;
                 }
-                // --- ループ完了後、蓄積した全Memoryレコードを同じトランザクションで一括保存 ---
+                // --- ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
@@ -577,7 +579,7 @@ namespace KdxDesigner.Services.MnemonicDevice
             {
                 var allExisting = GetMnemonicDeviceByMnemonic(plcId, (int)MnemonicType.CY);
                 var existingLookup = allExisting.ToDictionary(m => m.RecordId, m => m);
-                var allMemoriesToSave = new List<Models.Memory>(); // ★ 保存するメモリを蓄積するリスト
+                var allMemoriesToSave = new List<Kdx.Contracts.DTOs.Memory>(); // ★ 保存するメモリを蓄積するリスト
 
                 int count = 0;
                 foreach (CY cylinder in cylinders)
@@ -639,11 +641,11 @@ namespace KdxDesigner.Services.MnemonicDevice
 
 
 
-                    // 3. CYオブジェクトが取得でき、かつその中にMacineIdが存在するかチェック
-                    if (cylinder != null && cylinder.MacineId.HasValue)
+                    // 3. CYオブジェクトが取得でき、かつその中にMachineIdが存在するかチェック
+                    if (cylinder != null && cylinder.MachineId.HasValue)
                     {
-                        // 4. MacineIdを使ってMachineオブジェクトを取得
-                        Machine? machine = repository.GetMachineById(cylinder.MacineId.Value);
+                        // 4. MachineIdを使ってMachineオブジェクトを取得
+                        Machine? machine = repository.GetMachineById(cylinder.MachineId.Value);
 
                         // 5. Machineオブジェクトが取得できたことを確認してから、コメントを生成
                         if (machine != null)
@@ -659,7 +661,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     }
                     else
                     {
-                        // CYが見つからなかったか、CYにMacineIdがなかった場合のエラーハンドリング（任意）
+                        // CYが見つからなかったか、CYにMachineIdがなかった場合のエラーハンドリング（任意）
                     }
 
                     for (int i = 0; i < 50; i++) // OutCoilCount=5 は固定と仮定
@@ -776,7 +778,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                             _ => ""
                         };
 
-                        var memory = new Models.Memory
+                        var memory = new Kdx.Contracts.DTOs.Memory
                         {
                             PlcId = plcId,
                             Device = "M" + (mnemonicStartNum + i), // デバイス名の形式を修正
@@ -801,7 +803,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     }
                     count++;
                 }
-                // --- ループ完了後、蓄積した全Memoryレコードを同じトランザクションで一括保存 ---
+                // --- ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);

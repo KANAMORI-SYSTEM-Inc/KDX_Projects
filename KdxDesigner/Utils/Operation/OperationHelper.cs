@@ -3,6 +3,8 @@ using KdxDesigner.Models.Define;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Services.Error;
 using KdxDesigner.ViewModels;
+using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Enums;
 
 using static KdxDesigner.Utils.Operation.BuildOperationSpeedChange;
 
@@ -82,7 +84,7 @@ namespace KdxDesigner.Utils.Operation
             {
                 Message = message,
                 RecordName = operation.Operation?.OperationName ?? "N/A",
-                MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.Operation,
+                MnemonicId = (int)MnemonicType.Operation,
                 RecordId = operation.Operation?.Id ?? 0
             };
             _errorAggregator.AddError(error);

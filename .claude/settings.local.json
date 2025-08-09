@@ -10,7 +10,18 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git rm:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(del \"C:\\Users\\shimada.KANAMORI-SYSTEM\\source\\repos\\KDX_Projects\\Kdx.Contracts\\Class1.cs\")",
+      "Bash(dotnet:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker compose:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(copy:*)",
+      "Bash(powershell:*)",
+      "Bash(del \"C:\\Users\\shimada.KANAMORI-SYSTEM\\source\\repos\\KDX_Projects\\KdxDesigner\\Models\\CylinderIO.cs\")",
+      "Bash(git restore:*)"
     ],
     "deny": []
   }

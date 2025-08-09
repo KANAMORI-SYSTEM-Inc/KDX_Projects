@@ -1,11 +1,13 @@
-﻿using KdxDesigner.Models;
+using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
-using KdxDesigner.Services;
 using KdxDesigner.Services.Access;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
+using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Enums;
+
 
 namespace KdxDesigner.Utils.ProcessDetail
 {
@@ -256,7 +258,7 @@ namespace KdxDesigner.Utils.ProcessDetail
             {
                 Message = message,
                 RecordName = _detail.Detail.DetailName,
-                MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.ProcessDetail,
+                MnemonicId = (int)MnemonicType.ProcessDetail,
                 RecordId = _detail.Detail.Id,
                 IsCritical = true
             });

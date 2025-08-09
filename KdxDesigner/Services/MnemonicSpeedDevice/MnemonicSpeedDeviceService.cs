@@ -2,6 +2,7 @@
 
 using KdxDesigner.Models;
 using KdxDesigner.Services.Access;
+using Kdx.Contracts.DTOs;
 
 using System.Data;
 using System.Data.OleDb;

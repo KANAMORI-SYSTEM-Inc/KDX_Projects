@@ -1,4 +1,6 @@
-﻿using KdxDesigner.Models;
+﻿using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Enums;
+using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Services.Error;
@@ -233,7 +235,7 @@ namespace KdxDesigner.Utils.Operation
                     _errorAggregator.AddError(new OutputError
                     {
                         Message = $"操作「{_operation.Operation.OperationName}」(ID: {_operation.Operation.Id}) の制御センサ「{conSensor}」が設定されていません。",
-                        MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.Operation,
+                        MnemonicId = (int)MnemonicType.Operation,
                         RecordId = _operation.Operation.Id,
                         RecordName = _operation.Operation.OperationName,
                         IsCritical = true
@@ -388,7 +390,7 @@ namespace KdxDesigner.Utils.Operation
                 _errorAggregator.AddError(new OutputError
                 {
                     Message = $"操作「{_operation.Operation.OperationName}」(ID: {_operation.Operation.Id}) の速度デバイスが設定されていません。",
-                    MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.Operation,
+                    MnemonicId = (int)MnemonicType.Operation,
                     RecordId = _operation.Operation.Id,
                     RecordName = _operation.Operation.OperationName,
                     IsCritical = true

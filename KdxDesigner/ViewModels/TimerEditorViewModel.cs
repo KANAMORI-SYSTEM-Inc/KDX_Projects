@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
 using KdxDesigner.Services.Access;
 using KdxDesigner.Services.MemonicTimerDevice;
@@ -10,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
+using Timer = Kdx.Contracts.DTOs.Timer;
 
 namespace KdxDesigner.ViewModels
 {
@@ -145,7 +147,7 @@ namespace KdxDesigner.ViewModels
                 // カテゴリ名を設定
                 if (timer.TimerCategoryId.HasValue)
                 {
-                    var category = timerCategories.FirstOrDefault(c => c.ID == timer.TimerCategoryId.Value);
+                    var category = timerCategories.FirstOrDefault(c => c.Id == timer.TimerCategoryId.Value);
                     vm.CategoryName = category?.CategoryName ?? $"ID: {timer.TimerCategoryId}";
                 }
                 
@@ -216,7 +218,7 @@ namespace KdxDesigner.ViewModels
         private void AddTimer()
         {
             // 新しいタイマーを作成
-            var newTimer = new Models.Timer
+            var newTimer = new Timer
             {
                 ID = GetNextTimerId(),
                 CycleId = _mainViewModel.SelectedCycle?.Id,

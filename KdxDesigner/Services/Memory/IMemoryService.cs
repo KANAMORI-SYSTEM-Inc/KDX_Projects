@@ -1,4 +1,5 @@
-﻿using KdxDesigner.Models;
+﻿using Kdx.Contracts.DTOs;
+using KdxDesigner.Models;
 
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace KdxDesigner.Services.Memory
         /// </summary>
         /// <param name="plcId">PLC ID</param>
         /// <returns>メモリレコードのリスト</returns>
-        List<Models.Memory> GetMemories(int plcId);
+        List<Kdx.Contracts.DTOs.Memory> GetMemories(int plcId);
 
         /// <summary>
         /// メモリカテゴリーのリストを取得する
@@ -29,14 +30,14 @@ namespace KdxDesigner.Services.Memory
         /// <param name="plcId">PLC ID</param>
         /// <param name="memories">保存するメモリレコードのリスト</param>
         /// <param name="progressCallback">進捗コールバック（オプション）</param>
-        void SaveMemories(int plcId, List<Models.Memory> memories, Action<string>? progressCallback = null);
+        void SaveMemories(int plcId, List<Kdx.Contracts.DTOs.Memory> memories, Action<string>? progressCallback = null);
 
         /// <summary>
         /// ニーモニックデバイスのメモリ情報を保存する
         /// </summary>
         /// <param name="device">ニーモニックデバイス</param>
         /// <returns>保存成功の場合はtrue</returns>
-        bool SaveMnemonicMemories(Models.MnemonicDevice device);
+        bool SaveMnemonicMemories(KdxDesigner.Models.MnemonicDevice device);
 
         /// <summary>
         /// ニーモニックタイマーデバイスのZRメモリ情報を保存する
@@ -51,5 +52,15 @@ namespace KdxDesigner.Services.Memory
         /// <param name="device">ニーモニックタイマーデバイス</param>
         /// <returns>保存成功の場合はtrue</returns>
         bool SaveMnemonicTimerMemoriesT(MnemonicTimerDevice device);
+
+        /// <summary>
+        /// メモリレコードをトランザクション内で保存または更新する
+        /// </summary>
+        /// <param name="plcId">PLC ID</param>
+        /// <param name="memories">保存するメモリレコードのリスト</param>
+        /// <param name="connection">データベース接続</param>
+        /// <param name="transaction">トランザクション</param>
+        /// <param name="progressCallback">進捗コールバック（オプション）</param>
+        void SaveMemoriesInternal(int plcId, List<Kdx.Contracts.DTOs.Memory> memories, System.Data.OleDb.OleDbConnection connection, System.Data.OleDb.OleDbTransaction transaction, System.Action<string>? progressCallback = null);
     }
 }

@@ -1,4 +1,4 @@
-﻿using KdxDesigner.Models;
+using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.Services.IOAddress
 {

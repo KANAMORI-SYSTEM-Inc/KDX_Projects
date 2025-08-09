@@ -1,5 +1,6 @@
 using Dapper;
 
+using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
 using KdxDesigner.Services.Access;
 
@@ -22,7 +23,7 @@ namespace KdxDesigner.Services.OperationIO
         /// <summary>
         /// 指定されたOperationに関連付けられたIOのリストを取得
         /// </summary>
-        public List<Models.OperationIO> GetOperationIOs(int operationId)
+        public List<Kdx.Contracts.DTOs.OperationIO> GetOperationIOs(int operationId)
         {
             try
             {
@@ -31,19 +32,19 @@ namespace KdxDesigner.Services.OperationIO
                     SELECT * FROM OperationIO 
                     WHERE OperationId = @OperationId
                     ORDER BY SortOrder, IOUsage";
-                return connection.Query<Models.OperationIO>(sql, new { OperationId = operationId }).ToList();
+                return connection.Query<Kdx.Contracts.DTOs.OperationIO>(sql, new { OperationId = operationId }).ToList();
             }
             catch (OleDbException ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
             {
                 // テーブルが存在しない場合は空のリストを返す
-                return new List<Models.OperationIO>();
+                return new List<Kdx.Contracts.DTOs.OperationIO>();
             }
         }
 
         /// <summary>
         /// 指定されたIOに関連付けられたOperationのリストを取得
         /// </summary>
-        public List<Models.OperationIO> GetIOOperations(string ioAddress, int plcId)
+        public List<Kdx.Contracts.DTOs.OperationIO> GetIOOperations(string ioAddress, int plcId)
         {
             try
             {
@@ -52,11 +53,11 @@ namespace KdxDesigner.Services.OperationIO
                     SELECT * FROM OperationIO 
                     WHERE IOAddress = @IOAddress AND PlcId = @PlcId
                     ORDER BY OperationId";
-                return connection.Query<Models.OperationIO>(sql, new { IOAddress = ioAddress, PlcId = plcId }).ToList();
+                return connection.Query<Kdx.Contracts.DTOs.OperationIO>(sql, new { IOAddress = ioAddress, PlcId = plcId }).ToList();
             }
             catch (OleDbException ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
             {
-                return new List<Models.OperationIO>();
+                return new List<Kdx.Contracts.DTOs.OperationIO>();
             }
         }
 
@@ -124,17 +125,17 @@ namespace KdxDesigner.Services.OperationIO
         /// <summary>
         /// 指定されたPLCのすべての関連付けを取得
         /// </summary>
-        public List<Models.OperationIO> GetAllAssociations(int plcId)
+        public List<Kdx.Contracts.DTOs.OperationIO> GetAllAssociations(int plcId)
         {
             try
             {
                 using var connection = new OleDbConnection(_connectionString);
                 var sql = "SELECT * FROM OperationIO WHERE PlcId = @PlcId ORDER BY OperationId, SortOrder";
-                return connection.Query<Models.OperationIO>(sql, new { PlcId = plcId }).ToList();
+                return connection.Query<Kdx.Contracts.DTOs.OperationIO>(sql, new { PlcId = plcId }).ToList();
             }
             catch (OleDbException ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
             {
-                return new List<Models.OperationIO>();
+                return new List<Kdx.Contracts.DTOs.OperationIO>();
             }
         }
     }

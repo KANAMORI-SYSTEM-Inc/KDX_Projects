@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using KdxMigrationAPI.Models;
+using Kdx.Contracts.DTOs;
 
 namespace KdxMigrationAPI.Data
 {

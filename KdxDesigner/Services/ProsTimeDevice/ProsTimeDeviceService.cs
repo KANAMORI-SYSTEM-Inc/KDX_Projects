@@ -1,4 +1,7 @@
-﻿using Dapper;
+using Dapper;
+using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Enums;
+
 using KdxDesigner.Models;
 using KdxDesigner.Models.Define; // MnemonicType を含むと仮定
 using System.Data;

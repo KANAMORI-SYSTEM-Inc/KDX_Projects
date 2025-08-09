@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using KdxDesigner.Models;
 using KdxDesigner.Services;
 using KdxDesigner.Services.Access;
+using Kdx.Contracts.DTOs;
 
 using System.Collections.ObjectModel;
 using System.Linq;

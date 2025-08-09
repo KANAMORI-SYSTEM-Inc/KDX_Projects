@@ -1,7 +1,9 @@
-﻿using KdxDesigner.Models;
+using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Utils.MnemonicCommon;
+using Kdx.Contracts.DTOs;
+using OperationDto = Kdx.Contracts.DTOs.Operation;
 
 namespace KdxDesigner.Utils.Operation
 {
@@ -15,7 +17,7 @@ namespace KdxDesigner.Utils.Operation
         }
 
         public List<LadderCsvRow> Operation(
-            Models.Operation operation,
+            OperationDto operation,
             List<Error> error,
             string label,
             int outNum)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.Models.Define
 {
@@ -10,6 +6,6 @@ namespace KdxDesigner.Models.Define
     {
         public MnemonicDevice Mnemonic { get; set; } = default!;
         public ProcessDetail Detail { get; set; } = default!;
-        
+
     }
 }

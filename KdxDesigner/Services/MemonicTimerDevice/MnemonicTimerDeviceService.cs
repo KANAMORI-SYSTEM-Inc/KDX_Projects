@@ -4,9 +4,12 @@ using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Access;
 using KdxDesigner.ViewModels;
+using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Enums;
 
 using System.Data;
 using System.Data.OleDb;
+using Timer = Kdx.Contracts.DTOs.Timer;
 
 namespace KdxDesigner.Services.MemonicTimerDevice
 {
@@ -160,7 +163,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="cycleId"></param>
         /// <param name="count"></param>
         public void SaveWithDetail(
-            List<Models.Timer> timers,
+            List<Timer> timers,
             List<ProcessDetail> details,
             int startNum, int plcId, ref int count)
         {
@@ -175,7 +178,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 var existingLookup = allExisting.ToDictionary(m => (m.MnemonicId, m.RecordId, m.TimerId), m => m);
 
                 // 2. ProcessDetailに関連するタイマーをRecordIdごとに整理した辞書を作成
-                var timersByRecordId = new Dictionary<int, List<Models.Timer>>();
+                var timersByRecordId = new Dictionary<int, List<Timer>>();
                 var detailTimersSource = timers.Where(t => t.MnemonicId == (int)MnemonicType.ProcessDetail);
 
                 foreach (var timer in detailTimersSource)
@@ -186,7 +189,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                     {
                         if (!timersByRecordId.ContainsKey(recordId))
                         {
-                            timersByRecordId[recordId] = new List<Models.Timer>();
+                            timersByRecordId[recordId] = new List<Timer>();
                         }
                         timersByRecordId[recordId].Add(timer);
                     }
@@ -200,7 +203,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                     // 現在のProcessDetailに対応するタイマーがあるか、辞書から取得
                     if (timersByRecordId.TryGetValue(detail.Id, out var detailTimers))
                     {
-                        foreach (Models.Timer timer in detailTimers)
+                        foreach (Timer timer in detailTimers)
                         {
                             if (timer == null) continue;
 
@@ -266,7 +269,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="cycleId"></param>
         /// <param name="count"></param>
         public void SaveWithOperation(
-            List<Models.Timer> timers,
+            List<Timer> timers,
             List<Operation> operations,
             int startNum, int plcId, ref int count)
         {
@@ -281,7 +284,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 var existingLookup = allExisting.ToDictionary(m => (m.MnemonicId, m.RecordId, m.TimerId), m => m);
 
                 // 2. タイマーをRecordIdごとに整理した辞書を作成
-                var timersByRecordId = new Dictionary<int, List<Models.Timer>>();
+                var timersByRecordId = new Dictionary<int, List<Timer>>();
                 var operationTimersSource = timers.Where(t => t.MnemonicId == (int)MnemonicType.Operation);
 
                 foreach (var timer in operationTimersSource)
@@ -292,7 +295,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                     {
                         if (!timersByRecordId.ContainsKey(recordId))
                         {
-                            timersByRecordId[recordId] = new List<Models.Timer>();
+                            timersByRecordId[recordId] = new List<Timer>();
                         }
                         timersByRecordId[recordId].Add(timer);
                     }
@@ -306,7 +309,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                     // 現在のOperationに対応するタイマーがあるか、辞書から取得
                     if (timersByRecordId.TryGetValue(operation.Id, out var operationTimers))
                     {
-                        foreach (Models.Timer timer in operationTimers)
+                        foreach (Timer timer in operationTimers)
                         {
                             if (timer == null) continue;
 
@@ -373,7 +376,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="plcId"></param>
         /// <param name="count"></param>
         public void SaveWithCY(
-            List<Models.Timer> timers,
+            List<Timer> timers,
             List<CY> cylinders,
             int startNum, int plcId, ref int count)
         {
@@ -388,7 +391,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 var existingLookup = allExisting.ToDictionary(m => (m.MnemonicId, m.RecordId, m.TimerId), m => m);
 
                 // 2. CYに関連するタイマーをRecordIdごとに整理した辞書を作成
-                var timersByRecordId = new Dictionary<int, List<Models.Timer>>();
+                var timersByRecordId = new Dictionary<int, List<Timer>>();
                 var cylinderTimersSource = timers.Where(t => t.MnemonicId == (int)MnemonicType.CY);
 
                 foreach (var timer in cylinderTimersSource)
@@ -399,7 +402,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                     {
                         if (!timersByRecordId.ContainsKey(recordId))
                         {
-                            timersByRecordId[recordId] = new List<Models.Timer>();
+                            timersByRecordId[recordId] = new List<Timer>();
                         }
                         timersByRecordId[recordId].Add(timer);
                     }
@@ -413,7 +416,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                     // 現在のCylinderに対応するタイマーがあるか、辞書から取得
                     if (timersByRecordId.TryGetValue(cylinder.Id, out var cylinderTimers))
                     {
-                        foreach (Models.Timer timer in cylinderTimers)
+                        foreach (Timer timer in cylinderTimers)
                         {
                             if (timer == null) continue;
 

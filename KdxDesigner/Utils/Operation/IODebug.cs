@@ -1,4 +1,5 @@
-﻿using KdxDesigner.Models;
+﻿using Kdx.Contracts.DTOs;
+using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;

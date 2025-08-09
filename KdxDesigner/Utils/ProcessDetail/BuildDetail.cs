@@ -4,6 +4,7 @@ using KdxDesigner.Services.Access;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.ViewModels;
+using Kdx.Contracts.DTOs;
 
 
 namespace KdxDesigner.Utils.ProcessDetail

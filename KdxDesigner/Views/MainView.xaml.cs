@@ -1,6 +1,7 @@
 ﻿using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.ViewModels;
+using Kdx.Contracts.DTOs;
 
 using System.Collections.Generic;
 using System.Linq;

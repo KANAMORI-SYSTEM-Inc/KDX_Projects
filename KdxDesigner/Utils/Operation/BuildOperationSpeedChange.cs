@@ -1,9 +1,11 @@
-﻿using KdxDesigner.Models;
+using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
+using Kdx.Contracts.DTOs;
+using OperationDto = Kdx.Contracts.DTOs.Operation;
 
 namespace KdxDesigner.Utils.Operation
 {
@@ -27,7 +29,7 @@ namespace KdxDesigner.Utils.Operation
             List<MnemonicDeviceWithOperation> operations,
             List<MnemonicDeviceWithCylinder> cylinders,
             List<MnemonicTimerDeviceWithOperation> timers,
-            List<KdxDesigner.Models.Error> mnemonicError,
+            List<Error> mnemonicError,
             List<ProsTime> prosTimes,
             List<MnemonicSpeedDevice> speeds,
             List<IO> ioList,
@@ -209,10 +211,10 @@ namespace KdxDesigner.Utils.Operation
         public class SpeedChangeStepConfig
         {
             public int TimerCategoryId { get; }
-            public Func<KdxDesigner.Models.Operation, string> SensorAccessor { get; } // KdxDesigner.Models.Define.Operation を適切な型に置き換えてください
+            public Func<OperationDto, string> SensorAccessor { get; }
             public string SensorPropertyName { get; } // エラーメッセージ用
 
-            public SpeedChangeStepConfig(int categoryId, Func<KdxDesigner.Models.Operation, string> accessor, string sensorPropertyName)
+            public SpeedChangeStepConfig(int categoryId, Func<OperationDto, string> accessor, string sensorPropertyName)
             {
                 TimerCategoryId = categoryId;
                 SensorAccessor = accessor;

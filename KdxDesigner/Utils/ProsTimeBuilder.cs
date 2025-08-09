@@ -1,4 +1,4 @@
-﻿using KdxDesigner.Models;
+using Kdx.Contracts.DTOs;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Utils.MnemonicCommon;
@@ -14,10 +14,10 @@ namespace KdxDesigner.Utils
         }
 
         public List<LadderCsvRow> Common(
-           Models.Operation operation,
-           List<ProsTime> prosTimes,
-           string label,
-           int outNum)
+            Kdx.Contracts.DTOs.Operation operation,
+            List<ProsTime> prosTimes,
+            string label,
+            int outNum)
         {
             List<LadderCsvRow>? result = new();
             List<ProsTime> prosTimeList = prosTimes.Where(p => p.RecordId == operation.Id).OrderBy(p => p.SortId).ToList();

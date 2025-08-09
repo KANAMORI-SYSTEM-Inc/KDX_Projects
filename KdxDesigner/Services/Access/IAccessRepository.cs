@@ -1,7 +1,7 @@
-﻿using KdxDesigner.Models;
-using KdxDesigner.Models.Define;
+using Kdx.Contracts.DTOs;
+using KdxDesigner.Models;
+using Timer = Kdx.Contracts.DTOs.Timer;
 
-using System.Collections.Generic;
 
 namespace KdxDesigner.Services.Access
 {
@@ -38,19 +38,19 @@ namespace KdxDesigner.Services.Access
         /// <summary>
         /// 全ての工程情報を取得します。
         /// </summary>
-        List<Models.Process> GetProcesses();
+        List<Process> GetProcesses();
 
         /// <summary>
         /// 全ての機械情報を取得します。
         /// </summary>
-        List<Models.Machine> GetMachines();
+        List<Machine> GetMachines();
 
         /// <summary>
         /// idで指定された機械情報を取得します。
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Models.Machine? GetMachineById(int id);
+        Machine? GetMachineById(int id);
 
         /// <summary>
         /// 全ての駆動部(主)情報を取得します。
@@ -90,13 +90,13 @@ namespace KdxDesigner.Services.Access
         /// <summary>
         /// 指定されたサイクルIDに紐づくタイマー情報を取得します。
         /// </summary
-        List<Models.Timer> GetTimers();
+        List<Kdx.Contracts.DTOs.Timer> GetTimers();
 
         /// <summary>
         /// 指定されたサイクルIDに紐づくタイマー情報を取得します。
         /// </summary>
         /// <param name="cycleId">取得対象のサイクルID。</param>
-        List<Models.Timer> GetTimersByCycleId(int cycleId);
+        List<Timer> GetTimersByCycleId(int cycleId);
 
         /// <summary>
         /// 指定されたサイクルIDに紐づくタイマー情報を取得します。
@@ -108,13 +108,13 @@ namespace KdxDesigner.Services.Access
         /// 新しいタイマーを追加します。
         /// </summary>
         /// <param name="timer">追加するタイマー情報。</param>
-        void AddTimer(Models.Timer timer);
+        void AddTimer(Timer timer);
 
         /// <summary>
         /// タイマー情報を更新します。
         /// </summary>
         /// <param name="timer">更新するタイマー情報。</param>
-        void UpdateTimer(Models.Timer timer);
+        void UpdateTimer(Timer timer);
 
         /// <summary>
         /// 指定されたIDのタイマーを削除します。

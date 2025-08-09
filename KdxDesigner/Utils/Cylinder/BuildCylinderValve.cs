@@ -4,6 +4,7 @@ using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
+using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.Utils.Cylinder
 {
@@ -91,7 +92,7 @@ namespace KdxDesigner.Utils.Cylinder
             result.AddRange(functions.CyclePulse());
 
             // 保持出力
-            switch (cylinder.Cylinder.MacineId)
+            switch (cylinder.Cylinder.MachineId)
             {
                 case 4:
                 case 7:
@@ -314,7 +315,7 @@ namespace KdxDesigner.Utils.Cylinder
             result.AddRange(functions.CyclePulse());
 
             // 保持出力
-            switch (cylinder.Cylinder.MacineId)
+            switch (cylinder.Cylinder.MachineId)
             {
                 case 4:
                 case 7:

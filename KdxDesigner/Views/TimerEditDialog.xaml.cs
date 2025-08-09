@@ -1,5 +1,6 @@
 using System.Windows;
 using KdxDesigner.Models;
+using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.Views
 {

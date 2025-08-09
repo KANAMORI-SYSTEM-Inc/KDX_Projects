@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
+using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
 
 namespace KdxDesigner.ViewModels

@@ -3,6 +3,7 @@
 using DocumentFormat.OpenXml.Wordprocessing;
 
 using KdxDesigner.Models;
+using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.ViewModels
 {

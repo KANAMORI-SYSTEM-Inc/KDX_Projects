@@ -1,23 +1,26 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
+using Kdx.Contracts.DTOs;
+using Timer = Kdx.Contracts.DTOs.Timer;
+using KdxDesigner.Models;
 
 namespace KdxDesigner.ViewModels
 {
     public partial class TimerViewModel : ObservableObject
     {
-        private readonly Models.Timer _timer;
+        private readonly Timer _timer;
         private bool _isDirty;
         private List<int> _recordIds;
 
-        public TimerViewModel(Models.Timer timer)
+        public TimerViewModel(Timer timer)
         {
             _timer = timer;
             _isDirty = false;
             _recordIds = new List<int>();
         }
 
-        public Models.Timer GetModel() => _timer;
+        public Timer GetModel() => _timer;
 
         public int ID => _timer.ID;
 

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
 using System.Windows;
+using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.Models
 {

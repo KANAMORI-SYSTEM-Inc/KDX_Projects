@@ -7,14 +7,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+// NSwag設定
+builder.Services.AddOpenApiDocument(config =>
 {
-    c.SwaggerDoc("v1", new() { Title = "KDX Migration API", Version = "v1" });
+    config.PostProcess = document =>
+    {
+        document.Info.Title = "KDX Migration API";
+        document.Info.Version = "v1";
+        document.Info.Description = "API for KDX system data migration and management";
+    };
 });
 
 // PostgreSQL DbContext設定
 builder.Services.AddDbContext<MigrationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // サービスの登録
 builder.Services.AddScoped<AccessDataService>();
@@ -37,8 +43,9 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // NSwag設定
+    app.UseOpenApi();
+    app.UseSwaggerUi();
     app.UseCors("DevelopmentPolicy");
 }
 

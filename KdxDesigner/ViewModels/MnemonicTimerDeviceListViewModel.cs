@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
 using KdxDesigner.Services.Access;
 using System.Collections.ObjectModel;
@@ -128,7 +129,7 @@ namespace KdxDesigner.ViewModels
                 // カテゴリ名を設定
                 if (device.TimerCategoryId.HasValue)
                 {
-                    var category = timerCategories.FirstOrDefault(c => c.ID == device.TimerCategoryId.Value);
+                    var category = timerCategories.FirstOrDefault(c => c.Id == device.TimerCategoryId.Value);
                     vm.CategoryName = category?.CategoryName ?? $"ID: {device.TimerCategoryId}";
                 }
                 

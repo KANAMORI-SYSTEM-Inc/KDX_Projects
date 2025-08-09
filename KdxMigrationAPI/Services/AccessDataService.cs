@@ -1,6 +1,6 @@
 using Dapper;
 using System.Data.OleDb;
-using KdxMigrationAPI.Models;
+using Kdx.Contracts.DTOs;
 
 namespace KdxMigrationAPI.Services
 {
@@ -14,8 +14,9 @@ namespace KdxMigrationAPI.Services
 
         public AccessDataService(IConfiguration configuration, ILogger<AccessDataService> logger)
         {
-            _connectionString = configuration.GetConnectionString("AccessDatabase") 
-                ?? throw new InvalidOperationException("Access database connection string not configured");
+            var databasePath = configuration["DatabasePath"] 
+                ?? throw new InvalidOperationException("Database path not configured");
+            _connectionString = $"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={databasePath};Persist Security Info=False;";
             _logger = logger;
         }
 

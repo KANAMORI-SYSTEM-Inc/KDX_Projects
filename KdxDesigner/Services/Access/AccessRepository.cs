@@ -1,5 +1,8 @@
-﻿using Dapper;
+using Dapper;
 
+using Kdx.Contracts.DTOs;
+using Process = Kdx.Contracts.DTOs.Process;
+using Timer = Kdx.Contracts.DTOs.Timer;
 using KdxDesigner.Models;
 
 using System.Data;
@@ -50,24 +53,24 @@ namespace KdxDesigner.Services.Access
             return connection.Query<Cycle>(sql).ToList();
         }
 
-        public List<Models.Process> GetProcesses()
+        public List<Process> GetProcesses()
         {
             using var connection = new OleDbConnection(ConnectionString);
             var sql = "SELECT * FROM Process";
-            return connection.Query<Models.Process>(sql).ToList();
+            return connection.Query<Process>(sql).ToList();
         }
 
-        public List<Models.Machine> GetMachines()
+        public List<Machine> GetMachines()
         {
             using var connection = new OleDbConnection(ConnectionString);
             var sql = "SELECT Id, MacineName, ShortName FROM Macine";
-            return connection.Query<Models.Machine>(sql).ToList();
+            return connection.Query<Machine>(sql).ToList();
         }
 
-        public Models.Machine? GetMachineById(int id)
+        public Machine? GetMachineById(int id)
         {
             using var connection = new OleDbConnection(ConnectionString);
-            return connection.QueryFirstOrDefault<Models.Machine>(
+            return connection.QueryFirstOrDefault<Machine>(
                 "SELECT * FROM Macine WHERE Id = @Id", new { Id = id });
         }
 
@@ -113,18 +116,18 @@ namespace KdxDesigner.Services.Access
             return connection.Query<CY>(sql, new { PlcId = plcId }).ToList();
         }
 
-        public List<Models.Timer> GetTimers()
+        public List<Timer> GetTimers()
         {
             using var connection = new OleDbConnection(ConnectionString);
             var sql = "SELECT * FROM Timer";
-            return connection.Query<Models.Timer>(sql).ToList();
+            return connection.Query<Timer>(sql).ToList();
         }
 
-        public List<Models.Timer> GetTimersByCycleId(int cycleId)
+        public List<Timer> GetTimersByCycleId(int cycleId)
         {
             using var connection = new OleDbConnection(ConnectionString);
             var sql = "SELECT * FROM Timer WHERE CycleId = @CycleId";
-            return connection.Query<Models.Timer>(sql, new { CycleId = cycleId }).ToList();
+            return connection.Query<Timer>(sql, new { CycleId = cycleId }).ToList();
         }
 
         public List<MnemonicTimerDevice> GetTimersByRecordId(int cycleId, int mnemonicId, int recordId)
@@ -139,7 +142,7 @@ namespace KdxDesigner.Services.Access
                           }).ToList();
         }
 
-        public void AddTimer(Models.Timer timer)
+        public void AddTimer(Timer timer)
         {
             using var connection = new OleDbConnection(ConnectionString);
             var sql = @"
@@ -160,7 +163,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?)";
             connection.Execute(sql, parameters);
         }
 
-        public void UpdateTimer(Models.Timer timer)
+        public void UpdateTimer(Timer timer)
         {
             using var connection = new OleDbConnection(ConnectionString);
             var sql = @"

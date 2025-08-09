@@ -1,6 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using Kdx.Contracts.DTOs;
+using Timer = Kdx.Contracts.DTOs.Timer;
+using Process = Kdx.Contracts.DTOs.Process;
 using KdxDesigner.Models;
 using KdxDesigner.Services.Access;
 
@@ -50,7 +53,7 @@ namespace KdxDesigner.ViewModels
         [ObservableProperty] private string _selectedNodeDisplayName = "";
         [ObservableProperty] private bool _isNodeSelected = false;
         [ObservableProperty] private int? _selectedNodeProcessId;
-        [ObservableProperty] private ObservableCollection<Models.Process> _processes = new();
+        [ObservableProperty] private ObservableCollection<Process> _processes = new();
 
         [ObservableProperty] private Point _mousePosition;
         [ObservableProperty] private bool _isConnecting;
@@ -65,8 +68,8 @@ namespace KdxDesigner.ViewModels
         [ObservableProperty] private ObservableCollection<CompositeProcessGroup> _compositeGroups = new();
         [ObservableProperty] private ObservableCollection<Operation> _operations = new();
         [ObservableProperty] private ObservableCollection<Operation> _filteredOperations = new();
-        [ObservableProperty] private ObservableCollection<Models.Timer> _availableTimers = new();
-        [ObservableProperty] private ObservableCollection<Models.Timer> _filteredTimers = new();
+        [ObservableProperty] private ObservableCollection<Timer> _availableTimers = new();
+        [ObservableProperty] private ObservableCollection<Timer> _filteredTimers = new();
         [ObservableProperty] private string _timerFilterText = "";
         [ObservableProperty] private bool _showOnlyOperationTimers = false;
         [ObservableProperty] private bool _highlightStartSensor = false;
@@ -476,7 +479,7 @@ namespace KdxDesigner.ViewModels
             }
         }
 
-        private void CreateCompositeGroups(Dictionary<int, ProcessFlowNode> nodeDict, List<Models.Process> processes)
+        private void CreateCompositeGroups(Dictionary<int, ProcessFlowNode> nodeDict, List<Process> processes)
         {
             // 複合工程のグループ化は現在使用していないためコメントアウト
             // 必要に応じて後で実装

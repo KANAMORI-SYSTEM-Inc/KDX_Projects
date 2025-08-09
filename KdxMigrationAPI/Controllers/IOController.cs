@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using KdxMigrationAPI.Data;
-using KdxMigrationAPI.Models;
+using Kdx.Contracts.DTOs;
 
 namespace KdxMigrationAPI.Controllers
 {

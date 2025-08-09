@@ -1,4 +1,5 @@
 ﻿using KdxDesigner.Models;
+using Kdx.Contracts.DTOs;
 
 using System.Collections.Generic;
 

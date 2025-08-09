@@ -1,6 +1,8 @@
-﻿using KdxDesigner.Models;
+﻿using Kdx.Contracts.DTOs;
+using KdxDesigner.Models;
 
 using System.Collections.Generic;
+using Timer = Kdx.Contracts.DTOs.Timer;
 
 namespace KdxDesigner.Services.MemonicTimerDevice
 {
@@ -55,7 +57,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="startNum">開始番号</param>
         /// <param name="plcId">PLC ID</param>
         /// <param name="count">カウント（参照渡し）</param>
-        void SaveWithDetail(List<Models.Timer> timers, List<ProcessDetail> details, int startNum, int plcId, ref int count);
+        void SaveWithDetail(List<Timer> timers, List<ProcessDetail> details, int startNum, int plcId, ref int count);
 
         /// <summary>
         /// Operationのタイマーデバイスを保存する
@@ -65,7 +67,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="startNum">開始番号</param>
         /// <param name="plcId">PLC ID</param>
         /// <param name="count">カウント（参照渡し）</param>
-        void SaveWithOperation(List<Models.Timer> timers, List<Operation> operations, int startNum, int plcId, ref int count);
+        void SaveWithOperation(List<Timer> timers, List<Operation> operations, int startNum, int plcId, ref int count);
 
         /// <summary>
         /// CY（シリンダー）のタイマーデバイスを保存する
@@ -75,6 +77,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="startNum">開始番号</param>
         /// <param name="plcId">PLC ID</param>
         /// <param name="count">カウント（参照渡し）</param>
-        void SaveWithCY(List<Models.Timer> timers, List<CY> cylinders, int startNum, int plcId, ref int count);
+        void SaveWithCY(List<Timer> timers, List<CY> cylinders, int startNum, int plcId, ref int count);
     }
 }

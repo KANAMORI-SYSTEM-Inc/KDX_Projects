@@ -1,9 +1,12 @@
-﻿using KdxDesigner.Models;
+using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
+using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Enums;
+
 
 namespace KdxDesigner.Utils.Cylinder
 {
@@ -39,7 +42,7 @@ namespace KdxDesigner.Utils.Cylinder
             {
                 _errorAggregator.AddError(new OutputError
                 {
-                    MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                    MnemonicId = (int)MnemonicType.CY,
                     RecordId = cylinder.Cylinder.Id,
                     RecordName = cylinder.Cylinder.CYNum,
                     Message = $"CY{cylinder.Cylinder.CYNum}のスピードデバイスが見つかりません。",
@@ -142,7 +145,7 @@ namespace KdxDesigner.Utils.Cylinder
                 {
                     _errorAggregator.AddError(new OutputError
                     {
-                        MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                        MnemonicId = (int)MnemonicType.CY,
                         RecordId = cylinder.Cylinder.Id,
                         RecordName = cylinder.Cylinder.CYNum,
                         Message = $"CY{cylinder.Cylinder.CYNum}の行き方向流量併用バルブが見つかりません。",
@@ -167,7 +170,7 @@ namespace KdxDesigner.Utils.Cylinder
                 {
                     _errorAggregator.AddError(new OutputError
                     {
-                        MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                        MnemonicId = (int)MnemonicType.CY,
                         RecordId = cylinder.Cylinder.Id,
                         RecordName = cylinder.Cylinder.CYNum,
                         Message = $"CY{cylinder.Cylinder.CYNum}の帰り方向流量併用バルブが見つかりません。",
@@ -217,7 +220,7 @@ namespace KdxDesigner.Utils.Cylinder
             {
                 _errorAggregator.AddError(new OutputError
                 {
-                    MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                    MnemonicId = (int)MnemonicType.CY,
                     RecordId = cylinder.Cylinder.Id,
                     RecordName = cylinder.Cylinder.CYNum,
                     Message = $"CY{cylinder.Cylinder.CYNum}のスピードデバイスが見つかりません。",
@@ -293,7 +296,7 @@ namespace KdxDesigner.Utils.Cylinder
             {
                 _errorAggregator.AddError(new OutputError
                 {
-                    MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                    MnemonicId = (int)MnemonicType.CY,
                     RecordId = cylinder.Cylinder.Id,
                     RecordName = cylinder.Cylinder.CYNum,
                     Message = $"CY{cylinder.Cylinder.CYNum}の強制減速タイマが見つかりません。",
@@ -343,7 +346,7 @@ namespace KdxDesigner.Utils.Cylinder
                 {
                     _errorAggregator.AddError(new OutputError
                     {
-                        MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                        MnemonicId = (int)MnemonicType.CY,
                         RecordId = cylinder.Cylinder.Id,
                         RecordName = cylinder.Cylinder.CYNum,
                         Message = $"CY{cylinder.Cylinder.CYNum}のスピードデバイスが見つかりません。",
@@ -375,7 +378,7 @@ namespace KdxDesigner.Utils.Cylinder
             {
                 _errorAggregator.AddError(new OutputError
                 {
-                    MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                    MnemonicId = (int)MnemonicType.CY,
                     RecordId = cylinder.Cylinder.Id,
                     RecordName = cylinder.Cylinder.CYNum,
                     Message = $"CY{cylinder.Cylinder.CYNum}のスピードデバイスが見つかりません。",
@@ -437,7 +440,7 @@ namespace KdxDesigner.Utils.Cylinder
                 {
                     _errorAggregator.AddError(new OutputError
                     {
-                        MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                        MnemonicId = (int)MnemonicType.CY,
                         RecordId = cylinder.Cylinder.Id,
                         RecordName = cylinder.Cylinder.CYNum,
                         Message = $"CY{cylinder.Cylinder.CYNum}の異常時BKタイマが見つかりません。",
@@ -449,7 +452,7 @@ namespace KdxDesigner.Utils.Cylinder
             {
                 _errorAggregator.AddError(new OutputError
                 {
-                    MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                    MnemonicId = (int)MnemonicType.CY,
                     RecordId = cylinder.Cylinder.Id,
                     RecordName = cylinder.Cylinder.CYNum,
                     Message = $"CY{cylinder.Cylinder.CYNum}のスピードデバイスが見つかりません。",
@@ -506,7 +509,7 @@ namespace KdxDesigner.Utils.Cylinder
                 {
                     _errorAggregator.AddError(new OutputError
                     {
-                        MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                        MnemonicId = (int)MnemonicType.CY,
                         RecordId = cylinder.Cylinder.Id,
                         RecordName = cylinder.Cylinder.CYNum,
                         Message = $"CY{cylinder.Cylinder.CYNum}のブレーキIO(S)が見つかりません。",
@@ -517,7 +520,7 @@ namespace KdxDesigner.Utils.Cylinder
             {
                 _errorAggregator.AddError(new OutputError
                 {
-                    MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                    MnemonicId = (int)MnemonicType.CY,
                     RecordId = cylinder.Cylinder.Id,
                     RecordName = cylinder.Cylinder.CYNum,
                     Message = $"CY{cylinder.Cylinder.CYNum}の正常時BKタイマが見つかりません。",
@@ -542,7 +545,7 @@ namespace KdxDesigner.Utils.Cylinder
             {
                 _errorAggregator.AddError(new OutputError
                 {
-                    MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                    MnemonicId = (int)MnemonicType.CY,
                     RecordId = cylinder.Cylinder.Id,
                     RecordName = cylinder.Cylinder.CYNum,
                     Message = $"CY{cylinder.Cylinder.CYNum}の正転指令IOが見つかりません。",
@@ -567,7 +570,7 @@ namespace KdxDesigner.Utils.Cylinder
             {
                 _errorAggregator.AddError(new OutputError
                 {
-                    MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                    MnemonicId = (int)MnemonicType.CY,
                     RecordId = cylinder.Cylinder.Id,
                     RecordName = cylinder.Cylinder.CYNum,
                     Message = $"CY{cylinder.Cylinder.CYNum}の逆転指令IOが見つかりません。",
@@ -609,7 +612,7 @@ namespace KdxDesigner.Utils.Cylinder
             {
                 _errorAggregator.AddError(new OutputError
                 {
-                    MnemonicId = (int)KdxDesigner.Models.Define.MnemonicType.CY,
+                    MnemonicId = (int)MnemonicType.CY,
                     RecordId = cylinder.Cylinder.Id,
                     RecordName = cylinder.Cylinder.CYNum,
                     Message = $"CY{cylinder.Cylinder.CYNum}の速度指令接点(RL, RM, RH)が見つかりません。",

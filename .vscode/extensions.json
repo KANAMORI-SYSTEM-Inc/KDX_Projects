@@ -1,0 +1,19 @@
+{
+  "recommendations": [
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.csdevkit",
+    "ms-vscode.mono-debug",
+    "ms-azuretools.vscode-docker",
+    "ms-vscode-remote.remote-containers",
+    "editorconfig.editorconfig",
+    "streetsidesoftware.code-spell-checker",
+    "shardulm94.trailing-spaces",
+    "donjayamanne.githistory",
+    "eamodio.gitlens",
+    "redhat.vscode-xml",
+    "formulahendry.dotnet-test-explorer",
+    "patcx.vscode-nuget-gallery",
+    "jmrog.vscode-nuget-package-manager",
+    "ms-vscode.powershell"
+  ]
+}

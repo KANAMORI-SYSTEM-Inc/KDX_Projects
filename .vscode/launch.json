@@ -1,0 +1,48 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch KdxDesigner",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-kdxdesigner",
+      "program": "${workspaceFolder}/KdxDesigner/bin/Debug/net8.0-windows/KdxDesigner.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/KdxDesigner",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "Launch KdxMigrationAPI",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-kdxmigrationapi",
+      "program": "${workspaceFolder}/KdxMigrationAPI/bin/Debug/net8.0/KdxMigrationAPI.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/KdxMigrationAPI",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+        "uriFormat": "%s/swagger"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5000"
+      },
+      "console": "internalConsole"
+    },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch All",
+      "configurations": ["Launch KdxDesigner", "Launch KdxMigrationAPI"],
+      "stopAll": true
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+@KdxMigrationAPI_HostAddress = http://localhost:5149
+
+GET {{KdxMigrationAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

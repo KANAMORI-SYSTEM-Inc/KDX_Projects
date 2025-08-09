@@ -1,0 +1,46 @@
+name: Docker Compose Test
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'docker-compose.yml'
+      - 'KdxMigrationAPI/Dockerfile'
+      - '**/*.sql'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docker-compose.yml'
+      - 'KdxMigrationAPI/Dockerfile'
+      - '**/*.sql'
+
+jobs:
+  docker-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Validate docker-compose
+      run: docker-compose config
+    
+    - name: Build Docker images
+      run: docker-compose build
+    
+    - name: Start services
+      run: |
+        docker-compose up -d
+        sleep 10
+    
+    - name: Check services health
+      run: |
+        docker-compose ps
+        docker-compose logs --tail=50
+    
+    - name: Test database connection
+      run: |
+        docker-compose exec -T postgres pg_isready -U kdx_user -d kdx_database
+    
+    - name: Stop services
+      if: always()
+      run: docker-compose down -v

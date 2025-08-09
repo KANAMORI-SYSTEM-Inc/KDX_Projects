@@ -1,4 +1,4 @@
-﻿// ViewModel: PlcSelectionViewModel.cs
+// ViewModel: PlcSelectionViewModel.cs
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -22,6 +22,7 @@ using KdxDesigner.Services.ProsTimeDevice;
 using KdxDesigner.Utils;
 using KdxDesigner.Views;
 
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -34,11 +35,11 @@ namespace KdxDesigner.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         protected private readonly IAccessRepository? _repository;
-        protected private readonly MnemonicDeviceService? _mnemonicService;
-        protected private readonly MnemonicTimerDeviceService? _timerService;
+        protected private readonly IMnemonicDeviceService? _mnemonicService;
+        protected private readonly IMnemonicTimerDeviceService? _timerService;
         protected private readonly ErrorService? _errorService;
         protected private readonly ProsTimeDeviceService? _prosTimeService;
-        protected private readonly MnemonicSpeedDeviceService? _speedService; // クラス名が不明なため仮定
+        protected private readonly IMnemonicSpeedDeviceService? _speedService;
         protected private readonly MemoryService? _memoryService;
         protected private readonly WpfIOSelectorService? _ioSelectorService;
         
@@ -163,11 +164,28 @@ namespace KdxDesigner.ViewModels
                 string connectionString = pathManager.CreateConnectionString(dbPath);
 
                 _repository = new AccessRepository(connectionString);
-                _mnemonicService = new MnemonicDeviceService(_repository);
-                _timerService = new MnemonicTimerDeviceService(_repository, this);
+                
+                // メモリストアを取得（App.xaml.csで登録済み）
+                var memoryStore = App.Services?.GetService<IMnemonicDeviceMemoryStore>() 
+                    ?? new MnemonicDeviceMemoryStore();
+                
+                // ハイブリッドサービスを作成（メモリオンリーモード）
+                var hybridService = new MnemonicDeviceHybridService(_repository, null, memoryStore);
+                hybridService.SetMemoryOnlyMode(true); // データベースアクセスを無効化
+                _mnemonicService = hybridService;
+                
+                // タイマーサービスもメモリストアを使用
+                var timerAdapter = new MnemonicTimerDeviceMemoryAdapter(_repository, this, memoryStore);
+                timerAdapter.SetMemoryOnlyMode(true); // データベースアクセスを無効化
+                _timerService = timerAdapter;
+                
+                // スピードサービスもメモリストアを使用
+                var speedAdapter = new MnemonicSpeedDeviceMemoryAdapter(_repository, memoryStore);
+                speedAdapter.SetMemoryOnlyMode(true); // データベースアクセスを無効化
+                _speedService = speedAdapter;
+                
                 _errorService = new ErrorService(_repository);
                 _prosTimeService = new ProsTimeDeviceService(_repository);
-                _speedService = new MnemonicSpeedDeviceService(_repository);
                 _memoryService = new MemoryService(_repository);
                 _ioSelectorService = new WpfIOSelectorService();
 
@@ -366,40 +384,6 @@ namespace KdxDesigner.ViewModels
             var view = new SettingsView();
             view.ShowDialog();
         }
-
-        // 工程フローは工程フロー詳細に統一されたため、このメソッドは使用されません
-        // [RelayCommand]
-        // private void OpenProcessFlow()
-        // {
-        //     if (SelectedCycle == null)
-        //     {
-        //         MessageBox.Show("サイクルを選択してください。", "情報", MessageBoxButton.OK, MessageBoxImage.Information);
-        //         return;
-        //     }
-        //
-        //     if (_repository == null)
-        //     {
-        //         MessageBox.Show("システムの初期化が不完全なため、処理を実行できません。", "エラー");
-        //         return;
-        //     }
-        //
-        //     viewModel.LoadProcessDetails(SelectedCycle.Id);
-        //     
-        //     var view = new ProcessFlowView(viewModel);
-        //     
-        //     // ウィンドウが閉じられたときにリストから削除
-        //     view.Closed += (s, e) =>
-        //     {
-        //         if (s is Window w)
-        //         {
-        //             _openProcessFlowWindows.Remove(w);
-        //         }
-        //     };
-        //     
-        //     // リストに追加して非モーダルで表示
-        //     _openProcessFlowWindows.Add(view);
-        //     view.Show();
-        // }
         
         [RelayCommand]
         private void OpenProcessFlowDetail()

@@ -169,6 +169,23 @@
           "Microsoft.Extensions.Configuration.Abstractions": "[8.0.0, )",
           "Microsoft.Extensions.Logging.Abstractions": "[8.0.2, )"
         }
+      },
+      "kdx.core": {
+        "type": "Project",
+        "dependencies": {
+          "Kdx.Contracts": "[1.0.0, )",
+          "Microsoft.Extensions.Configuration.Abstractions": "[8.0.0, )",
+          "Microsoft.Extensions.Logging.Abstractions": "[8.0.2, )"
+        }
+      },
+      "kdx.infrastructure": {
+        "type": "Project",
+        "dependencies": {
+          "Kdx.Contracts": "[1.0.0, )",
+          "Kdx.Core": "[1.0.0, )",
+          "Microsoft.Extensions.Configuration.Abstractions": "[8.0.0, )",
+          "Microsoft.Extensions.Logging.Abstractions": "[8.0.2, )"
+        }
       }
     }
   }

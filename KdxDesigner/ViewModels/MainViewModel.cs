@@ -54,12 +54,17 @@ namespace KdxDesigner.ViewModels
         [ObservableProperty] private ObservableCollection<Process> processes = new();
         [ObservableProperty] private ObservableCollection<ProcessDetail> processDetails = new();
         [ObservableProperty] private ObservableCollection<Operation> selectedOperations = new();
+        
+        [ObservableProperty] private ObservableCollection<ProcessCategory> processCategories = new();
+        [ObservableProperty] private ObservableCollection<ProcessDetailCategory> processDetailCategories = new();
+        [ObservableProperty] private ObservableCollection<OperationCategory> operationCategories = new();
 
         [ObservableProperty] private Company? selectedCompany;
         [ObservableProperty] private Model? selectedModel;
         [ObservableProperty] private PLC? selectedPlc;
         [ObservableProperty] private Cycle? selectedCycle;
         [ObservableProperty] private Process? selectedProcess;
+        [ObservableProperty] private ProcessDetail? selectedProcessDetail;
 
         // ﾗｲﾝ
         //[ObservableProperty] private int processDeviceStartL = 14000;
@@ -240,6 +245,11 @@ namespace KdxDesigner.ViewModels
             Companies = new ObservableCollection<Company>(_repository.GetCompanies());
             allProcesses = _repository.GetProcesses();
             allDetails = _repository.GetProcessDetails();
+            
+            // カテゴリデータの読み込み
+            ProcessCategories = new ObservableCollection<ProcessCategory>(_repository.GetProcessCategories());
+            ProcessDetailCategories = new ObservableCollection<ProcessDetailCategory>(_repository.GetProcessDetailCategories());
+            OperationCategories = new ObservableCollection<OperationCategory>(_repository.GetOperationCategories());
 
             // 設定ファイルを読み込む
             SettingsManager.Load();
@@ -321,8 +331,14 @@ namespace KdxDesigner.ViewModels
             if (!CanExecute()) return;
 
             if (value == null) return;
+            
+            // Processesをフィルタリング
             Processes = new ObservableCollection<Process>(
                 allProcesses.Where(p => p.CycleId == value.Id).OrderBy(p => p.SortNumber));
+            
+            // 選択されたCycleのOperationを読み込み
+            var operations = _repository!.GetOperationsByCycleId(value.Id);
+            SelectedOperations = new ObservableCollection<Operation>(operations.OrderBy(o => o.SortNumber));
 
             // 選択したサイクルIDを保存
             SettingsManager.Settings.LastSelectedCycleId = value.Id;
@@ -339,14 +355,12 @@ namespace KdxDesigner.ViewModels
                 return;
             }
 
+            // ProcessDetailが選択されてもSelectedOperationsは変更しない
+            // SelectedOperationsはCycleの全Operationを保持する
             if (selected?.OperationId != null)
             {
-                var op = _repository.GetOperationById(selected.OperationId.Value);
-                if (op != null)
-                {
-                    SelectedOperations.Clear();
-                    SelectedOperations.Add(op);
-                }
+                // 必要に応じて選択されたOperationの詳細を別途処理
+                // ただしSelectedOperationsコレクションは変更しない
             }
         }
 
@@ -379,6 +393,229 @@ namespace KdxDesigner.ViewModels
             view.Show(); // モードレスダイアログとして表示
         }
 
+        [RelayCommand]
+        private void AddNewProcess()
+        {
+            if (!CanExecute() || SelectedCycle == null) 
+            {
+                MessageBox.Show("サイクルを選択してください。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // 新しいProcessオブジェクトを作成
+                var newProcess = new Process
+                {
+                    ProcessName = "新規工程",
+                    CycleId = SelectedCycle.Id,
+                    SortNumber = Processes.Count > 0 ? Processes.Max(p => p.SortNumber ?? 0) + 1 : 1
+                };
+
+                // データベースに追加
+                int newId = _repository!.AddProcess(newProcess);
+                newProcess.Id = newId;
+
+                // コレクションとローカルリストに追加
+                Processes.Add(newProcess);
+                allProcesses.Add(newProcess);
+
+                MessageBox.Show("新しい工程を追加しました。", "追加完了", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"工程の追加中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void AddNewProcessDetail()
+        {
+            if (!CanExecute() || SelectedProcess == null)
+            {
+                MessageBox.Show("工程を選択してください。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // 新しいProcessDetailオブジェクトを作成
+                var newDetail = new ProcessDetail
+                {
+                    ProcessId = SelectedProcess.Id,
+                    DetailName = "新規詳細",
+                    CycleId = SelectedCycle?.Id,
+                    SortNumber = ProcessDetails.Count > 0 ? ProcessDetails.Max(d => d.SortNumber ?? 0) + 1 : 1
+                };
+
+                // データベースに追加
+                int newId = _repository!.AddProcessDetail(newDetail);
+                newDetail.Id = newId;
+
+                // コレクションとローカルリストに追加
+                ProcessDetails.Add(newDetail);
+                allDetails.Add(newDetail);
+
+                MessageBox.Show("新しい工程詳細を追加しました。", "追加完了", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"工程詳細の追加中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void AddNewOperation()
+        {
+            if (!CanExecute() || SelectedCycle == null)
+            {
+                MessageBox.Show("サイクルを選択してください。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // 新しいOperationオブジェクトを作成
+                var newOperation = new Operation
+                {
+                    OperationName = "新規操作",
+                    CycleId = SelectedCycle.Id,
+                    SortNumber = SelectedOperations.Count > 0 ? SelectedOperations.Max(o => o.SortNumber ?? 0) + 1 : 1
+                };
+
+                // データベースに追加
+                int newId = _repository!.AddOperation(newOperation);
+                newOperation.Id = newId;
+
+                // コレクションに追加
+                SelectedOperations.Add(newOperation);
+
+                MessageBox.Show("新しい操作を追加しました。", "追加完了", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"操作の追加中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        [RelayCommand]
+        private void SaveAllChanges()
+        {
+            if (!CanExecute()) return;
+
+            try
+            {
+                // Processの保存
+                foreach (var process in Processes)
+                {
+                    _repository!.UpdateProcess(process);
+                }
+
+                // ProcessDetailの保存
+                foreach (var detail in ProcessDetails)
+                {
+                    _repository!.UpdateProcessDetail(detail);
+                }
+
+                // Operationの保存
+                foreach (var operation in SelectedOperations)
+                {
+                    _repository!.UpdateOperation(operation);
+                }
+
+                MessageBox.Show("すべての変更を保存しました。", "保存完了", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void DeleteSelectedProcess()
+        {
+            if (SelectedProcess == null) return;
+
+            var result = MessageBox.Show($"工程 '{SelectedProcess.ProcessName}' を削除しますか？\n関連する工程詳細も削除されます。",
+                "削除確認", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    _repository!.DeleteProcess(SelectedProcess.Id);
+                    Processes.Remove(SelectedProcess);
+                    allProcesses.Remove(SelectedProcess);
+                    
+                    // 関連するProcessDetailも削除
+                    var detailsToRemove = ProcessDetails.Where(d => d.ProcessId == SelectedProcess.Id).ToList();
+                    foreach (var detail in detailsToRemove)
+                    {
+                        ProcessDetails.Remove(detail);
+                        allDetails.Remove(detail);
+                    }
+                    
+                    SelectedProcess = null;
+                    MessageBox.Show("工程を削除しました。", "削除完了", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"削除中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        [RelayCommand]
+        private void DeleteSelectedProcessDetail()
+        {
+            if (SelectedProcessDetail == null) return;
+
+            var result = MessageBox.Show($"工程詳細 '{SelectedProcessDetail.DetailName}' を削除しますか？",
+                "削除確認", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    _repository!.DeleteProcessDetail(SelectedProcessDetail.Id);
+                    ProcessDetails.Remove(SelectedProcessDetail);
+                    allDetails.Remove(SelectedProcessDetail);
+                    SelectedProcessDetail = null;
+                    MessageBox.Show("工程詳細を削除しました。", "削除完了", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"削除中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        [RelayCommand]
+        private void DeleteSelectedOperation()
+        {
+            if (SelectedOperations.Count == 0) return;
+
+            var operation = SelectedOperations.FirstOrDefault();
+            if (operation == null) return;
+
+            var result = MessageBox.Show($"操作 '{operation.OperationName}' を削除しますか？",
+                "削除確認", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    _repository!.DeleteOperation(operation.Id);
+                    SelectedOperations.Remove(operation);
+                    MessageBox.Show("操作を削除しました。", "削除完了", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"削除中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+        
         [RelayCommand]
         private void SaveOperation()
         {

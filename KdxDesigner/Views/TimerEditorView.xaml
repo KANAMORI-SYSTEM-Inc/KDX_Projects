@@ -9,6 +9,7 @@
     
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:NullCategoryConverter x:Key="NullCategoryConverter" xmlns:local="clr-namespace:KdxDesigner.Utils"/>
     </Window.Resources>
     
     <Grid>
@@ -36,6 +37,9 @@
             <Button Content="タイマー削除" Command="{Binding DeleteTimerCommand}" 
                     IsEnabled="{Binding IsTimerSelected}" Margin="5,0"/>
             <Separator/>
+            <Button Content="一括保存" Command="{Binding SaveAllTimersCommand}" 
+                    IsEnabled="{Binding HasChanges}" Margin="5,0" Background="LightYellow"
+                    ToolTip="DataGridで編集した内容をまとめて保存します"/>
             <Button Content="更新" Command="{Binding RefreshCommand}" Margin="5,0"
                     ToolTip="タイマー一覧を再読み込みします"/>
             <Separator/>
@@ -96,13 +100,60 @@
                               AutoGenerateColumns="False" CanUserAddRows="False" Margin="5">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ID" Binding="{Binding ID, Mode=OneWay}" Width="50" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="タイマー名" Binding="{Binding TimerName}" Width="150"/>
-                            <DataGridTextColumn Header="サイクル" Binding="{Binding CycleName, Mode=OneWay}" Width="100" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="カテゴリ" Binding="{Binding CategoryName, Mode=OneWay}" Width="100" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="タイマー番号" Binding="{Binding TimerNum, Mode=OneWay}" Width="80" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="MnemonicType" Binding="{Binding MnemonicTypeName, Mode=OneWay}" Width="120" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="タイマー名" Binding="{Binding TimerName, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                            <DataGridComboBoxColumn Header="サイクル" Width="100"
+                                                    SelectedValueBinding="{Binding CycleId}"
+                                                    SelectedValuePath="Id"
+                                                    DisplayMemberPath="CycleName">
+                                <DataGridComboBoxColumn.ElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="ItemsSource" Value="{Binding DataContext.Cycles, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                    </Style>
+                                </DataGridComboBoxColumn.ElementStyle>
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="ItemsSource" Value="{Binding DataContext.Cycles, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                            </DataGridComboBoxColumn>
+                            <DataGridTemplateColumn Header="カテゴリ" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding CategoryName}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <ComboBox ItemsSource="{Binding DataContext.TimerCategoriesWithNull, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                  SelectedValue="{Binding TimerCategoryId, UpdateSourceTrigger=PropertyChanged}"
+                                                  SelectedValuePath="Id">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={StaticResource NullCategoryConverter}}"/>
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="タイマー番号" Binding="{Binding TimerNum, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+                            <DataGridComboBoxColumn Header="MnemonicType" Width="120"
+                                                    SelectedValueBinding="{Binding MnemonicId}"
+                                                    SelectedValuePath="Id"
+                                                    DisplayMemberPath="TableName">
+                                <DataGridComboBoxColumn.ElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="ItemsSource" Value="{Binding DataContext.MnemonicTypes, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                    </Style>
+                                </DataGridComboBoxColumn.ElementStyle>
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="ItemsSource" Value="{Binding DataContext.MnemonicTypes, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                            </DataGridComboBoxColumn>
                             <DataGridTextColumn Header="RecordIds" Binding="{Binding RecordIdsDisplay, Mode=OneWay}" Width="200" IsReadOnly="True"/>
-                            <DataGridTextColumn Header="Example" Binding="{Binding Example, Mode=OneWay}" Width="80" IsReadOnly="True"/>
+                            <DataGridTextColumn Header="Example" Binding="{Binding Example, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -147,9 +198,15 @@
 
                         <!-- タイマーカテゴリ -->
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="カテゴリ:" VerticalAlignment="Center" Margin="0,5"/>
-                        <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding TimerCategories}" 
+                        <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding TimerCategoriesWithNull}" 
                                   SelectedValue="{Binding SelectedTimer.TimerCategoryId}"
-                                  SelectedValuePath="ID" DisplayMemberPath="CategoryName" Margin="0,5"/>
+                                  SelectedValuePath="Id" Margin="0,5">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource NullCategoryConverter}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
 
                         <!-- タイマー番号 -->
                         <TextBlock Grid.Row="4" Grid.Column="0" Text="タイマー番号:" VerticalAlignment="Center" Margin="0,5"/>

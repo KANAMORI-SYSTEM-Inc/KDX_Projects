@@ -78,6 +78,13 @@ dotnet restore
    - Graceful degradation when tables don't exist
    - Try-catch blocks return empty collections for missing tables
 
+4. **Process Flow Connections**
+   - ProcessDetailConnection: Normal connections between ProcessDetail nodes
+   - ProcessDetailFinish: Finish condition connections (Ctrl+Shift+Click)
+   - Finish conditions can be used with:
+     - Period processes (期間工程)
+     - Process OFF confirmation (工程OFF確認, CategoryId=13)
+
 ## Database Schema Considerations
 
 - Tables may not exist until features are used

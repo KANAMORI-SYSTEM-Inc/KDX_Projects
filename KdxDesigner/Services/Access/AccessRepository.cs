@@ -241,6 +241,13 @@ WHERE ID = ?";
             return connection.Query<Operation>(sql).ToList();
         }
 
+        public List<Operation> GetOperationsByCycleId(int cycleId)
+        {
+            using var connection = new OleDbConnection(ConnectionString);
+            var sql = @"SELECT * FROM Operation WHERE CycleId = ?";
+            return connection.Query<Operation>(sql, new { CycleId = cycleId }).ToList();
+        }
+
         public Operation? GetOperationById(int id)
         {
             using var connection = new OleDbConnection(ConnectionString);
@@ -294,6 +301,13 @@ WHERE Id = @Id";
             return connection.Query<ProcessDetail>(sql).ToList();
         }
 
+        public List<ProcessCategory> GetProcessCategories()
+        {
+            using var connection = new OleDbConnection(ConnectionString);
+            var sql = "SELECT * FROM ProcessCategory";
+            return connection.Query<ProcessCategory>(sql).ToList();
+        }
+        
         public List<ProcessDetailCategory> GetProcessDetailCategories()
         {
             using var connection = new OleDbConnection(ConnectionString);
@@ -307,6 +321,115 @@ WHERE Id = @Id";
             return connection.QueryFirstOrDefault<ProcessDetailCategory>(
                 "SELECT * FROM ProcessDetailCategory WHERE ID = @ID", new { ID = id });
         }
+        
+        public List<OperationCategory> GetOperationCategories()
+        {
+            using var connection = new OleDbConnection(ConnectionString);
+            var sql = "SELECT * FROM OperationCategory";
+            return connection.Query<OperationCategory>(sql).ToList();
+        }
+        
+        public int AddProcess(Process process)
+        {
+            using var connection = new OleDbConnection(ConnectionString);
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+            try
+            {
+                var sql = @"
+                    INSERT INTO Process (
+                        ProcessName, CycleId, TestStart, TestCondition, TestMode,
+                        AutoMode, AutoStart, ProcessCategoryId, ILStart, Comment1,
+                        Comment2, SortNumber
+                    ) VALUES (
+                        ?ProcessName?, ?CycleId?, ?TestStart?, ?TestCondition?, ?TestMode?,
+                        ?AutoMode?, ?AutoStart?, ?ProcessCategoryId?, ?ILStart?, ?Comment1?,
+                        ?Comment2?, ?SortNumber?
+                    )";
+
+                var parameters = new
+                {
+                    process.ProcessName,
+                    process.CycleId,
+                    process.TestStart,
+                    process.TestCondition,
+                    process.TestMode,
+                    process.AutoMode,
+                    process.AutoStart,
+                    process.ProcessCategoryId,
+                    process.ILStart,
+                    process.Comment1,
+                    process.Comment2,
+                    process.SortNumber
+                };
+
+                connection.Execute(sql, parameters, transaction);
+                
+                // 新しく追加されたレコードのIDを取得
+                var lastIdSql = "SELECT @@IDENTITY";
+                var newId = connection.QuerySingle<int>(lastIdSql, transaction: transaction);
+                
+                transaction.Commit();
+                return newId;
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                System.Diagnostics.Debug.WriteLine($"AddProcess error: {ex.Message}");
+                throw;
+            }
+        }
+        
+        public void UpdateProcess(Process process)
+        {
+            using var connection = new OleDbConnection(ConnectionString);
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+            try
+            {
+                var sql = @"
+                    UPDATE Process SET 
+                        ProcessName = ?ProcessName?,
+                        CycleId = ?CycleId?,
+                        TestStart = ?TestStart?,
+                        TestCondition = ?TestCondition?,
+                        TestMode = ?TestMode?,
+                        AutoMode = ?AutoMode?,
+                        AutoStart = ?AutoStart?,
+                        ProcessCategoryId = ?ProcessCategoryId?,
+                        ILStart = ?ILStart?,
+                        Comment1 = ?Comment1?,
+                        Comment2 = ?Comment2?,
+                        SortNumber = ?SortNumber?
+                    WHERE Id = ?Id?";
+
+                var parameters = new
+                {
+                    process.ProcessName,
+                    process.CycleId,
+                    process.TestStart,
+                    process.TestCondition,
+                    process.TestMode,
+                    process.AutoMode,
+                    process.AutoStart,
+                    process.ProcessCategoryId,
+                    process.ILStart,
+                    process.Comment1,
+                    process.Comment2,
+                    process.SortNumber,
+                    process.Id
+                };
+
+                connection.Execute(sql, parameters, transaction);
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                System.Diagnostics.Debug.WriteLine($"UpdateProcess error for Id {process.Id}: {ex.Message}");
+                throw;
+            }
+        }
 
         public void UpdateProcessDetail(ProcessDetail processDetail)
         {
@@ -319,6 +442,7 @@ WHERE Id = @Id";
                 // Dapperの疑似位置パラメータ構文を使用（OleDb対応）
                 var sql = @"
 UPDATE ProcessDetail SET
+    ProcessId = ?ProcessId?,
     DetailName = ?DetailName?,
     OperationId = ?OperationId?,
     StartSensor = ?StartSensor?,
@@ -334,6 +458,7 @@ WHERE Id = ?Id?";
 
                 connection.Execute(sql, new
                 {
+                    ProcessId = processDetail.ProcessId,
                     DetailName = processDetail.DetailName ?? "",
                     OperationId = processDetail.OperationId,
                     StartSensor = processDetail.StartSensor ?? "",
@@ -411,6 +536,38 @@ INSERT INTO ProcessDetail (
             }
         }
 
+        public void DeleteProcess(int id)
+        {
+            using var connection = new OleDbConnection(ConnectionString);
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+            try
+            {
+                // 関連するProcessDetailを先に削除
+                var deleteDetailsSql = "DELETE FROM ProcessDetail WHERE ProcessId = ?processId?";
+                connection.Execute(deleteDetailsSql, new { processId = id }, transaction);
+
+                // ProcessStartConditionを削除
+                var deleteStartSql = "DELETE FROM ProcessStartCondition WHERE ProcessId = ?processId?";
+                connection.Execute(deleteStartSql, new { processId = id }, transaction);
+
+                // ProcessFinishConditionを削除
+                var deleteFinishSql = "DELETE FROM ProcessFinishCondition WHERE ProcessId = ?processId?";
+                connection.Execute(deleteFinishSql, new { processId = id }, transaction);
+
+                // Processを削除
+                var deleteSql = "DELETE FROM Process WHERE Id = ?id?";
+                connection.Execute(deleteSql, new { id }, transaction);
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
         public void DeleteProcessDetail(int id)
         {
             using var connection = new OleDbConnection(ConnectionString);
@@ -434,6 +591,30 @@ INSERT INTO ProcessDetail (
                 // ProcessDetailテーブルから削除
                 var sql = "DELETE FROM ProcessDetail WHERE Id = ?id?";
                 connection.Execute(sql, new { id }, transaction);
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
+        public void DeleteOperation(int id)
+        {
+            using var connection = new OleDbConnection(ConnectionString);
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+            try
+            {
+                // 関連するProcessDetailのOperationIdをnullに設定
+                var updateDetailsSql = "UPDATE ProcessDetail SET OperationId = NULL WHERE OperationId = ?operationId?";
+                connection.Execute(updateDetailsSql, new { operationId = id }, transaction);
+
+                // Operationを削除
+                var deleteSql = "DELETE FROM Operation WHERE Id = ?id?";
+                connection.Execute(deleteSql, new { id }, transaction);
 
                 transaction.Commit();
             }
@@ -898,13 +1079,31 @@ INSERT INTO ProcessDetail (
 
             try
             {
+                // デバッグ: テーブル内の全データ数を確認
+                var countSql = "SELECT COUNT(*) FROM ProcessStartCondition";
+                var totalCount = connection.ExecuteScalar<int>(countSql);
+                System.Diagnostics.Debug.WriteLine($"[AccessRepository] Total ProcessStartCondition records in table: {totalCount}");
+                
+                // デバッグ: 最初の数件を確認
+                if (totalCount > 0)
+                {
+                    var sampleSql = "SELECT TOP 5 * FROM ProcessStartCondition";
+                    var samples = connection.Query<ProcessStartCondition>(sampleSql).ToList();
+                    foreach (var sample in samples)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AccessRepository] Sample: ProcessId={sample.ProcessId}, StartProcessDetailId={sample.StartProcessDetailId}");
+                    }
+                }
+                
                 var sql = @"
                     SELECT psc.*, p.CycleId
                     FROM ProcessStartCondition AS psc
                     INNER JOIN Process AS p ON psc.ProcessId = p.Id
                     WHERE p.CycleId = ?";
 
-                return connection.Query<ProcessStartCondition>(sql, new { cycleId }).ToList();
+                var result = connection.Query<ProcessStartCondition>(sql, new { cycleId }).ToList();
+                System.Diagnostics.Debug.WriteLine($"[AccessRepository] ProcessStartConditions for CycleId {cycleId}: {result.Count} records");
+                return result;
             }
             catch (Exception ex)
             {
@@ -1015,13 +1214,31 @@ INSERT INTO ProcessDetail (
 
             try
             {
+                // デバッグ: テーブル内の全データ数を確認
+                var countSql = "SELECT COUNT(*) FROM ProcessFinishCondition";
+                var totalCount = connection.ExecuteScalar<int>(countSql);
+                System.Diagnostics.Debug.WriteLine($"[AccessRepository] Total ProcessFinishCondition records in table: {totalCount}");
+                
+                // デバッグ: 最初の数件を確認
+                if (totalCount > 0)
+                {
+                    var sampleSql = "SELECT TOP 5 * FROM ProcessFinishCondition";
+                    var samples = connection.Query<ProcessFinishCondition>(sampleSql).ToList();
+                    foreach (var sample in samples)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[AccessRepository] Sample: ProcessId={sample.ProcessId}, FinishProcessDetailId={sample.FinishProcessDetailId}");
+                    }
+                }
+                
                 var sql = @"
                     SELECT pfc.*, p.CycleId
                     FROM ProcessFinishCondition AS pfc
                     INNER JOIN Process AS p ON pfc.ProcessId = p.Id
                     WHERE p.CycleId = ?";
 
-                return connection.Query<ProcessFinishCondition>(sql, new { cycleId }).ToList();
+                var result = connection.Query<ProcessFinishCondition>(sql, new { cycleId }).ToList();
+                System.Diagnostics.Debug.WriteLine($"[AccessRepository] ProcessFinishConditions for CycleId {cycleId}: {result.Count} records");
+                return result;
             }
             catch (Exception ex)
             {

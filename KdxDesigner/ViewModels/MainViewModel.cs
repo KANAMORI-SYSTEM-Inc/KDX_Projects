@@ -43,7 +43,8 @@ namespace KdxDesigner.ViewModels
         protected private readonly IMnemonicSpeedDeviceService? _speedService;
         protected private readonly MemoryService? _memoryService;
         protected private readonly WpfIOSelectorService? _ioSelectorService;
-        
+        protected private readonly IMnemonicDeviceMemoryStore? _mnemonicMemoryStore;
+
         // 開いているProcessFlowDetailWindowのリスト
         private readonly List<Window> _openProcessFlowWindows = new();
 
@@ -180,7 +181,8 @@ namespace KdxDesigner.ViewModels
                 // メモリストアを取得（App.xaml.csで登録済み）
                 var memoryStore = App.Services?.GetService<IMnemonicDeviceMemoryStore>() 
                     ?? new MnemonicDeviceMemoryStore();
-                
+                _mnemonicMemoryStore = memoryStore;
+
                 // ハイブリッドサービスを作成（メモリオンリーモード）
                 var hybridService = new MnemonicDeviceHybridService(_repository, null, memoryStore);
                 hybridService.SetMemoryOnlyMode(true); // データベースアクセスを無効化
@@ -976,7 +978,7 @@ namespace KdxDesigner.ViewModels
             var plcId = SelectedPlc!.Id;
             var cycleId = SelectedCycle!.Id;
 
-            var devices = _mnemonicService!.GetMnemonicDevice(plcId);
+            var devices = _mnemonicMemoryStore.GetMnemonicDevices(plcId);
             var timers = _repository.GetTimersByCycleId(cycleId);
             var operations = _repository.GetOperations();
 

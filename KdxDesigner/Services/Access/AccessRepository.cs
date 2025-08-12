@@ -736,17 +736,17 @@ INSERT INTO ProcessDetail (
                 {
                     // Dapperの疑似位置パラメータ構文を使用（OleDb対応）
                     var sqlInsertHistory = @"INSERT INTO IOHistory 
-                                               (IoAddress, IoPlcId, PropertyName, OldValue, NewValue, ChangedAt, ChangedBy) 
+                                               (Address, IoPlcId, PropertyName, OldValue, NewValue, ChangedAt, ChangedBy) 
                                            VALUES 
-                                               (?IoAddress?, ?IoPlcId?, ?PropertyName?, ?OldValue?, ?NewValue?, ?ChangedAt?, ?ChangedBy?)";
+                                               (?Address?, ?PlId?, ?PropertyName?, ?OldValue?, ?NewValue?, ?ChangedAt?, ?ChangedBy?)";
 
                     // 各履歴をループし、匿名オブジェクトで実行
                     foreach (var history in histories)
                     {
                         connection.Execute(sqlInsertHistory, new
                         {
-                            IoAddress = history.IoAddress,
-                            IoPlcId = history.IoPlcId,
+                            Address = history.IoAddress,
+                            PlcId = history.IoPlcId,
                             PropertyName = history.PropertyName,
                             OldValue = history.OldValue,
                             NewValue = history.NewValue,

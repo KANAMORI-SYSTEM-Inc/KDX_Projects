@@ -83,9 +83,6 @@ namespace KdxDesigner.Services.MnemonicDevice
                     _mnemonicDevices[plcId] = new List<Models.MnemonicDevice>();
                 }
                 
-                // 既存のデバイスをクリア（同じPlcIdのもの）
-                _mnemonicDevices[plcId].Clear();
-                
                 // 新しいデバイスを追加
                 foreach (var device in devices)
                 {

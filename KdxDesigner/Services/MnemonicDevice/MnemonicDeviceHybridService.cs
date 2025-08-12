@@ -200,12 +200,6 @@ namespace KdxDesigner.Services.MnemonicDevice
             var existingMemories = _memoryStore.GetCachedMemories(plcId);
             existingMemories.AddRange(memories);
             _memoryStore.CacheGeneratedMemories(existingMemories, plcId);
-            
-            // データベースにも保存（メモリオンリーモードでない場合）
-            if (!_useMemoryStoreOnly)
-            {
-                _dbService.SaveMnemonicDeviceProcessDetail(details, startNum, plcId);
-            }
         }
         
         /// <summary>

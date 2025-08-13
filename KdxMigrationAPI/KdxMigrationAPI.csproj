@@ -20,8 +20,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="System.Data.OleDb" Version="8.0.1" />
-    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="System.Data.OleDb" Version="9.0.4" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
   </ItemGroup>
 
   <ItemGroup>

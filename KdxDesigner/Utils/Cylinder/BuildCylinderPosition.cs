@@ -34,7 +34,7 @@ namespace KdxDesigner.Utils.Cylinder
                 List<IO> ioList)
         {
             var result = new List<LadderCsvRow>();
-            var servo = _mainViewModel.selectedServo.FirstOrDefault(s => s.CylinderId == cylinder.Cylinder.Id); // 選択されたサーボの取得
+            var servo = _mainViewModel._selectedServo.FirstOrDefault(s => s.CylinderId == cylinder.Cylinder.Id); // 選択されたサーボの取得
             if (servo == null)
             {
                 _errorAggregator.AddError(new OutputError

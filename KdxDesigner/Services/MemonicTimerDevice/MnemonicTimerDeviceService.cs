@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 
 using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
@@ -164,8 +164,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="count"></param>
         public void SaveWithDetail(
             List<Timer> timers,
-            List<ProcessDetail> details,
-            int startNum, int plcId, ref int count)
+            List<ProcessDetail> details, int startNum, int plcId, ref int count)
         {
             using var connection = new OleDbConnection(_connectionString);
             connection.Open();
@@ -377,7 +376,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="count"></param>
         public void SaveWithCY(
             List<Timer> timers,
-            List<CY> cylinders,
+            List<Cylinder> cylinders,
             int startNum, int plcId, ref int count)
         {
             using var connection = new OleDbConnection(_connectionString);
@@ -409,7 +408,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 }
 
                 // 3. Cylinderをループし、関連するタイマーを処理
-                foreach (CY cylinder in cylinders)
+                foreach (Cylinder cylinder in cylinders)
                 {
                     if (cylinder == null) continue;
 
@@ -427,7 +426,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                             {
                                 case 6: // 異常時BK (EBT)
                                 case 7: // 正常時BK (NBT)
-
                                     timerStartWith = "T";
                                     break;
                                 default:

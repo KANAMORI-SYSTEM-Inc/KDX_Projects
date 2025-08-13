@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using KdxDesigner.Models;
+using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.Services.MnemonicDevice
 {

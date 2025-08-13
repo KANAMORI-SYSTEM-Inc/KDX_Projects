@@ -95,25 +95,25 @@ namespace KdxDesigner.Services.Access
                 "SELECT * FROM DriveSub WHERE Id = @Id", new { Id = id });
         }
 
-        public List<CY> GetCYs()
+        public List<Cylinder> GetCYs()
         {
             using var connection = new OleDbConnection(ConnectionString);
             var sql = "SELECT * FROM CY";
-            return connection.Query<CY>(sql).ToList();
+            return connection.Query<Cylinder>(sql).ToList();
         }
 
-        public CY? GetCYById(int id)
+        public Cylinder? GetCYById(int id)
         {
             using var connection = new OleDbConnection(ConnectionString);
-            return connection.QueryFirstOrDefault<CY>(
+            return connection.QueryFirstOrDefault<Cylinder>(
                 "SELECT * FROM CY WHERE Id = @Id", new { Id = id });
         }
         
-        public List<CY> GetCyList(int plcId)
+        public List<Cylinder> GetCyList(int plcId)
         {
             using var connection = new OleDbConnection(ConnectionString);
             var sql = "SELECT * FROM CY WHERE PlcId = @PlcId ORDER BY CYNum";
-            return connection.Query<CY>(sql, new { PlcId = plcId }).ToList();
+            return connection.Query<Cylinder>(sql, new { PlcId = plcId }).ToList();
         }
 
         public List<Timer> GetTimers()
@@ -663,7 +663,7 @@ INSERT INTO ProcessDetail (
 
         public void UpdateIoLinkDevices(IEnumerable<IO> ioRecordsToUpdate)
         {
-            if (!ioRecordsToUpdate.Any()) return;
+            if (!ioRecordsToUpdate.Any()) { return; }
 
             using var connection = new OleDbConnection(ConnectionString);
             connection.Open();

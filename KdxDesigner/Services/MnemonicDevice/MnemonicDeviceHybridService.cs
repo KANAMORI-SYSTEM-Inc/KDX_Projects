@@ -254,7 +254,7 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// CY用のニーモニックデバイスを保存
         /// </summary>
-        public void SaveMnemonicDeviceCY(List<CY> cylinders, int startNum, int plcId)
+        public void SaveMnemonicDeviceCY(List<Cylinder> cylinders, int startNum, int plcId)
         {
             var devices = new List<Models.MnemonicDevice>();
             var memories = new List<Kdx.Contracts.DTOs.Memory>();

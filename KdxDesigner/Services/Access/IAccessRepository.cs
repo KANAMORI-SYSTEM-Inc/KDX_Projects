@@ -85,20 +85,20 @@ namespace KdxDesigner.Services.Access
         /// <summary>
         /// 全てのシリンダー(CY)情報を取得します。
         /// </summary>
-        List<CY> GetCYs();
+        List<Cylinder> GetCYs();
         
         /// <summary>
         /// 指定されたPLC IDに紐づくシリンダー(CY)情報を取得します。
         /// </summary>
         /// <param name="plcId">取得対象のPLC ID。</param>
-        List<CY> GetCyList(int plcId);
+        List<Cylinder> GetCyList(int plcId);
 
         /// <summary>
         /// idで指定されたシリンダー(CY)情報を取得します。
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        CY? GetCYById(int id);
+        Cylinder? GetCYById(int id);
 
         /// <summary>
         /// 指定されたサイクルIDに紐づくタイマー情報を取得します。

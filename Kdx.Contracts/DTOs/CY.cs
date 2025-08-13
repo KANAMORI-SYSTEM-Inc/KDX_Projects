@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Kdx.Contracts.DTOs
 {
-    [Table("CY")]
-    public class CY
+    [Table("Cylinder")]
+    public class Cylinder
     {
         [Key]
         public int Id { get; set; }
@@ -26,7 +26,7 @@ namespace Kdx.Contracts.DTOs
         public string? RetentionSensorGo { get; set; }
         public string? RetentionSensorBack { get; set; }
         public int? SortNumber { get; set; }
-        public int? Cycle { get; set; }
+        public int? CycleId { get; set; }
         public int? FlowCount { get; set; }
         public string ManualButton { get; set; } = string.Empty;
         public string? FlowCYGo { get; set; } = string.Empty;

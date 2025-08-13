@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using Kdx.Contracts.DTOs;
@@ -49,13 +49,13 @@ namespace KdxDesigner.ViewModels
         /// CYリスト
         /// </summary>
         [ObservableProperty]
-        private ObservableCollection<CY> _cyList;
+        private ObservableCollection<Cylinder> _cyList;
         
         /// <summary>
         /// 選択されたCY
         /// </summary>
         [ObservableProperty]
-        private CY? _selectedCylinder;
+        private Cylinder? _selectedCylinder;
         
         /// <summary>
         /// 選択されたCYに関連付けられたIOリスト
@@ -152,7 +152,7 @@ namespace KdxDesigner.ViewModels
             IoRecordsView.Filter = FilterIoRecord;
             
             // CYリストの初期化
-            _cyList = new ObservableCollection<CY>();
+            _cyList = new ObservableCollection<Cylinder>();
             _associatedIoList = new ObservableCollection<CylinderIOViewModel>();
             
             // Operationリストの初期化
@@ -181,7 +181,7 @@ namespace KdxDesigner.ViewModels
             IoRecordsView.Refresh();
         }
         
-        partial void OnSelectedCylinderChanged(CY? value)
+        partial void OnSelectedCylinderChanged(Cylinder? value)
         {
             LoadAssociatedIoList();
         }
@@ -321,7 +321,7 @@ namespace KdxDesigner.ViewModels
                     var updatedIo = changedVm.GetModel();
                     ioToUpdate.Add(updatedIo);
 
-                    if (!originalIos.TryGetValue((changedVm.Address, changedVm.PlcId), out var originalIo)) continue;
+                    if (!originalIos.TryGetValue((changedVm.Address, changedVm.PlcId), out var originalIo)) { continue; }
 
                     var properties = typeof(IO).GetProperties();
                     foreach (var prop in properties)
@@ -528,7 +528,7 @@ namespace KdxDesigner.ViewModels
                 return true;
             }
             
-            if (item is CY cy)
+            if (item is Cylinder cy)
             {
                 string searchTerm = CyFilterText.ToLower();
                 return (cy.CYNum?.ToLower().Contains(searchTerm) ?? false) ||

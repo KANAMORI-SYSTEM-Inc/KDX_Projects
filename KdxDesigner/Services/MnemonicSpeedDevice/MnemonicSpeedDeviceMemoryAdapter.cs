@@ -84,7 +84,7 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
         /// <summary>
         /// シリンダーリストからスピードデバイスを保存
         /// </summary>
-        public void Save(List<CY> cylinders, int startNum, int plcId)
+        public void Save(List<Cylinder> cylinders, int startNum, int plcId)
         {
             // 既存のデータをクリア
             _memoryStore.ClearSpeedDevices(plcId);

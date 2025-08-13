@@ -1,12 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
+
 using KdxDesigner.Models;
 using KdxDesigner.Services.Access;
 using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.ViewModels;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 using Timer = Kdx.Contracts.DTOs.Timer;
 
 namespace KdxDesigner.Services.MemonicTimerDevice
@@ -20,12 +25,15 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         private readonly IMnemonicDeviceMemoryStore _memoryStore;
         private readonly MnemonicTimerDeviceService _dbService;
         private bool _useMemoryStoreOnly = true;
-        
+        private MainViewModel _mainViewModel;
+
+
         public MnemonicTimerDeviceMemoryAdapter(
             IAccessRepository repository,
             MainViewModel mainViewModel,
             IMnemonicDeviceMemoryStore memoryStore = null)
         {
+            _mainViewModel = mainViewModel ?? throw new ArgumentNullException(nameof(mainViewModel));
             _memoryStore = memoryStore ?? new MnemonicDeviceMemoryStore();
             _dbService = new MnemonicTimerDeviceService(repository, mainViewModel);
         }
@@ -91,25 +99,44 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 var timer = timers.FirstOrDefault(t => 
                     t.MnemonicId == (int)MnemonicType.ProcessDetail && 
                     t.CycleId == detail.CycleId);
-                if (timer == null) continue;
-                
+
+                if (timer == null)
+                {
+                    continue;
+                }
+
+                var timerStartWith = "";
+
+                switch (timer.TimerCategoryId)
+                {
+                    case 6: // 異常時BK (EBT)
+                    case 7: // 正常時BK (NBT)
+                        timerStartWith = "T";
+                        break;
+                    default:
+                        timerStartWith = "ST";
+                        break;
+
+                }
+
+                var processTimerDevice = timerStartWith + (count + _mainViewModel.DeviceStartT);
+                var timerDevice = "ZR" + (timer.TimerNum + _mainViewModel.TimerStartZR);
+
                 var device = new MnemonicTimerDevice
                 {
                     MnemonicId = (int)MnemonicType.ProcessDetail,
-                    RecordId = detail.Id,
+                    RecordId = detail.Id, // ★ 現在のdetail.IdをRecordIdとして設定
                     TimerId = timer.ID,
                     TimerCategoryId = timer.TimerCategoryId,
-                    ProcessTimerDevice = $"T{startNum + count}",
-                    TimerDevice = $"ZR{timer.TimerNum}",
+                    ProcessTimerDevice = processTimerDevice,
+                    TimerDevice = timerDevice,
                     PlcId = plcId,
                     CycleId = timer.CycleId,
-                    Comment1 = detail.DetailName,
-                    Comment2 = timer.Example?.ToString(),
-                    Comment3 = timer.TimerName
+                    Comment1 = timer.TimerName
                 };
-                
+
                 devices.Add(device);
-                
+
                 // メモリストアに保存
                 _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
                 
@@ -137,23 +164,41 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 var timer = timers.FirstOrDefault(t => 
                     t.MnemonicId == (int)MnemonicType.Operation && 
                     t.CycleId == operation.CycleId);
-                if (timer == null) continue;
-                
+                if (timer == null)
+                {
+                    continue;
+                }
+
+                var timerStartWith = "";
+
+                switch (timer.TimerCategoryId)
+                {
+                    case 6: // 異常時BK (EBT)
+                    case 7: // 正常時BK (NBT)
+                        timerStartWith = "T";
+                        break;
+                    default:
+                        timerStartWith = "ST";
+                        break;
+
+                }
+
+                var processTimerDevice = timerStartWith + (count + _mainViewModel.DeviceStartT);
+                var timerDevice = "ZR" + (timer.TimerNum + _mainViewModel.TimerStartZR);
+
                 var device = new MnemonicTimerDevice
                 {
-                    MnemonicId = (int)MnemonicType.Operation,
-                    RecordId = operation.Id,
+                    MnemonicId = (int)MnemonicType.ProcessDetail,
+                    RecordId = operation.Id, // ★ 現在のdetail.IdをRecordIdとして設定
                     TimerId = timer.ID,
                     TimerCategoryId = timer.TimerCategoryId,
-                    ProcessTimerDevice = $"T{startNum + count}",
-                    TimerDevice = $"ZR{timer.TimerNum}",
+                    ProcessTimerDevice = processTimerDevice,
+                    TimerDevice = timerDevice,
                     PlcId = plcId,
                     CycleId = timer.CycleId,
-                    Comment1 = operation.OperationName,
-                    Comment2 = timer.Example?.ToString(),
-                    Comment3 = timer.TimerName
+                    Comment1 = timer.TimerName
                 };
-                
+
                 devices.Add(device);
                 
                 // メモリストアに保存
@@ -172,14 +217,14 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <summary>
         /// CY（シリンダー）のタイマーデバイスを保存
         /// </summary>
-        public void SaveWithCY(List<Timer> timers, List<CY> cylinders, int startNum, int plcId, ref int count)
+        public void SaveWithCY(List<Timer> timers, List<Cylinder> cylinders, int startNum, int plcId, ref int count)
         {
             var devices = new List<MnemonicTimerDevice>();
             
             foreach (var cylinder in cylinders)
             {
                 // CYに関連するタイマーを検索
-                // MnemonicIdで関連付け（CYはCycleIdを持たない可能性がある）
+                // MnemonicIdで関連付け（CYはCycleIdを持つ）
                 var relevantTimers = timers.Where(t => t.MnemonicId == (int)MnemonicType.CY).ToList();
                 
                 foreach (var timer in relevantTimers)

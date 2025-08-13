@@ -1,18 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace KdxDesigner.Models
+namespace Kdx.Contracts.DTOs
 {
+    [Table("MnemonicTimerDevice", Schema = "dbo")]
     public class MnemonicTimerDevice
     {
         [Key]
         [Column(Order = 0)]
         public int MnemonicId { get; set; }             // Process: 1, ProcessDetail:2, Operation:3, CY:4
-        
+
         [Key]
         [Column(Order = 1)]
         public int RecordId { get; set; }               // MnemonicIdに対応するテーブルのレコードID
-        
+
         [Key]
         [Column(Order = 2)]
         public int TimerId { get; set; }                // TimerテーブルのID（NULLを許可しない）

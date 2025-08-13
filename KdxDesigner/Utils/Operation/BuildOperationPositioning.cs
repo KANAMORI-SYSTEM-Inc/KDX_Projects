@@ -45,7 +45,7 @@ namespace KdxDesigner.Utils.Operation
                 = new(operation, timers, cylinders, ioList, operationDetails, _mainViewModel, _errorAggregator, _ioAddressService);
             OperationHelper helper = new(_mainViewModel, _errorAggregator, _ioAddressService);
 
-            var servo = _mainViewModel.selectedServo.FirstOrDefault(s => s.CylinderId == operation.Operation.CYId);
+            var servo = _mainViewModel._selectedServo.FirstOrDefault(s => s.CylinderId == operation.Operation.CYId);
             string label = string.Empty;
             int outNum = 0;
 

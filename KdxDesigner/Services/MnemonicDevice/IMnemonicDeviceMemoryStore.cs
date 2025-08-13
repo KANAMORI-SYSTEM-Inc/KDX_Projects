@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using KdxDesigner.Models;
+using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.Services.MnemonicDevice
 {

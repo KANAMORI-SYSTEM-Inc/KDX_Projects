@@ -213,6 +213,27 @@ namespace KdxDesigner.Services
             };
         }
 
+        public MemoryProfile UpdateProfileFromWindow(MemoryProfile memoryProfile, string name, string description)
+        {
+            return new MemoryProfile
+            {
+                Name = name,
+                Description = description,
+                ProcessDeviceStartL = memoryProfile.ProcessDeviceStartL,
+                DetailDeviceStartL = memoryProfile.DetailDeviceStartL,
+                OperationDeviceStartM = memoryProfile.OperationDeviceStartM,
+                CylinderDeviceStartM = memoryProfile.CylinderDeviceStartM,
+                CylinderDeviceStartD = memoryProfile.CylinderDeviceStartD,
+                ErrorDeviceStartM = memoryProfile.ErrorDeviceStartM,
+                ErrorDeviceStartT = memoryProfile.ErrorDeviceStartT,
+                DeviceStartT = memoryProfile.DeviceStartT,
+                TimerStartZR = memoryProfile.TimerStartZR,
+                ProsTimeStartZR = memoryProfile.ProsTimeStartZR,
+                ProsTimePreviousStartZR = memoryProfile.ProsTimePreviousStartZR,
+                CyTimeStartZR = memoryProfile.CyTimeStartZR
+            };
+        }
+
         public void ApplyProfileToViewModel(MemoryProfile profile, MainViewModel mainViewModel)
         {
             mainViewModel.ProcessDeviceStartL = profile.ProcessDeviceStartL;

@@ -6,6 +6,7 @@ using KdxDesigner.Services;
 using KdxDesigner.Services.Access;
 using Kdx.Contracts.DTOs;
 
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -120,11 +121,10 @@ namespace KdxDesigner.ViewModels
 
             if (result == MessageBoxResult.Yes)
             {
-                var updatedProfile = _profileManager.CreateProfileFromCurrent(_mainViewModel, SelectedProfile.Name, SelectedProfile.Description);
-                updatedProfile.Id = SelectedProfile.Id;
-                updatedProfile.CreatedAt = SelectedProfile.CreatedAt;
-                
-                _profileManager.SaveProfile(updatedProfile);
+                // TextBoxにバインドされているSelectedProfileの値がすでに更新されているため、
+                // そのまま保存するだけで良い
+                SelectedProfile.UpdatedAt = DateTime.Now;
+                _profileManager.SaveProfile(SelectedProfile);
                 LoadProfiles();
                 
                 MessageBox.Show("プロファイルを更新しました。", "完了", MessageBoxButton.OK, MessageBoxImage.Information);

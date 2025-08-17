@@ -19,13 +19,14 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         private readonly MnemonicTimerDeviceService _dbService;
         private bool _useMemoryStoreOnly = true;
         private MainViewModel _mainViewModel;
-
+        private readonly IAccessRepository _repository;
 
         public MnemonicTimerDeviceMemoryAdapter(
             IAccessRepository repository,
             MainViewModel mainViewModel,
             IMnemonicDeviceMemoryStore memoryStore = null)
         {
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _mainViewModel = mainViewModel ?? throw new ArgumentNullException(nameof(mainViewModel));
             _memoryStore = memoryStore ?? new MnemonicDeviceMemoryStore();
             _dbService = new MnemonicTimerDeviceService(repository, mainViewModel);
@@ -151,54 +152,79 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         {
             var devices = new List<MnemonicTimerDevice>();
 
-            foreach (var operation in operations)
+            var allExisting = GetMnemonicTimerDeviceByMnemonic(plcId, (int)MnemonicType.Operation);
+            var existingLookup = allExisting.ToDictionary(m => (m.MnemonicId, m.RecordId, m.TimerId), m => m);
+
+            // 2. タイマーをRecordIdごとに整理した辞書を作成
+            var timersByRecordId = new Dictionary<int, List<Timer>>();
+            var operationTimersSource = timers.Where(t => t.MnemonicId == (int)MnemonicType.Operation);
+
+            foreach (var timer in operationTimersSource)
             {
-                // Operationに関連するタイマーを検索
-                // MnemonicIdとCycleIdで関連付け
-                var timer = timers.FirstOrDefault(t =>
-                    t.MnemonicId == (int)MnemonicType.Operation &&
-                    t.CycleId == operation.CycleId);
-                if (timer == null)
+                // 中間テーブルからRecordIdを取得
+                var recordIds = _repository.GetTimerRecordIds(timer.ID);
+                foreach (var recordId in recordIds)
                 {
-                    continue;
+                    if (!timersByRecordId.ContainsKey(recordId))
+                    {
+                        timersByRecordId[recordId] = new List<Timer>();
+                    }
+                    timersByRecordId[recordId].Add(timer);
                 }
+            }
 
-                var timerStartWith = "";
+            foreach (Operation operation in operations)
+            {
+                if (operation == null) continue;
 
-                switch (timer.TimerCategoryId)
+                if (timersByRecordId.TryGetValue(operation.Id, out var operationTimers))
                 {
-                    case 6: // 異常時BK (EBT)
-                    case 7: // 正常時BK (NBT)
-                        timerStartWith = "T";
-                        break;
-                    default:
-                        timerStartWith = "ST";
-                        break;
+                    foreach (Timer timer in operationTimers)
+                    {
+                        if (timer == null)
+                        {
+                            continue;
+                        }
 
+                        var timerStartWith = "";
+
+                        switch (timer.TimerCategoryId)
+                        {
+                            case 6: // 異常時BK (EBT)
+                            case 7: // 正常時BK (NBT)
+                                timerStartWith = "T";
+                                break;
+                            default:
+                                timerStartWith = "ST";
+                                break;
+
+                        }
+
+                        var processTimerDevice = timerStartWith + (count + _mainViewModel.DeviceStartT);
+                        var timerDevice = "ZR" + (timer.TimerNum + _mainViewModel.TimerStartZR);
+
+                        // 複合キー (MnemonicId, Operation.Id, Timer.ID) で既存レコードを検索
+                        var mnemonicId = (int)MnemonicType.Operation;
+                        existingLookup.TryGetValue((mnemonicId, operation.Id, timer.ID), out var existingRecord);
+
+                        var device = new MnemonicTimerDevice
+                        {
+                            MnemonicId = (int)MnemonicType.Operation,
+                            RecordId = operation.Id, // ★ 現在のdetail.IdをRecordIdとして設定
+                            TimerId = timer.ID,
+                            TimerCategoryId = timer.TimerCategoryId,
+                            ProcessTimerDevice = processTimerDevice,
+                            TimerDevice = timerDevice,
+                            PlcId = plcId,
+                            CycleId = timer.CycleId,
+                            Comment1 = timer.TimerName
+                        };
+
+                        // メモリストアに保存
+                        _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
+                        count++;
+                    }
                 }
-
-                var processTimerDevice = timerStartWith + (count + _mainViewModel.DeviceStartT);
-                var timerDevice = "ZR" + (timer.TimerNum + _mainViewModel.TimerStartZR);
-
-                var device = new MnemonicTimerDevice
-                {
-                    MnemonicId = (int)MnemonicType.Operation,
-                    RecordId = operation.Id, // ★ 現在のdetail.IdをRecordIdとして設定
-                    TimerId = timer.ID,
-                    TimerCategoryId = timer.TimerCategoryId,
-                    ProcessTimerDevice = processTimerDevice,
-                    TimerDevice = timerDevice,
-                    PlcId = plcId,
-                    CycleId = timer.CycleId,
-                    Comment1 = timer.TimerName
-                };
-
-                devices.Add(device);
-
-                // メモリストアに保存
-                _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
-
-                count++;
             }
 
             // データベースにも保存（メモリオンリーモードでない場合）

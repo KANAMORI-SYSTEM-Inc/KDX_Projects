@@ -130,7 +130,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     RecordId = process.Id,
                     DeviceLabel = "L",
                     StartNum = startNum,
-                    OutCoilCount = 10,
+                    OutCoilCount = 5,
                     PlcId = plcId,
                     Comment1 = process.ProcessName,
                     Comment2 = process.ProcessCategoryId?.ToString() ?? ""
@@ -145,7 +145,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     memories.Add(memory);
                 }
                 
-                startNum += 100; // 次のプロセス用にオフセット
+                startNum += 5; // 次のプロセス用にオフセット
             }
             
             // メモリストアに保存
@@ -175,7 +175,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     RecordId = detail.Id,
                     DeviceLabel = "L",
                     StartNum = startNum,
-                    OutCoilCount = 10,
+                    OutCoilCount = 5,
                     PlcId = plcId,
                     Comment1 = detail.DetailName,
                     Comment2 = detail.ProcessId.ToString()
@@ -190,7 +190,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     memories.Add(memory);
                 }
                 
-                startNum += 100;
+                startNum += 5;
             }
             
             // メモリストアに保存
@@ -218,7 +218,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     RecordId = operation.Id,
                     DeviceLabel = "M",
                     StartNum = startNum,
-                    OutCoilCount = 10,
+                    OutCoilCount = 20,
                     PlcId = plcId,
                     Comment1 = operation.OperationName,
                     Comment2 = operation.GoBack?.ToString() ?? ""
@@ -233,7 +233,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     memories.Add(memory);
                 }
                 
-                startNum += 100;
+                startNum += 20;
             }
             
             // メモリストアに保存
@@ -267,7 +267,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     RecordId = cylinder.Id,
                     DeviceLabel = "M",
                     StartNum = startNum,
-                    OutCoilCount = 10,
+                    OutCoilCount = 50,
                     PlcId = plcId,
                     Comment1 = cylinder.CYNum,
                     Comment2 = ""
@@ -282,7 +282,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     memories.Add(memory);
                 }
                 
-                startNum += 100;
+                startNum += 50;
             }
             
             // メモリストアに保存

@@ -311,7 +311,10 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                     {
                         foreach (Timer timer in operationTimers)
                         {
-                            if (timer == null) continue;
+                            if (timer == null)
+                            {
+                                continue;
+                            }
 
                             // デバイス番号の計算
                             var timerStartWith = "";

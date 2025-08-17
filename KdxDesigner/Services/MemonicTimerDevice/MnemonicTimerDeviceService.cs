@@ -267,6 +267,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="plcId"></param>
         /// <param name="cycleId"></param>
         /// <param name="count"></param>
+        /// issued by the user
         public void SaveWithOperation(
             List<Timer> timers,
             List<Operation> operations,
@@ -319,7 +320,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                             {
                                 case 6: // 異常時BK (EBT)
                                 case 7: // 正常時BK (NBT)
-
                                     timerStartWith = "T";
                                     break;
                                 default:
@@ -348,6 +348,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                                 Comment1 = timer.TimerName
                             };
 
+                            // MnemonicTimerDeviceを挿入または更新
                             UpsertMnemonicTimerDevice(connection, transaction, deviceToSave, existingRecord);
                             count++;
                         }

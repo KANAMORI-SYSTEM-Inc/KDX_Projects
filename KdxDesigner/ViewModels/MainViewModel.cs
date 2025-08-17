@@ -924,7 +924,6 @@ namespace KdxDesigner.ViewModels
             var cycleId = SelectedCycle!.Id;
 
             var devices = _mnemonicMemoryStore.GetMnemonicDevices(plcId);
-            var timers = _repository.GetTimersByCycleId(cycleId);
             var operations = _repository.GetOperations();
 
 
@@ -1286,11 +1285,6 @@ namespace KdxDesigner.ViewModels
                 TotalMemoryDeviceCount = 0;
             }
         }
-
-        #endregion
-
-        #region Data Migration Commands
-
 
         #endregion
 

@@ -1,16 +1,9 @@
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 
-using KdxDesigner.Models;
 using KdxDesigner.Services.Access;
 using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.ViewModels;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 using Timer = Kdx.Contracts.DTOs.Timer;
 
@@ -37,7 +30,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             _memoryStore = memoryStore ?? new MnemonicDeviceMemoryStore();
             _dbService = new MnemonicTimerDeviceService(repository, mainViewModel);
         }
-        
+
         /// <summary>
         /// メモリストアのみを使用するかどうかを設定
         /// </summary>
@@ -45,7 +38,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         {
             _useMemoryStoreOnly = useMemoryOnly;
         }
-        
+
         /// <summary>
         /// PlcIdとCycleIdに基づいてMnemonicTimerDeviceを取得
         /// </summary>
@@ -53,22 +46,22 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         {
             // メモリストアから取得
             var devices = _memoryStore.GetTimerDevices(plcId, cycleId);
-            
+
             // メモリストアにデータがない場合、データベースから取得
             if (!devices.Any() && !_useMemoryStoreOnly)
             {
                 devices = _dbService.GetMnemonicTimerDevice(plcId, cycleId);
-                
+
                 // データベースから取得したデータをメモリストアにキャッシュ
                 foreach (var device in devices)
                 {
                     _memoryStore.AddOrUpdateTimerDevice(device, plcId, cycleId);
                 }
             }
-            
+
             return devices;
         }
-        
+
         /// <summary>
         /// すべてのMnemonicTimerDeviceレコードを削除
         /// </summary>
@@ -77,27 +70,27 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             // メモリストアをクリア（全体）
             // 注: 現在のメモリストアは個別のPlcId/CycleIdごとのクリアのみサポート
             // 必要に応じて拡張が必要
-            
+
             // データベースもクリア（メモリオンリーモードでない場合）
             if (!_useMemoryStoreOnly)
             {
                 _dbService.DeleteAllMnemonicTimerDevice();
             }
         }
-        
+
         /// <summary>
         /// ProcessDetailのタイマーデバイスを保存
         /// </summary>
         public void SaveWithDetail(List<Timer> timers, List<ProcessDetail> details, int startNum, int plcId, ref int count)
         {
             var devices = new List<MnemonicTimerDevice>();
-            
+
             foreach (var detail in details)
             {
                 // ProcessDetailに関連するタイマーを検索
                 // MnemonicIdとCycleIdで関連付け
-                var timer = timers.FirstOrDefault(t => 
-                    t.MnemonicId == (int)MnemonicType.ProcessDetail && 
+                var timer = timers.FirstOrDefault(t =>
+                    t.MnemonicId == (int)MnemonicType.ProcessDetail &&
                     t.CycleId == detail.CycleId);
 
                 if (timer == null)
@@ -139,30 +132,31 @@ namespace KdxDesigner.Services.MemonicTimerDevice
 
                 // メモリストアに保存
                 _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
-                
+
                 count++;
             }
-            
+
             // データベースにも保存（メモリオンリーモードでない場合）
             if (!_useMemoryStoreOnly)
             {
                 _dbService.SaveWithDetail(timers, details, startNum, plcId, ref count);
             }
         }
-        
+
         /// <summary>
         /// Operationのタイマーデバイスを保存
         /// </summary>
+        /// issued by the user
         public void SaveWithOperation(List<Timer> timers, List<Operation> operations, int startNum, int plcId, ref int count)
         {
             var devices = new List<MnemonicTimerDevice>();
-            
+
             foreach (var operation in operations)
             {
                 // Operationに関連するタイマーを検索
                 // MnemonicIdとCycleIdで関連付け
-                var timer = timers.FirstOrDefault(t => 
-                    t.MnemonicId == (int)MnemonicType.Operation && 
+                var timer = timers.FirstOrDefault(t =>
+                    t.MnemonicId == (int)MnemonicType.Operation &&
                     t.CycleId == operation.CycleId);
                 if (timer == null)
                 {
@@ -188,7 +182,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
 
                 var device = new MnemonicTimerDevice
                 {
-                    MnemonicId = (int)MnemonicType.ProcessDetail,
+                    MnemonicId = (int)MnemonicType.Operation,
                     RecordId = operation.Id, // ★ 現在のdetail.IdをRecordIdとして設定
                     TimerId = timer.ID,
                     TimerCategoryId = timer.TimerCategoryId,
@@ -200,36 +194,36 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 };
 
                 devices.Add(device);
-                
+
                 // メモリストアに保存
                 _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
-                
+
                 count++;
             }
-            
+
             // データベースにも保存（メモリオンリーモードでない場合）
             if (!_useMemoryStoreOnly)
             {
                 _dbService.SaveWithOperation(timers, operations, startNum, plcId, ref count);
             }
         }
-        
+
         /// <summary>
         /// CY（シリンダー）のタイマーデバイスを保存
         /// </summary>
         public void SaveWithCY(List<Timer> timers, List<Cylinder> cylinders, int startNum, int plcId, ref int count)
         {
             var devices = new List<MnemonicTimerDevice>();
-            
+
             foreach (var cylinder in cylinders)
             {
                 // CYに関連するタイマーを検索
                 // MnemonicIdで関連付け（CYはCycleIdを持つ）
                 var relevantTimers = timers.Where(t => t.MnemonicId == (int)MnemonicType.CY).ToList();
-                
+
                 foreach (var timer in relevantTimers)
                 {
-                
+
                     var device = new MnemonicTimerDevice
                     {
                         MnemonicId = (int)MnemonicType.CY,
@@ -244,50 +238,42 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                         Comment2 = timer.Example?.ToString(),
                         Comment3 = timer.TimerName
                     };
-                    
+
                     devices.Add(device);
-                    
+
                     // メモリストアに保存
                     _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
-                    
+
                     count++;
                 }
             }
-            
+
             // データベースにも保存（メモリオンリーモードでない場合）
             if (!_useMemoryStoreOnly)
             {
                 _dbService.SaveWithCY(timers, cylinders, startNum, plcId, ref count);
             }
         }
-        
+
         // その他のインターフェースメソッドの実装
         public List<MnemonicTimerDevice> GetMnemonicTimerDeviceByCycle(int plcId, int cycleId, int mnemonicId)
         {
             var devices = _memoryStore.GetTimerDevices(plcId, cycleId);
             return devices.Where(d => d.MnemonicId == mnemonicId).ToList();
         }
-        
+
         public List<MnemonicTimerDevice> GetMnemonicTimerDeviceByMnemonic(int plcId, int mnemonicId)
         {
             // 全サイクルのデータを取得する必要がある
             // 現在のメモリストアの制限により、データベースから取得
-            if (!_useMemoryStoreOnly)
-            {
-                return _dbService.GetMnemonicTimerDeviceByMnemonic(plcId, mnemonicId);
-            }
-            return new List<MnemonicTimerDevice>();
+            return !_useMemoryStoreOnly ? _dbService.GetMnemonicTimerDeviceByMnemonic(plcId, mnemonicId) : new List<MnemonicTimerDevice>();
         }
-        
+
         public List<MnemonicTimerDevice> GetMnemonicTimerDeviceByTimerId(int plcId, int timerId)
         {
             // タイマーIDでの検索
             // 現在のメモリストアの制限により、データベースから取得
-            if (!_useMemoryStoreOnly)
-            {
-                return _dbService.GetMnemonicTimerDeviceByTimerId(plcId, timerId);
-            }
-            return new List<MnemonicTimerDevice>();
+            return !_useMemoryStoreOnly ? _dbService.GetMnemonicTimerDeviceByTimerId(plcId, timerId) : new List<MnemonicTimerDevice>();
         }
     }
 }

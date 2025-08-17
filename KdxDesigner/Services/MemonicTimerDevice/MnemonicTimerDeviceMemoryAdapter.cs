@@ -241,37 +241,89 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         {
             var devices = new List<MnemonicTimerDevice>();
 
-            foreach (var cylinder in cylinders)
+            // 1. 既存データを取得し、(MnemonicId, RecordId, TimerId)の複合キーを持つ辞書に変換
+            var allExisting = GetMnemonicTimerDeviceByMnemonic(plcId, (int)MnemonicType.CY);
+            var existingLookup = allExisting.ToDictionary(m => (m.MnemonicId, m.RecordId, m.TimerId), m => m);
+
+            // 2. CYに関連するタイマーをRecordIdごとに整理した辞書を作成
+            var timersByRecordId = new Dictionary<int, List<Timer>>();
+            var cylinderTimersSource = timers.Where(t => t.MnemonicId == (int)MnemonicType.CY);
+
+            foreach (var timer in cylinderTimersSource)
             {
+                // 中間テーブルからRecordIdを取得
+                var recordIds = _repository.GetTimerRecordIds(timer.ID);
+                foreach (var recordId in recordIds)
+                {
+                    if (!timersByRecordId.ContainsKey(recordId))
+                    {
+                        timersByRecordId[recordId] = new List<Timer>();
+                    }
+                    timersByRecordId[recordId].Add(timer);
+                }
+            }
+
+            foreach (Cylinder cylinder in cylinders)
+            {
+                if (cylinder == null)
+                {
+                    continue;
+                }
+
                 // CYに関連するタイマーを検索
                 // MnemonicIdで関連付け（CYはCycleIdを持つ）
                 var relevantTimers = timers.Where(t => t.MnemonicId == (int)MnemonicType.CY).ToList();
 
-                foreach (var timer in relevantTimers)
+                // 現在のCylinderに対応するタイマーがあるか、辞書から取得
+                if (timersByRecordId.TryGetValue(cylinder.Id, out var cylinderTimers))
                 {
-
-                    var device = new MnemonicTimerDevice
+                    foreach (Timer timer in relevantTimers)
                     {
-                        MnemonicId = (int)MnemonicType.CY,
-                        RecordId = cylinder.Id,
-                        TimerId = timer.ID,
-                        TimerCategoryId = timer.TimerCategoryId,
-                        ProcessTimerDevice = $"T{startNum + count}",
-                        TimerDevice = $"ZR{timer.TimerNum}",
-                        PlcId = plcId,
-                        CycleId = timer.CycleId,
-                        Comment1 = cylinder.CYNum,
-                        Comment2 = timer.Example?.ToString(),
-                        Comment3 = timer.TimerName
-                    };
 
-                    devices.Add(device);
+                        if (timer == null) continue;
 
-                    // メモリストアに保存
-                    _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
+                        // デバイス番号の計算
+                        var timerStartWith = "";
 
-                    count++;
+                        switch (timer.TimerCategoryId)
+                        {
+                            case 6: // 異常時BK (EBT)
+                            case 7: // 正常時BK (NBT)
+                                timerStartWith = "T";
+                                break;
+                            default:
+                                timerStartWith = "ST";
+                                break;
+
+                        }
+
+                        var processTimerDevice = timerStartWith + (count + _mainViewModel.DeviceStartT);
+                        var timerDevice = "ZR" + (timer.TimerNum + _mainViewModel.TimerStartZR);
+
+                        // 複合キー (MnemonicId, Cylinder.Id, Timer.ID) で既存レコードを検索
+                        var mnemonicId = (int)MnemonicType.CY;
+                        existingLookup.TryGetValue((mnemonicId, cylinder.Id, timer.ID), out var existingRecord);
+
+                        var device = new MnemonicTimerDevice
+                        {
+                            MnemonicId = (int)MnemonicType.CY,
+                            RecordId = cylinder.Id, // ★ 現在のcylinder.IdをRecordIdとして設定
+                            TimerId = timer.ID,
+                            TimerCategoryId = timer.TimerCategoryId,
+                            ProcessTimerDevice = processTimerDevice,
+                            TimerDevice = timerDevice,
+                            PlcId = plcId,
+                            CycleId = timer.CycleId,
+                            Comment1 = timer.TimerName
+                        };
+
+                        // メモリストアに保存
+                        _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
+
+                        count++;
+                    }
                 }
+                
             }
 
             // データベースにも保存（メモリオンリーモードでない場合）

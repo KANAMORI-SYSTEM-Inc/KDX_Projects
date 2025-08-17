@@ -197,14 +197,20 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 // 3. ProcessDetailをループし、関連するタイマーを処理
                 foreach (ProcessDetail detail in details)
                 {
-                    if (detail == null) continue;
+                    if (detail == null)
+                    {
+                        continue;
+                    }
 
                     // 現在のProcessDetailに対応するタイマーがあるか、辞書から取得
                     if (timersByRecordId.TryGetValue(detail.Id, out var detailTimers))
                     {
                         foreach (Timer timer in detailTimers)
                         {
-                            if (timer == null) continue;
+                            if (timer == null)
+                            {
+                                continue;
+                            }
 
                             var timerStartWith = "";
 
@@ -414,14 +420,20 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 // 3. Cylinderをループし、関連するタイマーを処理
                 foreach (Cylinder cylinder in cylinders)
                 {
-                    if (cylinder == null) continue;
+                    if (cylinder == null)
+                    {
+                        continue;
+                    }
 
                     // 現在のCylinderに対応するタイマーがあるか、辞書から取得
                     if (timersByRecordId.TryGetValue(cylinder.Id, out var cylinderTimers))
                     {
                         foreach (Timer timer in cylinderTimers)
                         {
-                            if (timer == null) continue;
+                            if (timer == null)
+                            {
+                                continue;
+                            }
 
                             // デバイス番号の計算
                             var timerStartWith = "";

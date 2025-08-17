@@ -18,8 +18,8 @@ namespace Kdx.Contracts.DTOs
         [Column(Order = 2)]
         public int TimerId { get; set; }                // TimerテーブルのID（NULLを許可しない）
         public int? TimerCategoryId { get; set; }       // RecordIdに対応する処理番号
-        public string ProcessTimerDevice { get; set; } = "T0";  // RecordIdに対応する処理番号のデバイス
-        public string TimerDevice { get; set; } = "ZR0";        // 外部タイマのデバイス
+        public string TimerDeviceT { get; set; } = "T0";  // RecordIdに対応する処理番号のデバイス
+        public string TimerDeviceZR { get; set; } = "ZR0";        // 外部タイマのデバイス
         public int PlcId { get; set; }                  // PLCのID
         public int? CycleId { get; set; }               // サイクルID
         public string? Comment1 { get; set; }           // コメント1

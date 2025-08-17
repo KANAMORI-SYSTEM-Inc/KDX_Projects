@@ -119,8 +119,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             parameters.Add("RecordId", deviceToSave.RecordId, DbType.Int32);
             parameters.Add("TimerId", deviceToSave.TimerId, DbType.Int32);
             parameters.Add("TimerCategoryId", deviceToSave.TimerCategoryId, DbType.Int32);
-            parameters.Add("ProcessTimerDevice", deviceToSave.ProcessTimerDevice, DbType.String);
-            parameters.Add("TimerDevice", deviceToSave.TimerDevice, DbType.String);
+            parameters.Add("ProcessTimerDevice", deviceToSave.TimerDeviceT, DbType.String);
+            parameters.Add("TimerDevice", deviceToSave.TimerDeviceZR, DbType.String);
             parameters.Add("PlcId", deviceToSave.PlcId, DbType.Int32); // result[0]は常に安全
             parameters.Add("CycleId", deviceToSave.CycleId, DbType.Int32); // result[1]も常に安全
             parameters.Add("Comment1", deviceToSave.Comment1, DbType.String);
@@ -239,8 +239,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                                 RecordId = detail.Id, // ★ 現在のdetail.IdをRecordIdとして設定
                                 TimerId = timer.ID,
                                 TimerCategoryId = timer.TimerCategoryId,
-                                ProcessTimerDevice = processTimerDevice,
-                                TimerDevice = timerDevice,
+                                TimerDeviceT = processTimerDevice,
+                                TimerDeviceZR = timerDevice,
                                 PlcId = plcId,
                                 CycleId = timer.CycleId,
                                 Comment1 = timer.TimerName
@@ -350,8 +350,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                                 RecordId = operation.Id, // ★ TimerのRecordIdsではなく、現在のoperation.Idを使う
                                 TimerId = timer.ID,
                                 TimerCategoryId = timer.TimerCategoryId,
-                                ProcessTimerDevice = processTimerDevice,
-                                TimerDevice = timerDevice,
+                                TimerDeviceT = processTimerDevice,
+                                TimerDeviceZR = timerDevice,
                                 PlcId = plcId,
                                 CycleId = timer.CycleId,
                                 Comment1 = timer.TimerName
@@ -463,8 +463,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                                 RecordId = cylinder.Id, // ★ 現在のcylinder.IdをRecordIdとして設定
                                 TimerId = timer.ID,
                                 TimerCategoryId = timer.TimerCategoryId,
-                                ProcessTimerDevice = processTimerDevice,
-                                TimerDevice = timerDevice,
+                                TimerDeviceT = processTimerDevice,
+                                TimerDeviceZR = timerDevice,
                                 PlcId = plcId,
                                 CycleId = timer.CycleId,
                                 Comment1 = timer.TimerName

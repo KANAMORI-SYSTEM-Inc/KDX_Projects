@@ -2,12 +2,6 @@ using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using Kdx.Core.Domain.Services;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Kdx.Core.Domain.Factories
 {
     // Kdx.Core/Domain/Factories/MnemonicTimerDeviceFactory.cs
@@ -27,8 +21,8 @@ namespace Kdx.Core.Domain.Factories
                 RecordId = detail.Id,
                 TimerId = timer.ID,
                 TimerCategoryId = timer.TimerCategoryId,
-                ProcessTimerDevice = processTimerDevice,
-                TimerDevice = timerDevice,
+                TimerDeviceT = processTimerDevice,
+                TimerDeviceZR = timerDevice,
                 PlcId = plcId,
                 CycleId = timer.CycleId,
                 Comment1 = timer.TimerName

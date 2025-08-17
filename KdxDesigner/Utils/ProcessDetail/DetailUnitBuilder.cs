@@ -866,7 +866,7 @@ namespace KdxDesigner.Utils.ProcessDetail
                 foreach (var timer in timers)
                 {
                     // タイマの開始デバイスを取得
-                    result.Add(LadderRow.AddRST(timer.Timer.ProcessTimerDevice));
+                    result.Add(LadderRow.AddRST(timer.Timer.TimerDeviceT));
                 }
             }
             else
@@ -892,8 +892,8 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             result.Add(LadderRow.AddLD(_label + (_deviceNum + 1).ToString()));
             result.Add(LadderRow.AddANI(_label + (_deviceNum + 2).ToString()));
-            result.AddRange(LadderRow.AddTimer(stopTimer.Timer.ProcessTimerDevice, stopTimer.Timer.TimerDevice));
-            result.Add(LadderRow.AddLD(stopTimer.Timer.ProcessTimerDevice));
+            result.AddRange(LadderRow.AddTimer(stopTimer.Timer.TimerDeviceT, stopTimer.Timer.TimerDeviceZR));
+            result.Add(LadderRow.AddLD(stopTimer.Timer.TimerDeviceT));
             result.Add(LadderRow.AddOR(_label + (_deviceNum + 2).ToString()));
             result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_deviceNum + 2).ToString()));
@@ -954,7 +954,7 @@ namespace KdxDesigner.Utils.ProcessDetail
                 foreach (var timer in timers)
                 {
                     // タイマの開始デバイスを取得
-                    result.Add(LadderRow.AddRST(timer.Timer.ProcessTimerDevice));
+                    result.Add(LadderRow.AddRST(timer.Timer.TimerDeviceT));
                 }
             }
             else
@@ -980,8 +980,8 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             result.Add(LadderRow.AddLD(_label + (_deviceNum + 1).ToString()));
             result.Add(LadderRow.AddANI(_label + (_deviceNum + 4).ToString()));
-            result.AddRange(LadderRow.AddTimer(stopTimer.Timer.ProcessTimerDevice, stopTimer.Timer.TimerDevice));
-            result.Add(LadderRow.AddLD(stopTimer.Timer.ProcessTimerDevice));
+            result.AddRange(LadderRow.AddTimer(stopTimer.Timer.TimerDeviceT, stopTimer.Timer.TimerDeviceZR));
+            result.Add(LadderRow.AddLD(stopTimer.Timer.TimerDeviceT));
             result.Add(LadderRow.AddAND(SettingsManager.Settings.PauseSignal));
 
             result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));

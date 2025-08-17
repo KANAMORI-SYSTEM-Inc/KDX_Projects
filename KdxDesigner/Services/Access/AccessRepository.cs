@@ -997,8 +997,8 @@ INSERT INTO ProcessDetail (
                 connection.Execute(sql, new
                 {
                     device.TimerCategoryId,
-                    device.ProcessTimerDevice,
-                    device.TimerDevice,
+                    device.TimerDeviceT,
+                    device.TimerDeviceZR,
                     device.Comment1,
                     device.Comment2,
                     device.Comment3,
@@ -1052,8 +1052,8 @@ INSERT INTO ProcessDetail (
                     device.RecordId,
                     device.TimerId,
                     device.TimerCategoryId,
-                    device.ProcessTimerDevice,
-                    device.TimerDevice,
+                    device.TimerDeviceT,
+                    device.TimerDeviceZR,
                     device.PlcId,
                     device.CycleId,
                     device.Comment1,

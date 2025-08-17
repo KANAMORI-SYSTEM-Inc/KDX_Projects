@@ -168,8 +168,8 @@ namespace KdxDesigner.Utils.Operation
                 result.Add(LadderRow.AddLD(label + (outNum + 16).ToString()));
                 result.Add(LadderRow.AddANI(label + (outNum + 17).ToString()));
                 result.AddRange(LadderRow.AddTimer(
-                    operationTimerONWait.Timer.ProcessTimerDevice ?? "",
-                    operationTimerONWait.Timer.TimerDevice ?? ""
+                    operationTimerONWait.Timer.TimerDeviceT ?? "",
+                    operationTimerONWait.Timer.TimerDeviceZR ?? ""
                     ));
             }
 
@@ -178,7 +178,7 @@ namespace KdxDesigner.Utils.Operation
             // 深当たりタイマがある場合
             if (operationTimerONWait != null)
             {
-                result.Add(LadderRow.AddAND(operationTimerONWait.Timer.ProcessTimerDevice!));
+                result.Add(LadderRow.AddAND(operationTimerONWait.Timer.TimerDeviceT!));
             }
             result.Add(LadderRow.AddOR(label + (outNum + 17).ToString()));
             result.Add(LadderRow.AddAND(label + (outNum + 16).ToString()));

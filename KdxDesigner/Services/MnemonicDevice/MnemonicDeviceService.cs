@@ -202,6 +202,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
+                    _memoryService.SaveMemories(plcId, allMemoriesToSave);
                 }
 
                 transaction.Commit();
@@ -384,6 +385,8 @@ namespace KdxDesigner.Services.MnemonicDevice
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
+                    _memoryService.SaveMemories(plcId, allMemoriesToSave);
+
                 }
 
                 transaction.Commit();
@@ -558,6 +561,8 @@ namespace KdxDesigner.Services.MnemonicDevice
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
+                    _memoryService.SaveMemories(plcId, allMemoriesToSave);
+
                 }
 
                 transaction.Commit();
@@ -807,6 +812,8 @@ namespace KdxDesigner.Services.MnemonicDevice
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
+                    _memoryService.SaveMemories(plcId, allMemoriesToSave);
+
                 }
 
                 transaction.Commit();

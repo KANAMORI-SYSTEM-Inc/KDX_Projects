@@ -2,6 +2,7 @@ using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 
 using KdxDesigner.Services.Access;
+using KdxDesigner.Services.Memory;
 using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.ViewModels;
 
@@ -20,6 +21,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         private bool _useMemoryStoreOnly = false;
         private MainViewModel _mainViewModel;
         private readonly IAccessRepository _repository;
+        private readonly IMemoryService _memoryService;
+
 
         public MnemonicTimerDeviceMemoryAdapter(
             IAccessRepository repository,
@@ -30,6 +33,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             _mainViewModel = mainViewModel ?? throw new ArgumentNullException(nameof(mainViewModel));
             _memoryStore = memoryStore ?? new MnemonicDeviceMemoryStore();
             _dbService = new MnemonicTimerDeviceService(repository, mainViewModel);
+            _memoryService = new MemoryService(repository);
+
         }
 
         /// <summary>
@@ -92,6 +97,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             // 2. タイマーをRecordIdごとに整理した辞書を作成
             var timersByRecordId = new Dictionary<int, List<Timer>>();
             var detailTimersSource = timers.Where(t => t.MnemonicId == (int)MnemonicType.ProcessDetail);
+            var allMemoriesToSave = new List<Kdx.Contracts.DTOs.Memory>();
+
 
             foreach (var timer in detailTimersSource)
             {
@@ -155,8 +162,67 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                         _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
 
                         count++;
+
+                        // 出力タイマのメモリレコードを生成
+                        var memoryT = new Kdx.Contracts.DTOs.Memory
+                        {
+                            PlcId = plcId,
+                            Device = device.TimerDeviceT,
+                            MemoryCategory = 7, // T
+                            DeviceNumber = count + _mainViewModel.DeviceStartT,
+                            DeviceNumber1 = device.TimerDeviceT,
+                            DeviceNumber2 = "",
+                            Category = "操作タイマ",
+                            Row_1 = "操作ﾀｲﾏ",
+                            Row_2 = timer.TimerName,
+                            Row_3 = "",
+                            Row_4 = "",
+                            Direct_Input = timer.TimerName,
+                            Confirm = "",
+                            Note = "",
+                            GOT = "false",
+                            MnemonicId = (int)MnemonicType.CY,
+                            RecordId = device.RecordId,
+                            OutcoilNumber = 0
+                        };
+                        allMemoriesToSave.Add(memoryT);
+
+                        var memoryZR = new Kdx.Contracts.DTOs.Memory
+                        {
+                            PlcId = plcId,
+                            Device = device.TimerDeviceZR,
+                            MemoryCategory = 5, // ZR
+                            DeviceNumber = timer.TimerNum + _mainViewModel.TimerStartZR,
+                            DeviceNumber1 = device.TimerDeviceZR,
+                            DeviceNumber2 = "",
+                            Category = "操作タイマ",
+                            Row_1 = "操作ﾀｲﾏ",
+                            Row_2 = timer.TimerName,
+                            Row_3 = "",
+                            Row_4 = "",
+                            Direct_Input = timer.TimerName,
+                            Confirm = "",
+                            Note = "",
+                            GOT = "false",
+                            MnemonicId = (int)MnemonicType.CY,
+                            RecordId = device.RecordId,
+                            OutcoilNumber = 0
+                        };
+                        allMemoriesToSave.Add(memoryZR);
                     }
                 }
+            }
+
+            // --- 3. ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
+            if (allMemoriesToSave.Any())
+            {
+                var distinctOrderedMemories = allMemoriesToSave
+                    .GroupBy(m => m.Device)                  // Device ごとにグループ化
+                    .Select(g => g.First())                  // 最初の1件を採用（重複排除）
+                    .OrderBy(m => m.Device, StringComparer.Ordinal) // Device 順にソート
+                    .ToList();
+
+                _memoryService.SaveMemories(plcId, distinctOrderedMemories);
             }
 
             // データベースにも保存（メモリオンリーモードでない場合）
@@ -180,6 +246,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             // 2. タイマーをRecordIdごとに整理した辞書を作成
             var timersByRecordId = new Dictionary<int, List<Timer>>();
             var operationTimersSource = timers.Where(t => t.MnemonicId == (int)MnemonicType.Operation);
+            var allMemoriesToSave = new List<Kdx.Contracts.DTOs.Memory>();
 
             foreach (var timer in operationTimersSource)
             {
@@ -245,8 +312,71 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                         // メモリストアに保存
                         _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
                         count++;
+
+                        // --- 2. 対応するKdx.Contracts.DTOs.Memoryレコードを生成し、リストに蓄積 ---
+                        int mnemonicStartNum = count * 5 + startNum;
+
+                        // 出力タイマのメモリレコードを生成
+                        var memoryT = new Kdx.Contracts.DTOs.Memory
+                        {
+                            PlcId = plcId,
+                            Device = device.TimerDeviceT,
+                            MemoryCategory = 7, // T
+                            DeviceNumber = count + _mainViewModel.DeviceStartT,
+                            DeviceNumber1 = device.TimerDeviceT,
+                            DeviceNumber2 = "",
+                            Category = "操作タイマ",
+                            Row_1 = "操作ﾀｲﾏ",
+                            Row_2 = timer.TimerName,
+                            Row_3 = "",
+                            Row_4 = "",
+                            Direct_Input = timer.TimerName,
+                            Confirm = "",
+                            Note = "",
+                            GOT = "false",
+                            MnemonicId = (int)MnemonicType.CY,
+                            RecordId = device.RecordId,
+                            OutcoilNumber = 0
+                        };
+                        allMemoriesToSave.Add(memoryT);
+
+                        var memoryZR = new Kdx.Contracts.DTOs.Memory
+                        {
+                            PlcId = plcId,
+                            Device = device.TimerDeviceZR,
+                            MemoryCategory = 5, // ZR
+                            DeviceNumber = timer.TimerNum + _mainViewModel.TimerStartZR,
+                            DeviceNumber1 = device.TimerDeviceZR,
+                            DeviceNumber2 = "",
+                            Category = "操作タイマ",
+                            Row_1 = "操作ﾀｲﾏ",
+                            Row_2 = timer.TimerName,
+                            Row_3 = "",
+                            Row_4 = "",
+                            Direct_Input = timer.TimerName,
+                            Confirm = "",
+                            Note = "",
+                            GOT = "false",
+                            MnemonicId = (int)MnemonicType.CY,
+                            RecordId = device.RecordId,
+                            OutcoilNumber = 0
+                        };
+                        allMemoriesToSave.Add(memoryZR);
                     }
                 }
+            }
+
+            // --- 3. ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
+            // --- 3. ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
+            if (allMemoriesToSave.Any())
+            {
+                var distinctOrderedMemories = allMemoriesToSave
+                    .GroupBy(m => m.Device)                  // Device ごとにグループ化
+                    .Select(g => g.First())                  // 最初の1件を採用（重複排除）
+                    .OrderBy(m => m.Device, StringComparer.Ordinal) // Device 順にソート
+                    .ToList();
+
+                _memoryService.SaveMemories(plcId, distinctOrderedMemories);
             }
 
             // データベースにも保存（メモリオンリーモードでない場合）
@@ -270,6 +400,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             // 2. CYに関連するタイマーをRecordIdごとに整理した辞書を作成
             var timersByRecordId = new Dictionary<int, List<Timer>>();
             var cylinderTimersSource = timers.Where(t => t.MnemonicId == (int)MnemonicType.CY);
+            var allMemoriesToSave = new List<Kdx.Contracts.DTOs.Memory>();
 
             foreach (var timer in cylinderTimersSource)
             {
@@ -341,12 +472,76 @@ namespace KdxDesigner.Services.MemonicTimerDevice
 
                         // メモリストアに保存
                         _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
-
                         count++;
+
+                        // --- 2. 対応するKdx.Contracts.DTOs.Memoryレコードを生成し、リストに蓄積 ---
+                        int mnemonicStartNum = count * 5 + startNum;
+
+                        // 出力タイマのメモリレコードを生成
+                        var memoryT = new Kdx.Contracts.DTOs.Memory
+                        {
+                            PlcId = plcId,
+                            Device = device.TimerDeviceT,
+                            MemoryCategory = 7, // T
+                            DeviceNumber = count + _mainViewModel.DeviceStartT,
+                            DeviceNumber1 = device.TimerDeviceT,
+                            DeviceNumber2 = "",
+                            Category = "出力タイマ",
+                            Row_1 = "出力ﾀｲﾏ",
+                            Row_2 = timer.TimerName,
+                            Row_3 = "",
+                            Row_4 = "",
+                            Direct_Input = timer.TimerName,
+                            Confirm = "",
+                            Note = "",
+                            GOT = "false",
+                            MnemonicId = (int)MnemonicType.CY,
+                            RecordId = device.RecordId,
+                            OutcoilNumber = 0
+                        };
+                        allMemoriesToSave.Add(memoryT);
+
+                        var memoryZR = new Kdx.Contracts.DTOs.Memory
+                        {
+                            PlcId = plcId,
+                            Device = device.TimerDeviceZR,
+                            MemoryCategory = 5, // ZR
+                            DeviceNumber = timer.TimerNum + _mainViewModel.TimerStartZR,
+                            DeviceNumber1 = device.TimerDeviceZR,
+                            DeviceNumber2 = "",
+                            Category = "出力タイマ",
+                            Row_1 = "出力ﾀｲﾏ",
+                            Row_2 = timer.TimerName,
+                            Row_3 = "",
+                            Row_4 = "",
+                            Direct_Input = timer.TimerName,
+                            Confirm = "",
+                            Note = "",
+                            GOT = "false",
+                            MnemonicId = (int)MnemonicType.CY,
+                            RecordId = device.RecordId,
+                            OutcoilNumber = 0
+                        };
+                        allMemoriesToSave.Add(memoryZR);
+                        
                     }
                 }
-                
             }
+
+            // --- 3. ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
+            // データベースにも保存（メモリオンリーモードでない場合）
+            // --- 3. ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
+            if (allMemoriesToSave.Any())
+            {
+                var distinctOrderedMemories = allMemoriesToSave
+                    .GroupBy(m => m.Device)                  // Device ごとにグループ化
+                    .Select(g => g.First())                  // 最初の1件を採用（重複排除）
+                    .OrderBy(m => m.Device, StringComparer.Ordinal) // Device 順にソート
+                    .ToList();
+
+                _memoryService.SaveMemories(plcId, distinctOrderedMemories);
+            }
+
 
             // データベースにも保存（メモリオンリーモードでない場合）
             if (!_useMemoryStoreOnly)

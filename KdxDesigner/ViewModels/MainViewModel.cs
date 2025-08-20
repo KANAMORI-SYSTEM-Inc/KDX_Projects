@@ -122,6 +122,11 @@ namespace KdxDesigner.ViewModels
                 string connectionString = pathManager.CreateConnectionString(dbPath);
 
                 _repository = new AccessRepository(connectionString);
+                _prosTimeService = new ProsTimeDeviceService(_repository);
+                _memoryService = new MemoryService(_repository);
+                _ioSelectorService = new WpfIOSelectorService();
+                _errorService = new ErrorService(_repository);
+
 
                 // メモリストアを取得（App.xaml.csで登録済み）
                 var memoryStore = App.Services?.GetService<IMnemonicDeviceMemoryStore>()
@@ -129,7 +134,7 @@ namespace KdxDesigner.ViewModels
                 _mnemonicMemoryStore = memoryStore;
 
                 // ハイブリッドサービスを作成（メモリオンリーモード）
-                var hybridService = new MnemonicDeviceHybridService(_repository, null, memoryStore);
+                var hybridService = new MnemonicDeviceHybridService(_repository, _memoryService, memoryStore);
                 hybridService.SetMemoryOnlyMode(true); // データベースアクセスを無効化
                 _mnemonicService = hybridService;
 
@@ -143,10 +148,7 @@ namespace KdxDesigner.ViewModels
                 speedAdapter.SetMemoryOnlyMode(true); // データベースアクセスを無効化
                 _speedService = speedAdapter;
 
-                _errorService = new ErrorService(_repository);
-                _prosTimeService = new ProsTimeDeviceService(_repository);
-                _memoryService = new MemoryService(_repository);
-                _ioSelectorService = new WpfIOSelectorService();
+                
 
                 // 3. データベースの基本的な健全性チェック
                 if (_repository.GetCompanies().Count == 0)

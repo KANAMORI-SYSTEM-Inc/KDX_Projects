@@ -528,7 +528,6 @@ namespace KdxDesigner.Services.MnemonicDevice
                             17 => "出力切",
                             18 => "BK作動",
                             19 => "完了",
-
                             _ => ""
                         };
 
@@ -643,8 +642,6 @@ namespace KdxDesigner.Services.MnemonicDevice
 
                     // 結果を保持する変数を先に宣言し、デフォルト値を設定
                     string comment1 = "";
-
-
 
                     // 3. CYオブジェクトが取得でき、かつその中にMachineIdが存在するかチェック
                     if (cylinder != null && cylinder.MachineId.HasValue)

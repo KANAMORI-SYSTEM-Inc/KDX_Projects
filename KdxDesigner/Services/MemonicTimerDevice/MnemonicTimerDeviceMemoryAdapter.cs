@@ -161,8 +161,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                         // メモリストアに保存
                         _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
 
-                        count++;
-
                         // 出力タイマのメモリレコードを生成
                         var memoryT = new Kdx.Contracts.DTOs.Memory
                         {
@@ -209,6 +207,9 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                             OutcoilNumber = 0
                         };
                         allMemoriesToSave.Add(memoryZR);
+
+                        count++;
+
                     }
                 }
             }
@@ -219,7 +220,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 var distinctOrderedMemories = allMemoriesToSave
                     .GroupBy(m => m.Device)                  // Device ごとにグループ化
                     .Select(g => g.First())                  // 最初の1件を採用（重複排除）
-                    .OrderBy(m => m.Device, StringComparer.Ordinal) // Device 順にソート
+                    .OrderBy(m => m.DeviceNumber) // Device 順にソート
                     .ToList();
 
                 _memoryService.SaveMemories(plcId, distinctOrderedMemories);

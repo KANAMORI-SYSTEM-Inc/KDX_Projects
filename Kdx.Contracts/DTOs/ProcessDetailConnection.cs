@@ -12,7 +12,9 @@ namespace Kdx.Contracts.DTOs
         
         public int FromProcessDetailId { get; set; }
         
-        public int ToProcessDetailId { get; set; }
+        public int? ToProcessDetailId { get; set; }
+        
+        public int? ToProcessId { get; set; }
         
         public string? StartSensor { get; set; }
     }

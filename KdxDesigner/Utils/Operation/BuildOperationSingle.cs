@@ -90,8 +90,8 @@ namespace KdxDesigner.Utils.Operation
                 result.Add(LadderRow.AddANI(label + (outNum + 17).ToString()));
                 result.Add(LadderRow.AddAND(SettingsManager.Settings.PauseSignal));
                 result.AddRange(LadderRow.AddTimer(
-                    operationTimerONWait.Timer.ProcessTimerDevice ?? "",
-                    operationTimerONWait.Timer.TimerDevice ?? ""
+                    operationTimerONWait.Timer.TimerDeviceT ?? "",
+                    operationTimerONWait.Timer.TimerDeviceZR ?? ""
                     ));
             }
 
@@ -100,7 +100,7 @@ namespace KdxDesigner.Utils.Operation
             // 深当たりタイマがある場合
             if (operationTimerONWait != null)
             {
-                result.Add(LadderRow.AddAND(operationTimerONWait.Timer.ProcessTimerDevice!));
+                result.Add(LadderRow.AddAND(operationTimerONWait.Timer.TimerDeviceT!));
             }
             result.Add(LadderRow.AddOR(label + (outNum + 17).ToString()));
 
@@ -232,8 +232,8 @@ namespace KdxDesigner.Utils.Operation
                 result.Add(LadderRow.AddANI(label + (outNum + 17).ToString()));
 
                 result.AddRange(LadderRow.AddTimer(
-                    operationTimerONWait.Timer.ProcessTimerDevice ?? "",
-                    operationTimerONWait.Timer.TimerDevice ?? ""
+                    operationTimerONWait.Timer.TimerDeviceT ?? "",
+                    operationTimerONWait.Timer.TimerDeviceZR ?? ""
                     ));
             }
 
@@ -241,9 +241,9 @@ namespace KdxDesigner.Utils.Operation
             result.Add(LadderRow.AddOR(label + (outNum + 2).ToString()));
             
             // 深当たりタイマがある場合
-            if (operationTimerONWait != null && operationTimerONWait.Timer.ProcessTimerDevice != null)
+            if (operationTimerONWait != null && operationTimerONWait.Timer.TimerDeviceT != null)
             {
-                result.Add(LadderRow.AddAND(operationTimerONWait.Timer.ProcessTimerDevice));
+                result.Add(LadderRow.AddAND(operationTimerONWait.Timer.TimerDeviceT));
             }
             else
             {
@@ -274,8 +274,8 @@ namespace KdxDesigner.Utils.Operation
                 result.Add(LadderRow.AddLD(label + (outNum + 17).ToString()));
                 result.Add(LadderRow.AddANI(label + (outNum + 19).ToString()));
                 result.AddRange(LadderRow.AddTimer(
-                    operationTimerStable.Timer.ProcessTimerDevice ?? "",
-                    operationTimerStable.Timer.TimerDevice ?? ""
+                    operationTimerStable.Timer.TimerDeviceT ?? "",
+                    operationTimerStable.Timer.TimerDeviceZR ?? ""
                     ));
             }
 
@@ -284,7 +284,7 @@ namespace KdxDesigner.Utils.Operation
             // 深当たりタイマがある場合
             if (operationTimerStable != null)
             {
-                result.Add(LadderRow.AddAND(operationTimerStable!.Timer.ProcessTimerDevice!));
+                result.Add(LadderRow.AddAND(operationTimerStable!.Timer.TimerDeviceT!));
             }
             result.Add(LadderRow.AddOR(label + (outNum + 19).ToString()));
             result.Add(LadderRow.AddAND(label + (outNum + 18).ToString()));
@@ -374,17 +374,17 @@ namespace KdxDesigner.Utils.Operation
                 result.Add(LadderRow.AddLD(label + (outNum + 8).ToString()));
                 result.Add(LadderRow.AddANI(label + (outNum + 18).ToString()));
                 result.AddRange(LadderRow.AddTimer(
-                    operationTimerONWait.Timer.ProcessTimerDevice ?? "",
-                    operationTimerONWait.Timer.TimerDevice ?? ""
+                    operationTimerONWait.Timer.TimerDeviceT ?? "",
+                    operationTimerONWait.Timer.TimerDeviceZR ?? ""
                     ));
             }
 
             result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
             result.Add(LadderRow.AddOR(label + (outNum + 2).ToString()));
             // 深当たりタイマがある場合
-            if (operationTimerONWait != null && operationTimerONWait.Timer.ProcessTimerDevice != null)
+            if (operationTimerONWait != null && operationTimerONWait.Timer.TimerDeviceT != null)
             {
-                result.Add(LadderRow.AddAND(operationTimerONWait.Timer.ProcessTimerDevice));
+                result.Add(LadderRow.AddAND(operationTimerONWait.Timer.TimerDeviceT));
             }
             result.Add(LadderRow.AddOR(label + (outNum + 18).ToString()));
             result.Add(LadderRow.AddAND(label + (outNum + 17).ToString()));

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:KdxDesigner.ViewModels"
+        xmlns:utils="clr-namespace:KdxDesigner.Utils"
         mc:Ignorable="d"
         Title="KDX Designer - ラダープログラム自動生成システム" Height="1000" Width="1920"
         WindowStartupLocation="CenterScreen">
@@ -67,6 +68,11 @@
         </DrawingImage>
     </Window.Icon>
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <utils:BoolToColorConverter x:Key="BoolToColorConverter"/>
+    </Window.Resources>
+    
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
@@ -89,7 +95,9 @@
                 <Separator/>
             </MenuItem>
             <MenuItem Header="_編集">
-                <MenuItem Header="操作を保存" Command="{Binding SaveOperationCommand}" />
+                <MenuItem Header="すべての変更を保存" Command="{Binding SaveAllChangesCommand}" />
+                <Separator/>
+                <MenuItem Header="操作のみ保存" Command="{Binding SaveOperationCommand}" />
             </MenuItem>
         </Menu>
 
@@ -117,6 +125,68 @@
                         <Button Content="メモリ編集" Command="{Binding OpenMemoryEditorCommand}" Width="100" VerticalAlignment="Center"/>
                     </StackPanel>
                     
+                    <!-- メモリ設定状態の表示 -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,5,0,0">
+                        <TextBlock Text="メモリ設定状態:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Border BorderBrush="{Binding IsMemoryConfigured, Converter={StaticResource BoolToColorConverter}, ConverterParameter='Green|Gray'}" 
+                                BorderThickness="1" CornerRadius="3" Padding="5,2">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMemoryConfigured}" Value="True">
+                                            <Setter Property="Background" Value="#E6FFE6"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsMemoryConfigured}" Value="False">
+                                            <Setter Property="Background" Value="#F0F0F0"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="8" Height="8" Margin="0,0,5,0">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsMemoryConfigured}" Value="True">
+                                                    <Setter Property="Fill" Value="Green"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsMemoryConfigured}" Value="False">
+                                                    <Setter Property="Fill" Value="Gray"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <TextBlock Text="{Binding MemoryConfigurationStatus}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <TextBlock Text="デバイス数:" FontWeight="Bold" VerticalAlignment="Center" Margin="20,0,5,0"/>
+                        <TextBlock Text="{Binding TotalMemoryDeviceCount}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        
+                        <TextBlock Text="{Binding LastMemoryConfigTime}" VerticalAlignment="Center" Foreground="DarkGray" 
+                                   Visibility="{Binding IsMemoryConfigured, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,10,0"/>
+                        
+                        <!-- メモリデバイス一覧表示ボタン -->
+                        <Button Command="{Binding ShowMemoryDeviceListCommand}" 
+                                IsEnabled="{Binding IsMemoryConfigured}"
+                                Padding="10,3" Margin="10,0,0,0">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Opacity" Value="0.5"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📋" FontSize="14" Margin="0,0,5,0"/>
+                                <TextBlock Text="一覧表示" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    
                 </Grid>
             </GroupBox>
 
@@ -125,6 +195,8 @@
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="5">
                         <TextBlock Text="Cycle:" VerticalAlignment="Center" FontWeight="Bold"/>
                         <ComboBox ItemsSource="{Binding Cycles}" SelectedItem="{Binding SelectedCycle}" DisplayMemberPath="CycleName" Width="200" Margin="5,0"/>
+                        <Button Content="保存" Command="{Binding SaveAllChangesCommand}" Width="80" Height="25" Margin="10,0,0,0" 
+                                Background="#4CAF50" Foreground="White" FontWeight="Bold"/>
                     </StackPanel>
 
                     <Grid>
@@ -133,16 +205,136 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- 追加ボタンヘッダー -->
+                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Margin="5,0,5,5">
+                            <Button Content="＋ 工程追加" Command="{Binding AddNewProcessCommand}" 
+                                    Width="100" Height="25" Margin="0,0,5,0"
+                                    Background="#2196F3" Foreground="White" FontWeight="Bold"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="5,0,5,5">
+                            <Button Content="＋ 詳細追加" Command="{Binding AddNewProcessDetailCommand}" 
+                                    Width="100" Height="25" Margin="0,0,5,0"
+                                    Background="#2196F3" Foreground="White" FontWeight="Bold"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Margin="5,0,5,5">
+                            <Button Content="＋ 操作追加" Command="{Binding AddNewOperationCommand}" 
+                                    Width="100" Height="25" Margin="0,0,5,0"
+                                    Background="#2196F3" Foreground="White" FontWeight="Bold"/>
+                        </StackPanel>
 
-                        <DataGrid Grid.Column="0" Margin="5" x:Name="ProcessGrid" ItemsSource="{Binding Processes}" AutoGenerateColumns="True"
-                                  SelectionMode="Extended" SelectionUnit="FullRow" CanUserAddRows="False" IsReadOnly="True"
-                                  SelectionChanged="ProcessGrid_SelectionChanged"/>
+                        <DataGrid Grid.Row="1" Grid.Column="0" Margin="5" x:Name="ProcessGrid" ItemsSource="{Binding Processes}" AutoGenerateColumns="False"
+                                  SelectedItem="{Binding SelectedProcess}"
+                                  SelectionMode="Extended" SelectionUnit="FullRow" CanUserAddRows="False" IsReadOnly="False"
+                                  SelectionChanged="ProcessGrid_SelectionChanged" PreviewKeyDown="ProcessGrid_PreviewKeyDown">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="工程名" Binding="{Binding ProcessName}" Width="150"/>
+                                <DataGridComboBoxColumn Header="カテゴリ" 
+                                                        SelectedValueBinding="{Binding ProcessCategoryId}" 
+                                                        SelectedValuePath="Id"
+                                                        DisplayMemberPath="ProcessCategoryName" Width="100">
+                                    <DataGridComboBoxColumn.ElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="ItemsSource" Value="{Binding DataContext.ProcessCategories, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </Style>
+                                    </DataGridComboBoxColumn.ElementStyle>
+                                    <DataGridComboBoxColumn.EditingElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="ItemsSource" Value="{Binding DataContext.ProcessCategories, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </Style>
+                                    </DataGridComboBoxColumn.EditingElementStyle>
+                                </DataGridComboBoxColumn>
+                                <DataGridTextColumn Header="テスト開始" Binding="{Binding TestStart}" Width="80"/>
+                                <DataGridTextColumn Header="テスト条件" Binding="{Binding TestCondition}" Width="80"/>
+                                <DataGridTextColumn Header="自動開始" Binding="{Binding AutoStart}" Width="80"/>
+                                <DataGridTextColumn Header="コメント1" Binding="{Binding Comment1}" Width="150"/>
+                                <DataGridTextColumn Header="並び順" Binding="{Binding SortNumber}" Width="60"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
 
-                        <DataGrid Grid.Column="1" Margin="5" ItemsSource="{Binding ProcessDetails}" SelectedItem="{Binding SelectedProcessDetail}" AutoGenerateColumns="True"
-                                  SelectionChanged="DetailGrid_SelectionChanged" CanUserAddRows="False" IsReadOnly="True"/>
+                        <DataGrid Grid.Row="1" Grid.Column="1" Margin="5" ItemsSource="{Binding ProcessDetails}" SelectedItem="{Binding SelectedProcessDetail}" AutoGenerateColumns="False"
+                                  SelectionChanged="DetailGrid_SelectionChanged" CanUserAddRows="False" IsReadOnly="False" PreviewKeyDown="ProcessDetailGrid_PreviewKeyDown">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True" Width="40"/>
+                                <DataGridTextColumn Header="工程ID" Binding="{Binding ProcessId}" IsReadOnly="True" Width="60"/>
+                                <DataGridTextColumn Header="詳細名" Binding="{Binding DetailName}" Width="120"/>
+                                <DataGridComboBoxColumn Header="操作" 
+                                                        SelectedValueBinding="{Binding OperationId}" 
+                                                        SelectedValuePath="Id"
+                                                        DisplayMemberPath="OperationName" Width="120">
+                                    <DataGridComboBoxColumn.ElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="ItemsSource" Value="{Binding DataContext.SelectedOperations, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </Style>
+                                    </DataGridComboBoxColumn.ElementStyle>
+                                    <DataGridComboBoxColumn.EditingElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="ItemsSource" Value="{Binding DataContext.SelectedOperations, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </Style>
+                                    </DataGridComboBoxColumn.EditingElementStyle>
+                                </DataGridComboBoxColumn>
+                                <DataGridTextColumn Header="開始センサ" Binding="{Binding StartSensor}" Width="80"/>
+                                <DataGridTextColumn Header="終了センサ" Binding="{Binding FinishSensor}" Width="80"/>
+                                <DataGridComboBoxColumn Header="カテゴリ" 
+                                                        SelectedValueBinding="{Binding CategoryId}" 
+                                                        SelectedValuePath="Id"
+                                                        DisplayMemberPath="CategoryName" Width="80">
+                                    <DataGridComboBoxColumn.ElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="ItemsSource" Value="{Binding DataContext.ProcessDetailCategories, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </Style>
+                                    </DataGridComboBoxColumn.ElementStyle>
+                                    <DataGridComboBoxColumn.EditingElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="ItemsSource" Value="{Binding DataContext.ProcessDetailCategories, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </Style>
+                                    </DataGridComboBoxColumn.EditingElementStyle>
+                                </DataGridComboBoxColumn>
+                                <DataGridTextColumn Header="ブロック" Binding="{Binding BlockNumber}" Width="60"/>
+                                <DataGridTextColumn Header="スキップ" Binding="{Binding SkipMode}" Width="60"/>
+                                <DataGridTextColumn Header="サイクル" Binding="{Binding CycleId}" Width="60"/>
+                                <DataGridTextColumn Header="並び順" Binding="{Binding SortNumber}" Width="50"/>
+                                <DataGridTextColumn Header="コメント" Binding="{Binding Comment}" Width="150"/>
+                                <DataGridTextColumn Header="IL開始" Binding="{Binding ILStart}" Width="80"/>
+                                <DataGridTextColumn Header="開始タイマ" Binding="{Binding StartTimerId}" Width="80"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
 
-                        <DataGrid Grid.Column="2" Margin="5" ItemsSource="{Binding SelectedOperations}" AutoGenerateColumns="True" 
-                                  CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False"/>
+                        <DataGrid Grid.Row="1" Grid.Column="2" Margin="5" x:Name="OperationGrid" ItemsSource="{Binding SelectedOperations}" AutoGenerateColumns="False" 
+                                  CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="False" PreviewKeyDown="OperationGrid_PreviewKeyDown">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="操作名" Binding="{Binding OperationName}" Width="150"/>
+                                <DataGridComboBoxColumn Header="カテゴリ" 
+                                                        SelectedValueBinding="{Binding CategoryId}" 
+                                                        SelectedValuePath="Id"
+                                                        DisplayMemberPath="CategoryName" Width="100">
+                                    <DataGridComboBoxColumn.ElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="ItemsSource" Value="{Binding DataContext.OperationCategories, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </Style>
+                                    </DataGridComboBoxColumn.ElementStyle>
+                                    <DataGridComboBoxColumn.EditingElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="ItemsSource" Value="{Binding DataContext.OperationCategories, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                        </Style>
+                                    </DataGridComboBoxColumn.EditingElementStyle>
+                                </DataGridComboBoxColumn>
+                                <DataGridTextColumn Header="CY ID" Binding="{Binding CYId}" Width="60"/>
+                                <DataGridTextColumn Header="Stay" Binding="{Binding Stay}" Width="60"/>
+                                <DataGridTextColumn Header="GoBack" Binding="{Binding GoBack}" Width="60"/>
+                                <DataGridTextColumn Header="Start" Binding="{Binding Start}" Width="80"/>
+                                <DataGridTextColumn Header="Finish" Binding="{Binding Finish}" Width="80"/>
+                                <DataGridTextColumn Header="並び順" Binding="{Binding SortNumber}" Width="60"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Grid>
                 </DockPanel>
             </GroupBox>
@@ -220,8 +412,22 @@
                         </GroupBox>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0">
-                            <Button Content="メモリ設定" Command="{Binding MemorySettingCommand}" Width="120" Height="30" Margin="5"/>
-                            <Button Content="工程出力" Command="{Binding ProcessOutputCommand}" Width="120" Height="30" Margin="5"/>
+                            <Button Content="メモリ設定" Command="{Binding MemorySettingCommand}" Width="120" Height="30" Margin="5">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsMemoryConfigured}" Value="True">
+                                                <Setter Property="Background" Value="#90EE90"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="工程出力" Command="{Binding ProcessOutputCommand}" Width="120" Height="30" Margin="5">
+                                <Button.IsEnabled>
+                                    <Binding Path="IsMemoryConfigured"/>
+                                </Button.IsEnabled>
+                            </Button>
                             <Button Content="工程フロー詳細" Command="{Binding OpenProcessFlowDetailCommand}" Width="120" Height="30" Margin="5"/>
                             <CheckBox Content="デバッグモード" IsChecked="{Binding IsDebug, Mode=TwoWay}" Margin="5" HorizontalAlignment="Center"/>
                             <ProgressBar Height="20" Minimum="0" Maximum="{Binding MemoryProgressMax}" Value="{Binding MemoryProgressValue}" Margin="5" />

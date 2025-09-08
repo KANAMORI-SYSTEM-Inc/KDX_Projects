@@ -1,4 +1,4 @@
-﻿using KdxDesigner.Models;
+using KdxDesigner.Models;
 using Kdx.Contracts.DTOs;
 
 using System.Collections.Generic;
@@ -28,6 +28,6 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
         /// <param name="cys">シリンダーリスト</param>
         /// <param name="startNum">開始番号</param>
         /// <param name="plcId">PLC ID</param>
-        void Save(List<CY> cys, int startNum, int plcId);
+        void Save(List<Cylinder> cys, int startNum, int plcId);
     }
 }

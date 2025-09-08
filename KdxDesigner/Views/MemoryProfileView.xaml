@@ -79,40 +79,40 @@
                             </Grid.RowDefinitions>
                             
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="ProcessDeviceStartL:" Margin="0,2"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding ProcessDeviceStartL}" Margin="0,2"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ProcessDeviceStartL}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="DetailDeviceStartL:" Margin="0,2"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DetailDeviceStartL}" Margin="0,2"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding DetailDeviceStartL}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="OperationDeviceStartM:" Margin="0,2"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OperationDeviceStartM}" Margin="0,2"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding OperationDeviceStartM}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="CylinderDeviceStartM:" Margin="0,2"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CylinderDeviceStartM}" Margin="0,2"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CylinderDeviceStartM}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="CylinderDeviceStartD:" Margin="0,2"/>
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CylinderDeviceStartD}" Margin="0,2"/>
+                            <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding CylinderDeviceStartD}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="5" Grid.Column="0" Text="ErrorDeviceStartM:" Margin="0,2"/>
-                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding ErrorDeviceStartM}" Margin="0,2"/>
+                            <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding ErrorDeviceStartM}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="6" Grid.Column="0" Text="ErrorDeviceStartT:" Margin="0,2"/>
-                            <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding ErrorDeviceStartT}" Margin="0,2"/>
+                            <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding ErrorDeviceStartT}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="7" Grid.Column="0" Text="DeviceStartT:" Margin="0,2"/>
-                            <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding DeviceStartT}" Margin="0,2"/>
+                            <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding DeviceStartT}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="8" Grid.Column="0" Text="TimerStartZR:" Margin="0,2"/>
-                            <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding TimerStartZR}" Margin="0,2"/>
+                            <TextBox Grid.Row="8" Grid.Column="1" Text="{Binding TimerStartZR}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="9" Grid.Column="0" Text="ProsTimeStartZR:" Margin="0,2"/>
-                            <TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding ProsTimeStartZR}" Margin="0,2"/>
+                            <TextBox Grid.Row="9" Grid.Column="1" Text="{Binding ProsTimeStartZR}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="10" Grid.Column="0" Text="ProsTimePreviousStartZR:" Margin="0,2"/>
-                            <TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding ProsTimePreviousStartZR}" Margin="0,2"/>
+                            <TextBox Grid.Row="10" Grid.Column="1" Text="{Binding ProsTimePreviousStartZR}" Margin="0,2"/>
                             
                             <TextBlock Grid.Row="11" Grid.Column="0" Text="CyTimeStartZR:" Margin="0,2"/>
-                            <TextBlock Grid.Row="11" Grid.Column="1" Text="{Binding CyTimeStartZR}" Margin="0,2"/>
+                            <TextBox Grid.Row="11" Grid.Column="1" Text="{Binding CyTimeStartZR}" Margin="0,2"/>
                         </Grid>
                         
                         <!-- Memoryテーブルレコード数予測 -->

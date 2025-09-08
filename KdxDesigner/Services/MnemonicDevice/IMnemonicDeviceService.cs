@@ -1,4 +1,4 @@
-﻿using Kdx.Contracts.DTOs;
+using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
 
 using System.Collections.Generic;
@@ -67,6 +67,6 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <param name="cylinders">シリンダーリスト</param>
         /// <param name="startNum">開始番号</param>
         /// <param name="plcId">PLC ID</param>
-        void SaveMnemonicDeviceCY(List<CY> cylinders, int startNum, int plcId);
+        void SaveMnemonicDeviceCY(List<Cylinder> cylinders, int startNum, int plcId);
     }
 }

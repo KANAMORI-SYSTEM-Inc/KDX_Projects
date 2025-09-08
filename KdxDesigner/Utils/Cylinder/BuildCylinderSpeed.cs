@@ -317,14 +317,14 @@ namespace KdxDesigner.Utils.Cylinder
                     result.AddRange(LadderRow.AddLDE(speedDevice, "K1"));
                     result.AddRange(LadderRow.AddORE(speedDevice, "K5"));
                     result.Add(LadderRow.AddAND(label + (startNum + 37).ToString()));
-                    result.Add(LadderRow.AddRST(fltTimer.Timer.ProcessTimerDevice));
+                    result.Add(LadderRow.AddRST(fltTimer.Timer.TimerDeviceT));
 
                     result.AddRange(LadderRow.AddLDN(speedDevice, "K1"));
                     result.AddRange(LadderRow.AddANDN(speedDevice, "K5"));
                     result.Add(LadderRow.AddAND(label + (startNum + 37).ToString()));
-                    result.AddRange(LadderRow.AddTimer(fltTimer.Timer.ProcessTimerDevice, fltTimer.Timer.TimerDevice));
+                    result.AddRange(LadderRow.AddTimer(fltTimer.Timer.TimerDeviceT, fltTimer.Timer.TimerDeviceZR));
                     
-                    result.Add(LadderRow.AddLD(fltTimer.Timer.ProcessTimerDevice));
+                    result.Add(LadderRow.AddLD(fltTimer.Timer.TimerDeviceT));
                     result.Add(LadderRow.AddMPS());
                     result.Add(LadderRow.AddAND(label + (startNum + 35).ToString()));
                     result.AddRange(LadderRow.AddMOVSet("K1", speedDevice));
@@ -430,11 +430,11 @@ namespace KdxDesigner.Utils.Cylinder
                     result.Add(LadderRow.AddLDI(label + (startNum + 35).ToString()));
                     result.Add(LadderRow.AddANI(label + (startNum + 36).ToString()));
                     result.Add(LadderRow.AddMPS());
-                    result.Add(LadderRow.AddANI(ebtTimer.Timer.ProcessTimerDevice));
+                    result.Add(LadderRow.AddANI(ebtTimer.Timer.TimerDeviceT));
                     result.Add(LadderRow.AddANI(label + (startNum + 33).ToString()));
                     result.Add(LadderRow.AddOUT(label + (startNum + 34).ToString()));
                     result.Add(LadderRow.AddMPP());
-                    result.AddRange(LadderRow.AddTimer(ebtTimer.Timer.ProcessTimerDevice, ebtTimer.Timer.TimerDevice));
+                    result.AddRange(LadderRow.AddTimer(ebtTimer.Timer.TimerDeviceT, ebtTimer.Timer.TimerDeviceZR));
                 }
                 else
                 {
@@ -496,12 +496,12 @@ namespace KdxDesigner.Utils.Cylinder
                     }
                     
                     // 正常時BKタイマ
-                    result.AddRange(LadderRow.AddTimer(nbtTimer.Timer.ProcessTimerDevice, nbtTimer.Timer.TimerDevice));
+                    result.AddRange(LadderRow.AddTimer(nbtTimer.Timer.TimerDeviceT, nbtTimer.Timer.TimerDeviceZR));
 
                     // 指令OK
                     result.Add(LadderRow.AddLD(label + (startNum + 35).ToString()));
                     result.Add(LadderRow.AddOR(label + (startNum + 36).ToString()));
-                    result.Add(LadderRow.AddAND(nbtTimer.Timer.ProcessTimerDevice));
+                    result.Add(LadderRow.AddAND(nbtTimer.Timer.TimerDeviceT));
                     result.Add(LadderRow.AddOUT(label + (startNum + 37).ToString()));
                     result.Add(LadderRow.AddNOP());
                 }

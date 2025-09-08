@@ -1,6 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using KdxMigrationAPI.Data;
 using KdxMigrationAPI.Services;
+using Kdx.Core.Application;
+using Kdx.Core.Domain.Services;
+using Kdx.Infrastructure.Cache;
+using Kdx.Infrastructure.Options;
+using Kdx.Infrastructure.Repositories;
+using Kdx.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +31,35 @@ builder.Services.AddDbContext<MigrationDbContext>(options =>
 // サービスの登録
 builder.Services.AddScoped<AccessDataService>();
 builder.Services.AddScoped<MigrationService>();
+
+// 5層アーキテクチャのサービス登録
+// Options
+builder.Services.Configure<DeviceOffsetOptions>(options =>
+{
+    options.DeviceStartT = builder.Configuration.GetValue<int>("DeviceOffsets:DeviceStartT", 0);
+    options.TimerStartZR = builder.Configuration.GetValue<int>("DeviceOffsets:TimerStartZR", 0);
+});
+
+// Domain Services
+builder.Services.AddSingleton<IDeviceOffsetProvider, DeviceOffsetProvider>();
+builder.Services.AddSingleton<ISequenceGenerator, SequenceGenerator>();
+
+// Infrastructure
+builder.Services.AddSingleton<Kdx.Core.Domain.Interfaces.IMnemonicDeviceMemoryStore, Kdx.Infrastructure.Cache.MnemonicDeviceMemoryStore>();
+builder.Services.AddSingleton<ITimerDeviceCache, TimerDeviceCache>();
+builder.Services.AddScoped<Kdx.Core.Domain.Interfaces.IAccessRepository>(sp =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("AccessConnection") 
+        ?? throw new InvalidOperationException("AccessConnection string not configured");
+    return new Kdx.Infrastructure.Adapters.AccessRepositoryAdapter(connectionString);
+});
+builder.Services.AddScoped<IMnemonicTimerDeviceRepository, MnemonicTimerDeviceRepository>();
+
+// Application Use Cases
+builder.Services.AddScoped<SaveProcessDetailTimerDevicesUseCase>();
+
+// API Services
+builder.Services.AddScoped<ITimerDeviceService, TimerDeviceService>();
 
 // CORS設定（開発環境用）
 builder.Services.AddCors(options =>

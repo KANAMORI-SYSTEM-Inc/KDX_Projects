@@ -5,6 +5,14 @@ using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.Models
 {
+    public enum ConnectionType
+    {
+        Normal,
+        Start,
+        Finish,
+        ProcessToDetail  // Process-ProcessDetail間の接続
+    }
+
     public partial class ProcessFlowConnection : ObservableObject
     {
         [ObservableProperty] private ProcessFlowNode _fromNode;
@@ -13,6 +21,9 @@ namespace KdxDesigner.Models
         [ObservableProperty] private bool _isModified;
         [ObservableProperty] private bool _isSelected;
         [ObservableProperty] private bool _isFinishConnection;
+        [ObservableProperty] private ConnectionType _connectionType = ConnectionType.Normal;
+        [ObservableProperty] private string? _finishSensor;
+        [ObservableProperty] private string? _startSensorValue;
         
         public ProcessFlowConnection(ProcessFlowNode from, ProcessFlowNode to, bool isModified = false)
         {

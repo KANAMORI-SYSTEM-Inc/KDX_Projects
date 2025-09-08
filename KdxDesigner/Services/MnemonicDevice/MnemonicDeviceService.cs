@@ -202,6 +202,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
+                    _memoryService.SaveMemories(plcId, allMemoriesToSave);
                 }
 
                 transaction.Commit();
@@ -271,7 +272,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     if (operation != null)
                     {
                         // 2. IDを使ってCYオブジェクトを取得
-                        CY? cY = repository.GetCYById(operation.CYId!.Value);
+                        Cylinder? cY = repository.GetCYById(operation.CYId!.Value);
 
                         // 3. CYオブジェクトが取得でき、かつその中にMachineIdが存在するかチェック
                         if (cY != null && cY.MachineId.HasValue)
@@ -384,6 +385,8 @@ namespace KdxDesigner.Services.MnemonicDevice
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
+                    _memoryService.SaveMemories(plcId, allMemoriesToSave);
+
                 }
 
                 transaction.Commit();
@@ -471,7 +474,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     if (operation.CYId.HasValue)
                     {
                         // 2. IDを使ってCYオブジェクトを取得
-                        CY? cY = repository.GetCYById(operation.CYId.Value);
+                        Cylinder? cY = repository.GetCYById(operation.CYId.Value);
 
                         // 3. CYオブジェクトが取得でき、かつその中にMachineIdが存在するかチェック
                         if (cY != null && cY.MachineId.HasValue)
@@ -525,7 +528,6 @@ namespace KdxDesigner.Services.MnemonicDevice
                             17 => "出力切",
                             18 => "BK作動",
                             19 => "完了",
-
                             _ => ""
                         };
 
@@ -558,6 +560,8 @@ namespace KdxDesigner.Services.MnemonicDevice
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
+                    _memoryService.SaveMemories(plcId, allMemoriesToSave);
+
                 }
 
                 transaction.Commit();
@@ -570,7 +574,7 @@ namespace KdxDesigner.Services.MnemonicDevice
         }
 
         // Cylinderのリストを受け取り、MnemonicDeviceテーブルに保存する
-        public void SaveMnemonicDeviceCY(List<CY> cylinders, int startNum, int plcId)
+        public void SaveMnemonicDeviceCY(List<Cylinder> cylinders, int startNum, int plcId)
         {
             using var connection = new OleDbConnection(_connectionString);
             connection.Open();
@@ -582,7 +586,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                 var allMemoriesToSave = new List<Kdx.Contracts.DTOs.Memory>(); // ★ 保存するメモリを蓄積するリスト
 
                 int count = 0;
-                foreach (CY cylinder in cylinders)
+                foreach (Cylinder cylinder in cylinders)
                 {
                     if (cylinder == null) continue;
                     existingLookup.TryGetValue(cylinder.Id, out var existing);
@@ -638,8 +642,6 @@ namespace KdxDesigner.Services.MnemonicDevice
 
                     // 結果を保持する変数を先に宣言し、デフォルト値を設定
                     string comment1 = "";
-
-
 
                     // 3. CYオブジェクトが取得でき、かつその中にMachineIdが存在するかチェック
                     if (cylinder != null && cylinder.MachineId.HasValue)
@@ -807,6 +809,8 @@ namespace KdxDesigner.Services.MnemonicDevice
                 if (allMemoriesToSave.Any())
                 {
                     _memoryService.SaveMemoriesInternal(plcId, allMemoriesToSave, connection, transaction);
+                    _memoryService.SaveMemories(plcId, allMemoriesToSave);
+
                 }
 
                 transaction.Commit();

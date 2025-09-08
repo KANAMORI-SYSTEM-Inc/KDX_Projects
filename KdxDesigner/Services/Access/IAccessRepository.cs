@@ -39,6 +39,19 @@ namespace KdxDesigner.Services.Access
         /// 全ての工程情報を取得します。
         /// </summary>
         List<Process> GetProcesses();
+        
+        /// <summary>
+        /// 新しい工程情報を追加します。
+        /// </summary>
+        /// <param name="process">追加するProcessオブジェクト。</param>
+        /// <returns>追加されたレコードのID。</returns>
+        int AddProcess(Process process);
+        
+        /// <summary>
+        /// 工程情報を更新します。
+        /// </summary>
+        /// <param name="process">更新するProcessオブジェクト。</param>
+        void UpdateProcess(Process process);
 
         /// <summary>
         /// 全ての機械情報を取得します。
@@ -72,20 +85,20 @@ namespace KdxDesigner.Services.Access
         /// <summary>
         /// 全てのシリンダー(CY)情報を取得します。
         /// </summary>
-        List<CY> GetCYs();
+        List<Cylinder> GetCYs();
         
         /// <summary>
         /// 指定されたPLC IDに紐づくシリンダー(CY)情報を取得します。
         /// </summary>
         /// <param name="plcId">取得対象のPLC ID。</param>
-        List<CY> GetCyList(int plcId);
+        List<Cylinder> GetCyList(int plcId);
 
         /// <summary>
         /// idで指定されたシリンダー(CY)情報を取得します。
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        CY? GetCYById(int id);
+        Cylinder? GetCYById(int id);
 
         /// <summary>
         /// 指定されたサイクルIDに紐づくタイマー情報を取得します。
@@ -154,6 +167,13 @@ namespace KdxDesigner.Services.Access
         List<Operation> GetOperations();
 
         /// <summary>
+        /// 指定されたサイクルIDの操作情報を取得します。
+        /// </summary>
+        /// <param name="cycleId">サイクルID</param>
+        /// <returns>該当する操作のリスト</returns>
+        List<Operation> GetOperationsByCycleId(int cycleId);
+
+        /// <summary>
         /// 指定されたIDの操作情報を取得します。
         /// </summary>
         /// <param name="id">取得対象の操作ID。</param>
@@ -198,11 +218,28 @@ namespace KdxDesigner.Services.Access
         int AddProcessDetail(ProcessDetail processDetail);
 
         /// <summary>
+        /// 指定されたIDの工程情報を削除します。
+        /// </summary>
+        /// <param name="id">削除対象の工程ID。</param>
+        void DeleteProcess(int id);
+
+        /// <summary>
         /// 指定されたIDの工程詳細情報を削除します。
         /// </summary>
         /// <param name="id">削除対象の工程詳細ID。</param>
         void DeleteProcessDetail(int id);
 
+        /// <summary>
+        /// 指定されたIDの操作情報を削除します。
+        /// </summary>
+        /// <param name="id">削除対象の操作ID。</param>
+        void DeleteOperation(int id);
+
+        /// <summary>
+        /// 全ての工程カテゴリを取得します。
+        /// </summary>
+        List<ProcessCategory> GetProcessCategories();
+        
         /// <summary>
         /// 全ての工程詳細カテゴリを取得します。
         /// </summary>
@@ -214,6 +251,11 @@ namespace KdxDesigner.Services.Access
         /// <param name="id"></param>
         /// <returns></returns>
         ProcessDetailCategory? GetProcessDetailCategoryById(int id);
+        
+        /// <summary>
+        /// 全ての操作カテゴリを取得します。
+        /// </summary>
+        List<OperationCategory> GetOperationCategories();
 
         /// <summary>
         /// 全てのMnemonicTimerDevice情報を取得します。

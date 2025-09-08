@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 
 using KdxDesigner.Models;
 using KdxDesigner.Services.Access;
@@ -38,7 +38,7 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
         }
 
         public void Save(
-            List<CY> cys,
+            List<Cylinder> cys,
             int startNum, int plcId)
         {
             using var connection = new OleDbConnection(_connectionString);
@@ -49,7 +49,7 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
             var allExisting = GetMnemonicSpeedDevice(plcId);
 
             int count = 0;
-            foreach (CY cy in cys)
+            foreach (Cylinder cy in cys)
             {
                 if (cy == null) continue;
                 var existing = allExisting.SingleOrDefault(m => m.CylinderId == cy.Id);

@@ -1,4 +1,4 @@
-﻿using Kdx.Contracts.DTOs;
+using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.IOAddress;
@@ -80,7 +80,7 @@ namespace KdxDesigner.Utils
                         ioList
                         ));
                         break;
-                    case 3 or 9 or 15:      // 速度変化1回
+                    case 3 or 9 or 15 or 27:      // 速度変化1回
                         allRows.AddRange(buildOperationSpeed.Inverter(
                             operation,
                             details,
@@ -95,7 +95,7 @@ namespace KdxDesigner.Utils
                             ));
                         break;
 
-                    case 4 or 10 or 16:     // 速度変化2回
+                    case 4 or 10 or 16 or 28:     // 速度変化2回
                         allRows.AddRange(buildOperationSpeed.Inverter(
                             operation,
                             details,

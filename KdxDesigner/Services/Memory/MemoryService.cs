@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 
 using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
@@ -345,7 +345,7 @@ namespace KdxDesigner.Services.Memory
 
         public bool SaveMnemonicTimerMemoriesZR(MnemonicTimerDevice device)
         {
-            if (device?.PlcId == null || string.IsNullOrEmpty(device.TimerDevice) || !device.TimerDevice.StartsWith("ZR")) return false;
+            if (device?.PlcId == null || string.IsNullOrEmpty(device.TimerDeviceZR) || !device.TimerDeviceZR.StartsWith("ZR")) return false;
 
             using var connection = new OleDbConnection(_connectionString);
             var difinitionsService = new DifinitionsService(_connectionString); // DifinitionsServiceのインスタンスを作成
@@ -369,7 +369,7 @@ namespace KdxDesigner.Services.Memory
                     _ => "なし",
                 };
 
-                var tDeviceNumStr = device.TimerDevice.Replace("ZR", "");
+                var tDeviceNumStr = device.TimerDeviceZR.Replace("ZR", "");
                 if (int.TryParse(tDeviceNumStr, out int tDeviceNum))
                 {
                     var memoryToSave = new Kdx.Contracts.DTOs.Memory
@@ -377,8 +377,8 @@ namespace KdxDesigner.Services.Memory
                         PlcId = device.PlcId,
                         MemoryCategory = 0, // TODO: ZR用の適切なMemoryCategory IDを決定する
                         DeviceNumber = tDeviceNum,
-                        DeviceNumber1 = device.TimerDevice,
-                        Device = device.TimerDevice,
+                        DeviceNumber1 = device.TimerDeviceZR,
+                        Device = device.TimerDeviceZR,
                         Category = mnemonicTypeBasedCategoryString,
                         Row_1 = mnemonicTypeBasedCategoryString,
                         Row_2 = device.Comment1,
@@ -411,7 +411,11 @@ namespace KdxDesigner.Services.Memory
 
         public bool SaveMnemonicTimerMemoriesT(MnemonicTimerDevice device)
         {
-            if (device?.PlcId == null || string.IsNullOrEmpty(device.ProcessTimerDevice) || !device.ProcessTimerDevice.StartsWith("T")) return false;
+
+            if (device?.PlcId == null || string.IsNullOrEmpty(device.TimerDeviceT))
+            {
+                return false;
+            }
 
             using var connection = new OleDbConnection(_connectionString);
             connection.Open();
@@ -431,7 +435,19 @@ namespace KdxDesigner.Services.Memory
                     _ => "タイマT",
                 };
 
-                var dDeviceNumStr = device.ProcessTimerDevice.Replace("T", "");
+                string dDeviceNumStr = string.Empty;
+
+                if (!device.TimerDeviceT.StartsWith("T"))
+                {
+                    dDeviceNumStr = device.TimerDeviceZR.Replace("T", "");
+
+                }
+                else if (!device.TimerDeviceT.StartsWith("ST"))
+                {
+                    dDeviceNumStr = device.TimerDeviceZR.Replace("ST", "");
+
+                }
+
                 if (int.TryParse(dDeviceNumStr, out int dDeviceNum))
                 {
                     var memoryToSave = new Kdx.Contracts.DTOs.Memory
@@ -439,8 +455,8 @@ namespace KdxDesigner.Services.Memory
                         PlcId = device.PlcId,
                         MemoryCategory = 0, // TODO: Tデバイス用の適切なMemoryCategory IDを決定する
                         DeviceNumber = dDeviceNum,
-                        DeviceNumber1 = device.ProcessTimerDevice,
-                        Device = device.ProcessTimerDevice,
+                        DeviceNumber1 = device.TimerDeviceT,
+                        Device = device.TimerDeviceT,
                         Category = mnemonicTypeBasedCategoryString,
                         Row_1 = mnemonicTypeBasedCategoryString,
                         Row_2 = device.Comment1,

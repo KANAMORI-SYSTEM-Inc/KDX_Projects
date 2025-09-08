@@ -1,4 +1,4 @@
-﻿using Kdx.Contracts.DTOs;
+using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
 
 using System.Collections.Generic;
@@ -77,6 +77,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="startNum">開始番号</param>
         /// <param name="plcId">PLC ID</param>
         /// <param name="count">カウント（参照渡し）</param>
-        void SaveWithCY(List<Timer> timers, List<CY> cylinders, int startNum, int plcId, ref int count);
+        void SaveWithCY(List<Timer> timers, List<Cylinder> cylinders, int startNum, int plcId, ref int count);
     }
 }

@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 
 using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
@@ -119,8 +119,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             parameters.Add("RecordId", deviceToSave.RecordId, DbType.Int32);
             parameters.Add("TimerId", deviceToSave.TimerId, DbType.Int32);
             parameters.Add("TimerCategoryId", deviceToSave.TimerCategoryId, DbType.Int32);
-            parameters.Add("ProcessTimerDevice", deviceToSave.ProcessTimerDevice, DbType.String);
-            parameters.Add("TimerDevice", deviceToSave.TimerDevice, DbType.String);
+            parameters.Add("ProcessTimerDevice", deviceToSave.TimerDeviceT, DbType.String);
+            parameters.Add("TimerDevice", deviceToSave.TimerDeviceZR, DbType.String);
             parameters.Add("PlcId", deviceToSave.PlcId, DbType.Int32); // result[0]は常に安全
             parameters.Add("CycleId", deviceToSave.CycleId, DbType.Int32); // result[1]も常に安全
             parameters.Add("Comment1", deviceToSave.Comment1, DbType.String);
@@ -164,8 +164,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="count"></param>
         public void SaveWithDetail(
             List<Timer> timers,
-            List<ProcessDetail> details,
-            int startNum, int plcId, ref int count)
+            List<ProcessDetail> details, int startNum, int plcId, ref int count)
         {
             using var connection = new OleDbConnection(_connectionString);
             connection.Open();
@@ -198,14 +197,20 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 // 3. ProcessDetailをループし、関連するタイマーを処理
                 foreach (ProcessDetail detail in details)
                 {
-                    if (detail == null) continue;
+                    if (detail == null)
+                    {
+                        continue;
+                    }
 
                     // 現在のProcessDetailに対応するタイマーがあるか、辞書から取得
                     if (timersByRecordId.TryGetValue(detail.Id, out var detailTimers))
                     {
                         foreach (Timer timer in detailTimers)
                         {
-                            if (timer == null) continue;
+                            if (timer == null)
+                            {
+                                continue;
+                            }
 
                             var timerStartWith = "";
 
@@ -234,8 +239,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                                 RecordId = detail.Id, // ★ 現在のdetail.IdをRecordIdとして設定
                                 TimerId = timer.ID,
                                 TimerCategoryId = timer.TimerCategoryId,
-                                ProcessTimerDevice = processTimerDevice,
-                                TimerDevice = timerDevice,
+                                TimerDeviceT = processTimerDevice,
+                                TimerDeviceZR = timerDevice,
                                 PlcId = plcId,
                                 CycleId = timer.CycleId,
                                 Comment1 = timer.TimerName
@@ -268,6 +273,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="plcId"></param>
         /// <param name="cycleId"></param>
         /// <param name="count"></param>
+        /// issued by the user
         public void SaveWithOperation(
             List<Timer> timers,
             List<Operation> operations,
@@ -311,7 +317,10 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                     {
                         foreach (Timer timer in operationTimers)
                         {
-                            if (timer == null) continue;
+                            if (timer == null)
+                            {
+                                continue;
+                            }
 
                             // デバイス番号の計算
                             var timerStartWith = "";
@@ -320,7 +329,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                             {
                                 case 6: // 異常時BK (EBT)
                                 case 7: // 正常時BK (NBT)
-
                                     timerStartWith = "T";
                                     break;
                                 default:
@@ -342,13 +350,14 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                                 RecordId = operation.Id, // ★ TimerのRecordIdsではなく、現在のoperation.Idを使う
                                 TimerId = timer.ID,
                                 TimerCategoryId = timer.TimerCategoryId,
-                                ProcessTimerDevice = processTimerDevice,
-                                TimerDevice = timerDevice,
+                                TimerDeviceT = processTimerDevice,
+                                TimerDeviceZR = timerDevice,
                                 PlcId = plcId,
                                 CycleId = timer.CycleId,
                                 Comment1 = timer.TimerName
                             };
 
+                            // MnemonicTimerDeviceを挿入または更新
                             UpsertMnemonicTimerDevice(connection, transaction, deviceToSave, existingRecord);
                             count++;
                         }
@@ -377,7 +386,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="count"></param>
         public void SaveWithCY(
             List<Timer> timers,
-            List<CY> cylinders,
+            List<Cylinder> cylinders,
             int startNum, int plcId, ref int count)
         {
             using var connection = new OleDbConnection(_connectionString);
@@ -409,16 +418,22 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 }
 
                 // 3. Cylinderをループし、関連するタイマーを処理
-                foreach (CY cylinder in cylinders)
+                foreach (Cylinder cylinder in cylinders)
                 {
-                    if (cylinder == null) continue;
+                    if (cylinder == null)
+                    {
+                        continue;
+                    }
 
                     // 現在のCylinderに対応するタイマーがあるか、辞書から取得
                     if (timersByRecordId.TryGetValue(cylinder.Id, out var cylinderTimers))
                     {
                         foreach (Timer timer in cylinderTimers)
                         {
-                            if (timer == null) continue;
+                            if (timer == null)
+                            {
+                                continue;
+                            }
 
                             // デバイス番号の計算
                             var timerStartWith = "";
@@ -427,7 +442,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                             {
                                 case 6: // 異常時BK (EBT)
                                 case 7: // 正常時BK (NBT)
-
                                     timerStartWith = "T";
                                     break;
                                 default:
@@ -449,8 +463,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                                 RecordId = cylinder.Id, // ★ 現在のcylinder.IdをRecordIdとして設定
                                 TimerId = timer.ID,
                                 TimerCategoryId = timer.TimerCategoryId,
-                                ProcessTimerDevice = processTimerDevice,
-                                TimerDevice = timerDevice,
+                                TimerDeviceT = processTimerDevice,
+                                TimerDeviceZR = timerDevice,
                                 PlcId = plcId,
                                 CycleId = timer.CycleId,
                                 Comment1 = timer.TimerName

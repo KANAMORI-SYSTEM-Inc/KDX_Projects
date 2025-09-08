@@ -106,7 +106,7 @@ namespace KdxDesigner.Utils.Operation
 
                 foreach (var timer in thisTimer)
                 {
-                    result.Add(LadderRow.AddRST(timer.Timer.ProcessTimerDevice));
+                    result.Add(LadderRow.AddRST(timer.Timer.TimerDeviceT));
                 }
             }
             return result;
@@ -124,8 +124,8 @@ namespace KdxDesigner.Utils.Operation
                 result.Add(LadderRow.AddLD(_label + (_outNum + 5).ToString()));
                 result.Add(LadderRow.AddANI(_label + (_outNum + 6).ToString()));
                 result.AddRange(LadderRow.AddTimer(
-                    operationTimerWait.Timer.ProcessTimerDevice ?? "",
-                    operationTimerWait.Timer.TimerDevice ?? ""));
+                    operationTimerWait.Timer.TimerDeviceT ?? "",
+                    operationTimerWait.Timer.TimerDeviceZR ?? ""));
             }
 
             // M6
@@ -134,7 +134,7 @@ namespace KdxDesigner.Utils.Operation
             {
                 result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
                 result.Add(LadderRow.AddOR(_label + (_outNum + 2).ToString()));
-                result.Add(LadderRow.AddAND(operationTimerWait.Timer.ProcessTimerDevice ?? ""));
+                result.Add(LadderRow.AddAND(operationTimerWait.Timer.TimerDeviceT ?? ""));
             }
             else
             {
@@ -247,12 +247,12 @@ namespace KdxDesigner.Utils.Operation
                 result.Add(LadderRow.AddAND(_label + (_outNum + 6).ToString()));
                 result.Add(LadderRow.AddANI(_label + (_outNum + 9).ToString()));
                 result.AddRange(LadderRow.AddTimer(
-                    operationTimer.Timer.ProcessTimerDevice ?? "",
-                    operationTimer.Timer.TimerDevice ?? ""));
+                    operationTimer.Timer.TimerDeviceT ?? "",
+                    operationTimer.Timer.TimerDeviceZR ?? ""));
 
                 result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
                 result.Add(LadderRow.AddOR(_label + (_outNum + 2).ToString()));
-                result.Add(LadderRow.AddAND(operationTimer.Timer.ProcessTimerDevice!));
+                result.Add(LadderRow.AddAND(operationTimer.Timer.TimerDeviceT!));
                 result.Add(LadderRow.AddOR(_label + (_outNum + 9).ToString()));
                 result.Add(LadderRow.AddAND(_label + (_outNum + 6).ToString()));
                 result.Add(LadderRow.AddOUT(_label + (_outNum + 9).ToString()));
@@ -276,13 +276,13 @@ namespace KdxDesigner.Utils.Operation
                 result.Add(LadderRow.AddLD(_label + (_outNum + 6).ToString()));
                 result.Add(LadderRow.AddANI(_label + (_outNum + 10 + speedCount).ToString()));
                 result.AddRange(LadderRow.AddTimer(
-                        operationTimer.Timer.ProcessTimerDevice ?? "",
-                        operationTimer.Timer.TimerDevice ?? ""));
+                        operationTimer.Timer.TimerDeviceT ?? "",
+                        operationTimer.Timer.TimerDeviceZR ?? ""));
 
                 // M10 + sppeedCount
                 result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
                 result.Add(LadderRow.AddOR(_label + (_outNum + 2).ToString()));
-                result.Add(LadderRow.AddAND(operationTimer.Timer.ProcessTimerDevice!));
+                result.Add(LadderRow.AddAND(operationTimer.Timer.TimerDeviceT!));
                 result.Add(LadderRow.AddOR(_label + (_outNum + speedCount + 10).ToString()));
                 result.Add(LadderRow.AddAND(_label + (_outNum + 6).ToString()));
                 result.Add(LadderRow.AddOUT(_label + (_outNum + speedCount + 10).ToString()));
@@ -325,13 +325,13 @@ namespace KdxDesigner.Utils.Operation
                 }
                 result.Add(LadderRow.AddANI(_label + (_outNum + 10 + speedCount).ToString()));
                 result.AddRange(LadderRow.AddTimer(
-                        operationTimer.Timer.ProcessTimerDevice ?? "",
-                        operationTimer.Timer.TimerDevice ?? ""));
+                        operationTimer.Timer.TimerDeviceT ?? "",
+                        operationTimer.Timer.TimerDeviceZR ?? ""));
 
                 // M10 + sppeedCount
                 result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
                 result.Add(LadderRow.AddOR(_label + (_outNum + 2).ToString()));
-                result.Add(LadderRow.AddAND(operationTimer.Timer.ProcessTimerDevice!));
+                result.Add(LadderRow.AddAND(operationTimer.Timer.TimerDeviceT!));
                 result.Add(LadderRow.AddOR(_label + (_outNum + 10 + speedCount).ToString()));
                 result.Add(LadderRow.AddAND(_label + (_outNum + 6).ToString()));
                 result.Add(LadderRow.AddOUT(_label + (_outNum + 10 + speedCount).ToString()));
@@ -479,8 +479,8 @@ namespace KdxDesigner.Utils.Operation
                 result.Add(LadderRow.AddLD(_label + (_outNum + 17).ToString()));
                 result.Add(LadderRow.AddANI(_label + (_outNum + 19).ToString()));
                 result.AddRange(LadderRow.AddTimer(
-                    operationTimerStable.Timer.ProcessTimerDevice ?? "",
-                    operationTimerStable.Timer.TimerDevice ?? ""
+                    operationTimerStable.Timer.TimerDeviceT ?? "",
+                    operationTimerStable.Timer.TimerDeviceZR ?? ""
                     ));
             }
 
@@ -490,7 +490,7 @@ namespace KdxDesigner.Utils.Operation
             // 深当たりタイマがある場合
             if (operationTimerStable != null)
             {
-                result.Add(LadderRow.AddAND(operationTimerStable!.Timer.ProcessTimerDevice!));
+                result.Add(LadderRow.AddAND(operationTimerStable!.Timer.TimerDeviceT!));
             }
             result.Add(LadderRow.AddOR(_label + (_outNum + 19).ToString()));
             result.Add(LadderRow.AddAND(_label + (_outNum + 17).ToString()));

@@ -38,12 +38,12 @@ namespace KdxDesigner.ViewModels
 
         public string ProcessTimerDevice
         {
-            get => _model.ProcessTimerDevice;
+            get => _model.TimerDeviceT;
             set
             {
-                if (_model.ProcessTimerDevice != value)
+                if (_model.TimerDeviceT != value)
                 {
-                    _model.ProcessTimerDevice = value;
+                    _model.TimerDeviceT = value;
                     OnPropertyChanged();
                     IsDirty = true;
                 }
@@ -52,12 +52,12 @@ namespace KdxDesigner.ViewModels
 
         public string TimerDevice
         {
-            get => _model.TimerDevice;
+            get => _model.TimerDeviceZR;
             set
             {
-                if (_model.TimerDevice != value)
+                if (_model.TimerDeviceZR != value)
                 {
-                    _model.TimerDevice = value;
+                    _model.TimerDeviceZR = value;
                     OnPropertyChanged();
                     IsDirty = true;
                 }

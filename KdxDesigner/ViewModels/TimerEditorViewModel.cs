@@ -51,6 +51,12 @@ namespace KdxDesigner.ViewModels
         
         [ObservableProperty]
         private bool _showUnassignedOnly;
+        
+        [ObservableProperty]
+        private bool _hasChanges;
+        
+        [ObservableProperty]
+        private ObservableCollection<TimerCategory?> _timerCategoriesWithNull = new();
 
         public ICollectionView FilteredTimers { get; }
 
@@ -67,6 +73,9 @@ namespace KdxDesigner.ViewModels
             // タイマーカテゴリとサイクルの初期化
             _timerCategories = new ObservableCollection<TimerCategory>(_repository.GetTimerCategory());
             _cycles = new ObservableCollection<Cycle>(_repository.GetCycles());
+            
+            // nullを含むカテゴリリストを作成
+            UpdateTimerCategoriesWithNull();
             
             // フィルタリング用のCollectionView
             FilteredTimers = CollectionViewSource.GetDefaultView(_allTimers);
@@ -212,6 +221,17 @@ namespace KdxDesigner.ViewModels
         private void UpdateCanSave()
         {
             CanSaveSelectedTimer = SelectedTimer?.IsDirty ?? false;
+            HasChanges = _allTimers.Any(t => t.IsDirty);
+        }
+        
+        private void UpdateTimerCategoriesWithNull()
+        {
+            TimerCategoriesWithNull.Clear();
+            TimerCategoriesWithNull.Add(null); // nullオプションを追加
+            foreach (var category in TimerCategories)
+            {
+                TimerCategoriesWithNull.Add(category);
+            }
         }
 
         [RelayCommand]
@@ -289,7 +309,6 @@ namespace KdxDesigner.ViewModels
             try
             {
                 var timer = SelectedTimer.GetModel();
-                var selectedTimerId = SelectedTimer.ID;
                 
                 // タイマー本体を保存
                 _repository.UpdateTimer(timer);
@@ -301,11 +320,34 @@ namespace KdxDesigner.ViewModels
                     _repository.AddTimerRecordId(SelectedTimer.ID, recordId);
                 }
                 
-                // グリッドを再読み込み
-                LoadTimers();
+                // カテゴリ名を更新
+                if (SelectedTimer.TimerCategoryId.HasValue)
+                {
+                    var category = TimerCategories.FirstOrDefault(c => c.Id == SelectedTimer.TimerCategoryId.Value);
+                    SelectedTimer.CategoryName = category?.CategoryName ?? $"ID: {SelectedTimer.TimerCategoryId}";
+                }
+                else
+                {
+                    SelectedTimer.CategoryName = null;
+                }
                 
-                // 保存したタイマーを再選択
-                SelectedTimer = _allTimers.FirstOrDefault(t => t.ID == selectedTimerId);
+                // サイクル名を更新
+                if (SelectedTimer.CycleId.HasValue)
+                {
+                    var cycle = Cycles.FirstOrDefault(c => c.Id == SelectedTimer.CycleId.Value);
+                    SelectedTimer.CycleName = cycle?.CycleName ?? $"ID: {SelectedTimer.CycleId}";
+                }
+                
+                // MnemonicType名を更新
+                if (SelectedTimer.MnemonicId.HasValue)
+                {
+                    var mnemonicType = MnemonicTypes.FirstOrDefault(m => m.Id == SelectedTimer.MnemonicId.Value);
+                    SelectedTimer.MnemonicTypeName = mnemonicType?.TableName ?? $"ID: {SelectedTimer.MnemonicId}";
+                }
+                
+                SelectedTimer.ResetDirty();
+                UpdateCanSave();
+                FilteredTimers.Refresh(); // グリッドを更新（再読み込みではなく表示のみ更新）
                 
                 MessageBox.Show("保存しました。", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -374,7 +416,80 @@ namespace KdxDesigner.ViewModels
         [RelayCommand]
         private void Refresh()
         {
+            if (HasChanges)
+            {
+                var result = MessageBox.Show(
+                    "保存されていない変更があります。\n破棄してもよろしいですか？",
+                    "確認",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                    
+                if (result != MessageBoxResult.Yes)
+                    return;
+            }
             LoadTimers();
+        }
+        
+        [RelayCommand]
+        private void SaveAllTimers()
+        {
+            var dirtyTimers = _allTimers.Where(t => t.IsDirty).ToList();
+            if (!dirtyTimers.Any())
+            {
+                MessageBox.Show("変更されたタイマーはありません。", "情報", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            
+            try
+            {
+                foreach (var timer in dirtyTimers)
+                {
+                    var timerModel = timer.GetModel();
+                    _repository.UpdateTimer(timerModel);
+                    
+                    // RecordIdsを中間テーブルに保存（RecordIdsが変更された場合のみ）
+                    _repository.DeleteAllTimerRecordIds(timer.ID);
+                    foreach (var recordId in timer.RecordIds)
+                    {
+                        _repository.AddTimerRecordId(timer.ID, recordId);
+                    }
+                    
+                    // カテゴリ名を更新
+                    if (timer.TimerCategoryId.HasValue)
+                    {
+                        var category = TimerCategories.FirstOrDefault(c => c.Id == timer.TimerCategoryId.Value);
+                        timer.CategoryName = category?.CategoryName ?? $"ID: {timer.TimerCategoryId}";
+                    }
+                    else
+                    {
+                        timer.CategoryName = null;
+                    }
+                    
+                    // サイクル名を更新
+                    if (timer.CycleId.HasValue)
+                    {
+                        var cycle = Cycles.FirstOrDefault(c => c.Id == timer.CycleId.Value);
+                        timer.CycleName = cycle?.CycleName ?? $"ID: {timer.CycleId}";
+                    }
+                    
+                    // MnemonicType名を更新
+                    if (timer.MnemonicId.HasValue)
+                    {
+                        var mnemonicType = MnemonicTypes.FirstOrDefault(m => m.Id == timer.MnemonicId.Value);
+                        timer.MnemonicTypeName = mnemonicType?.TableName ?? $"ID: {timer.MnemonicId}";
+                    }
+                    
+                    timer.ResetDirty();
+                }
+                
+                UpdateCanSave();
+                FilteredTimers.Refresh(); // グリッドを更新（再読み込みではなく表示のみ更新）
+                MessageBox.Show($"{dirtyTimers.Count}件のタイマーを保存しました。", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"保存中にエラーが発生しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
         
         [RelayCommand]

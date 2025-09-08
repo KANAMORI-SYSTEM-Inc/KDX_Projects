@@ -27,6 +27,12 @@ namespace KdxDesigner.Views
             {
                 var selected = ProcessGrid.SelectedItems.Cast<Process>().ToList();
                 vm.UpdateSelectedProcesses(selected);
+                
+                // 単一選択用のSelectedProcessもセット
+                if (ProcessGrid.SelectedItem is Process selectedProcess)
+                {
+                    vm.SelectedProcess = selectedProcess;
+                }
             }
         }
 
@@ -46,6 +52,43 @@ namespace KdxDesigner.Views
         {
             // 数字（0～9）のみ許可  
             e.Handled = !Regex.IsMatch(e.Text, "^[0-9]+$");
+        }
+
+        private void ProcessGrid_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Delete && DataContext is MainViewModel vm)
+            {
+                if (vm.SelectedProcess != null)
+                {
+                    vm.DeleteSelectedProcessCommand.Execute(null);
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void ProcessDetailGrid_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Delete && DataContext is MainViewModel vm)
+            {
+                if (vm.SelectedProcessDetail != null)
+                {
+                    vm.DeleteSelectedProcessDetailCommand.Execute(null);
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void OperationGrid_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Delete && DataContext is MainViewModel vm)
+            {
+                var grid = sender as DataGrid;
+                if (grid?.SelectedItem != null)
+                {
+                    vm.DeleteSelectedOperationCommand.Execute(null);
+                    e.Handled = true;
+                }
+            }
         }
     }
 }

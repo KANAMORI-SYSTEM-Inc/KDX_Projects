@@ -58,6 +58,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Kdx.Contracts\Kdx.Contracts.csproj" />
+    <ProjectReference Include="..\Kdx.Infrastructure\Kdx.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

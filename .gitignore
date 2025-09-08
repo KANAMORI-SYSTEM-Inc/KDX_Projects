@@ -221,3 +221,4 @@ coverage/
 # Claude.md (AI assistant context file - user specific)
 # Comment out if you want to share this file
 # CLAUDE.md
+/nul

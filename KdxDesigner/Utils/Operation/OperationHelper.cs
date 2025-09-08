@@ -1,10 +1,10 @@
-﻿using KdxDesigner.Models;
-using KdxDesigner.Models.Define;
-using KdxDesigner.Services.IOAddress;
-using KdxDesigner.Services.Error;
-using KdxDesigner.ViewModels;
-using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
+
+using KdxDesigner.Models;
+using KdxDesigner.Models.Define;
+using KdxDesigner.Services.Error;
+using KdxDesigner.Services.IOAddress;
+using KdxDesigner.ViewModels;
 
 using static KdxDesigner.Utils.Operation.BuildOperationSpeedChange;
 
@@ -30,7 +30,7 @@ namespace KdxDesigner.Utils.Operation
             new SpeedChangeStepConfig(9,  op => op.SS1!, "SS1"),
             new SpeedChangeStepConfig(10, op => op.SS2!, "SS2"),
             new SpeedChangeStepConfig(11, op => op.SS3!, "SS3"),
-            new SpeedChangeStepConfig(12, op => op.SS4!, "SS4"),
+            new SpeedChangeStepConfig(12, op => op.SS4!, "SS4")
         };
 
         // BuildOperationSpeedChange クラス内
@@ -59,7 +59,7 @@ namespace KdxDesigner.Utils.Operation
                 if (speedTimer == null)
                 {
                     CreateOperationError(operation, $"操作「{operation.Operation.OperationName}」(ID: {operation.Operation.Id}) で、カテゴリID {config.TimerCategoryId} (速度変化 {speedChangeIndex + 1}) のタイマーが設定されていません。");
-                    return false; // タイマーがない場合は失敗
+                    return false;
                 }
             }
             catch (InvalidOperationException)
@@ -72,7 +72,7 @@ namespace KdxDesigner.Utils.Operation
             if (string.IsNullOrEmpty(speedSensor))
             {
                 CreateOperationError(operation, $"操作「{operation.Operation.OperationName}」(ID: {operation.Operation.Id}) で、速度変化 {speedChangeIndex + 1} ({config.SensorPropertyName}) のセンサーが設定されていません。");
-                return false; // センサーがない場合は失敗
+                return false;
             }
 
             return true; // 全て成功

@@ -110,6 +110,8 @@
                 <MenuItem Header="操作方法">
                     <MenuItem Header="Ctrl+クリック: 通常接続" IsEnabled="False"/>
                     <MenuItem Header="Ctrl+Shift+クリック: 終了条件接続" IsEnabled="False"/>
+                    <Separator/>
+                    <MenuItem Header="終了条件接続は期間工程と工程OFF確認(CategoryId=13)で使用可能" IsEnabled="False"/>
                 </MenuItem>
             </MenuItem>
         </Menu>
@@ -312,13 +314,17 @@
                                             <Style TargetType="Path">
                                                 <Setter Property="Stroke" Value="DarkBlue"/>
                                                 <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ConnectionType}" Value="ProcessToDetail">
+                                                        <Setter Property="Stroke" Value="Green"/>
+                                                        <Setter Property="StrokeThickness" Value="2.5"/>
+                                                    </DataTrigger>
                                                     <DataTrigger Binding="{Binding IsOtherCycleConnection}" Value="True">
                                                         <Setter Property="Stroke" Value="LightBlue"/>
                                                         <Setter Property="StrokeDashArray" Value="5,3"/>
                                                         <Setter Property="StrokeThickness" Value="3"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding IsFinishConnection}" Value="True">
-                                                        <Setter Property="Stroke" Value="Green"/>
+                                                        <Setter Property="Stroke" Value="Orange"/>
                                                         <Setter Property="StrokeDashArray" Value="5,3"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
@@ -446,7 +452,7 @@
                         </ItemsControl.ItemContainerStyle>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Width="160" 
+                                <Border Width="{Binding NodeWidth}" 
                                         CornerRadius="5"
                                         Opacity="{Binding Opacity}">
                                     <Border.Height>
@@ -477,6 +483,19 @@
                                             <Setter Property="BorderBrush" Value="DarkBlue"/>
                                             <Setter Property="BorderThickness" Value="2"/>
                                             <Style.Triggers>
+                                                <!-- Processノードの場合の色設定 -->
+                                                <DataTrigger Binding="{Binding NodeType}" Value="Process">
+                                                    <Setter Property="Background">
+                                                        <Setter.Value>
+                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                                <GradientStop Color="#FFE6F3FF" Offset="0"/>
+                                                                <GradientStop Color="#FFCCE5FF" Offset="1"/>
+                                                            </LinearGradientBrush>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Property="BorderBrush" Value="#4A90E2"/>
+                                                    <Setter Property="BorderThickness" Value="3"/>
+                                                </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsOtherCycleNode}" Value="True">
                                                     <Setter Property="Background" Value="LightCyan"/>
                                                     <Setter Property="BorderBrush" Value="LightBlue"/>

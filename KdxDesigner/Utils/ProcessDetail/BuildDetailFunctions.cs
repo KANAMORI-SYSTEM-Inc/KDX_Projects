@@ -95,7 +95,7 @@ namespace KdxDesigner.Utils.ProcessDetail
             if (timer != null)
             {
                 // タイマーが設定されている場合は、タイマーの開始を追加
-                result.Add(LadderRow.AddLD(timer.ProcessTimerDevice));
+                result.Add(LadderRow.AddLD(timer.TimerDeviceT));
             }
             else
             {

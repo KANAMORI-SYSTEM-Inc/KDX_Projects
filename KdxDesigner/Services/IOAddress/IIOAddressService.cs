@@ -41,7 +41,6 @@ namespace KdxDesigner.Services.IOAddress
             Operation operation,
             string? isnotInclude);
 
-
         /// <summary>
         /// 指定されたテキストを含むIOオブジェクトのリストを取得します。
         /// </summary>

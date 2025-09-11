@@ -5,14 +5,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Postgrest.Attributes;
+using Postgrest.Models;
 
 namespace Kdx.Contracts.DTOs
 {
-    [Table("Sensor")]
-    public class Sensor
+    [Postgrest.Attributes.Table("Sensor")]
+    public class Sensor : BaseModel
     {
-        [Key]
+        [PrimaryKey("Id")]
+        [Postgrest.Attributes.Column("Id")]
         public int Id { get; set; }
+        
+        [Postgrest.Attributes.Column("SensorName")]
         public string? SensorName { get; set; }
     }
     

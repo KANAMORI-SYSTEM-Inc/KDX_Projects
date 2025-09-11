@@ -1,7 +1,7 @@
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.Services.Memory;
 using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.ViewModels;
@@ -367,7 +367,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 }
             }
 
-            // --- 3. ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
             // --- 3. ループ完了後、蓄積した全Kdx.Contracts.DTOs.Memoryレコードを同じトランザクションで一括保存 ---
             if (allMemoriesToSave.Any())
             {

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.Services.MnemonicDevice;
 
 namespace KdxDesigner.Services.MnemonicSpeedDevice

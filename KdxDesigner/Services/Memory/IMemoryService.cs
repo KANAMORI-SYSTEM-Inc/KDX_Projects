@@ -1,4 +1,4 @@
-﻿using Kdx.Contracts.DTOs;
+using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
 
 using System;
@@ -53,14 +53,5 @@ namespace KdxDesigner.Services.Memory
         /// <returns>保存成功の場合はtrue</returns>
         bool SaveMnemonicTimerMemoriesT(MnemonicTimerDevice device);
 
-        /// <summary>
-        /// メモリレコードをトランザクション内で保存または更新する
-        /// </summary>
-        /// <param name="plcId">PLC ID</param>
-        /// <param name="memories">保存するメモリレコードのリスト</param>
-        /// <param name="connection">データベース接続</param>
-        /// <param name="transaction">トランザクション</param>
-        /// <param name="progressCallback">進捗コールバック（オプション）</param>
-        void SaveMemoriesInternal(int plcId, List<Kdx.Contracts.DTOs.Memory> memories, System.Data.OleDb.OleDbConnection connection, System.Data.OleDb.OleDbTransaction transaction, System.Action<string>? progressCallback = null);
     }
 }

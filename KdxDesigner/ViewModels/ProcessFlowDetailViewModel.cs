@@ -5,7 +5,7 @@ using Kdx.Contracts.DTOs;
 using Timer = Kdx.Contracts.DTOs.Timer;
 using Process = Kdx.Contracts.DTOs.Process;
 using KdxDesigner.Models;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.Views;
 
 using System.Collections.ObjectModel;

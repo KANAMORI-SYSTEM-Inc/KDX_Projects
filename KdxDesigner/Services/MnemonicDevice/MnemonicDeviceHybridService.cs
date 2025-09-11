@@ -2,7 +2,7 @@ using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using KdxDesigner.Models;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.Services.Memory;
 using System;
 using System.Collections.Generic;

@@ -1,6 +1,6 @@
 using System.Windows;
 using Kdx.Contracts.DTOs;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.ViewModels;
 using Process = Kdx.Contracts.DTOs.Process;
 

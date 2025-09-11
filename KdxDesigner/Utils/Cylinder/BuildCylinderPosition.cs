@@ -7,6 +7,7 @@ using KdxDesigner.ViewModels;
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 
+using MnemonicSpeedDevice = Kdx.Contracts.DTOs.MnemonicSpeedDevice;
 namespace KdxDesigner.Utils.Cylinder
 {
     class BuildCylinderPosition
@@ -29,7 +30,7 @@ namespace KdxDesigner.Utils.Cylinder
                 List<MnemonicTimerDeviceWithOperation> timers,
                 List<MnemonicTimerDeviceWithCylinder> cylinderTimers,
                 List<MnemonicSpeedDevice> speed,
-                List<Error> mnemonicError,
+                List<ProcessError> mnemonicError,
                 List<ProsTime> prosTimes,
                 List<IO> ioList)
         {

@@ -18,13 +18,13 @@ namespace KdxDesigner.Utils.Operation
 
         public List<LadderCsvRow> Operation(
             OperationDto operation,
-            List<Error> error,
+            List<ProcessError> error,
             string label,
             int outNum)
         {
             List<LadderCsvRow>? result = new();
 
-            List<Error> errorList = error.Where(e => e.RecordId == operation.Id).ToList();
+            List<ProcessError> errorList = error.Where(e => e.RecordId == operation.Id).ToList();
 
             int countSpeed = 0;
 

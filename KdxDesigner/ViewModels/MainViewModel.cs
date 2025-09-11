@@ -8,7 +8,8 @@ using Kdx.Contracts.Enums;
 using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
+using KdxDesigner.Services.Authentication;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.ErrorService;
 using KdxDesigner.Services.IOAddress;
@@ -21,6 +22,7 @@ using KdxDesigner.Services.ProsTimeDevice;
 using KdxDesigner.Utils;
 using KdxDesigner.Views;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using System.Collections.ObjectModel;
@@ -36,15 +38,15 @@ namespace KdxDesigner.ViewModels
 
     public partial class MainViewModel : ObservableObject
     {
-        protected private readonly IAccessRepository? _repository;
-        protected private readonly IMnemonicDeviceService? _mnemonicService;
-        protected private readonly IMnemonicTimerDeviceService? _timerService;
-        protected private readonly ErrorService? _errorService;
-        protected private readonly ProsTimeDeviceService? _prosTimeService;
-        protected private readonly IMnemonicSpeedDeviceService? _speedService;
-        protected private readonly MemoryService? _memoryService;
-        protected private readonly WpfIOSelectorService? _ioSelectorService;
-        protected private readonly IMnemonicDeviceMemoryStore? _mnemonicMemoryStore;
+        protected private readonly IAccessRepository _repository;
+        protected private IMnemonicDeviceService? _mnemonicService;
+        protected private IMnemonicTimerDeviceService? _timerService;
+        protected private ErrorService? _errorService;
+        protected private ProsTimeDeviceService? _prosTimeService;
+        protected private IMnemonicSpeedDeviceService? _speedService;
+        protected private MemoryService? _memoryService;
+        protected private WpfIOSelectorService? _ioSelectorService;
+        protected private IMnemonicDeviceMemoryStore? _mnemonicMemoryStore;
 
         // 開いているProcessFlowDetailWindowのリスト
         private readonly List<Window> _openProcessFlowWindows = new();
@@ -107,68 +109,117 @@ namespace KdxDesigner.ViewModels
         [ObservableProperty] private string _memoryConfigurationStatus = "未設定";
         [ObservableProperty] private bool _isMemoryConfigured = false;
         [ObservableProperty] private string _lastMemoryConfigTime = string.Empty;
+        
+        // 認証関連
+        [ObservableProperty] private string _currentUserEmail = string.Empty;
 
         private List<ProcessDetail> _allDetails = new();
         private List<Process> _allProcesses = new();
         public List<Servo> _selectedServo = new(); // 選択されたサーボのリスト
 
+        // DIコンストラクタ（推奨）
+        public MainViewModel(IAccessRepository repository, IAuthenticationService authService, SupabaseConnectionHelper? supabaseHelper = null)
+        {
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _authService = authService ?? throw new ArgumentNullException(nameof(authService));
+            _supabaseHelper = supabaseHelper;
+            InitializeServices();
+            LoadInitialData();
+            
+            // Supabase接続を非同期で初期化
+            if (_supabaseHelper != null)
+            {
+                _ = InitializeSupabaseAsync();
+            }
+        }
+        
+        private readonly IAuthenticationService _authService;
+        private readonly SupabaseConnectionHelper? _supabaseHelper;
+
+        // パラメータなしコンストラクタ（削除または例外をスロー）
+        // XAML デザイナーやその他の場所でパラメータなしコンストラクタが必要な場合のみ
         public MainViewModel()
+        {
+            // DIコンテナからの取得を試みる
+            var repository = App.Services?.GetService<IAccessRepository>();
+            var authService = App.Services?.GetService<IAuthenticationService>();
+            var supabaseHelper = App.Services?.GetService<SupabaseConnectionHelper>();
+            
+            if (repository != null && authService != null)
+            {
+                _repository = repository;
+                _authService = authService;
+                _supabaseHelper = supabaseHelper;
+                InitializeServices();
+                LoadInitialData();
+                
+                // Supabase接続を非同期で初期化
+                if (_supabaseHelper != null)
+                {
+                    _ = InitializeSupabaseAsync();
+                }
+            }
+            else
+            {
+                // デザイナーモードか、DIコンテナが設定されていない
+                throw new InvalidOperationException("MainViewModelはDIコンテナから取得してください。App.Services.GetRequiredService<MainViewModel>()を使用してください。");
+            }
+        }
+
+        private async Task InitializeSupabaseAsync()
         {
             try
             {
-                // 1. パス管理と接続文字列生成
-                var pathManager = new DatabasePathManager();
-                string dbPath = pathManager.ResolveDatabasePath();
-                string connectionString = pathManager.CreateConnectionString(dbPath);
-
-                _repository = new AccessRepository(connectionString);
-                _prosTimeService = new ProsTimeDeviceService(_repository);
-                _memoryService = new MemoryService(_repository);
-                _ioSelectorService = new WpfIOSelectorService();
-                _errorService = new ErrorService(_repository);
-
-
-                // メモリストアを取得（App.xaml.csで登録済み）
-                var memoryStore = App.Services?.GetService<IMnemonicDeviceMemoryStore>()
-                    ?? new MnemonicDeviceMemoryStore();
-                _mnemonicMemoryStore = memoryStore;
-
-                // ハイブリッドサービスを作成（メモリオンリーモード）
-                var hybridService = new MnemonicDeviceHybridService(_repository, _memoryService, memoryStore);
-                hybridService.SetMemoryOnlyMode(true); // データベースアクセスを無効化
-                _mnemonicService = hybridService;
-
-                // タイマーサービスもメモリストアを使用
-                var timerAdapter = new MnemonicTimerDeviceMemoryAdapter(_repository, this, memoryStore);
-                timerAdapter.SetMemoryOnlyMode(true); // データベースアクセスを無効化
-                _timerService = timerAdapter;
-
-                // スピードサービスもメモリストアを使用
-                var speedAdapter = new MnemonicSpeedDeviceMemoryAdapter(_repository, memoryStore);
-                speedAdapter.SetMemoryOnlyMode(true); // データベースアクセスを無効化
-                _speedService = speedAdapter;
-
+                if (_supabaseHelper == null) return;
                 
-
-                // 3. データベースの基本的な健全性チェック
-                if (_repository.GetCompanies().Count == 0)
+                Debug.WriteLine("Starting Supabase initialization from MainViewModel...");
+                var success = await _supabaseHelper.InitializeAsync();
+                
+                if (success)
                 {
-                    // データがない場合はエラーメッセージを表示して終了
-                    MessageBox.Show("データベースは有効ですが、必須の会社情報が登録されていません。", "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Application.Current.Shutdown();
-                    return; // ここで終了しても、フィールドは既に初期化済み
+                    Debug.WriteLine("Supabase initialized successfully from MainViewModel");
+                    // 接続テストを実行
+                    var testResult = await _supabaseHelper.TestConnectionAsync();
+                    Debug.WriteLine($"Supabase connection test result: {testResult}");
                 }
-
-                // 4. 全ての初期化が成功した後に、データをロード
-                LoadInitialData();
+                else
+                {
+                    Debug.WriteLine("Failed to initialize Supabase from MainViewModel");
+                }
             }
             catch (Exception ex)
             {
-                // ファイルが見つからない、選択がキャンセルされた等の致命的なエラー
-                MessageBox.Show(ex.Message, "初期化エラー", MessageBoxButton.OK, MessageBoxImage.Error);
-                Application.Current.Shutdown();
-                // この時点でフィールドはnullのままなので、後続の処理はガード句で保護される
+                Debug.WriteLine($"Error initializing Supabase from MainViewModel: {ex.Message}");
             }
+        }
+
+        private void InitializeServices()
+        {
+            // サービスの初期化
+            _prosTimeService = new ProsTimeDeviceService(_repository);
+            _memoryService = new MemoryService(_repository);
+            _ioSelectorService = new WpfIOSelectorService();
+            _errorService = new ErrorService(_repository);
+
+            // メモリストアを取得（App.xaml.csで登録済み）
+            var memoryStore = App.Services?.GetService<IMnemonicDeviceMemoryStore>()
+                ?? new MnemonicDeviceMemoryStore();
+            _mnemonicMemoryStore = memoryStore;
+
+            // ハイブリッドサービスを作成（メモリオンリーモード）
+            var hybridService = new MnemonicDeviceHybridService(_repository, _memoryService, memoryStore);
+            hybridService.SetMemoryOnlyMode(true); // データベースアクセスを無効化
+            _mnemonicService = hybridService;
+
+            // タイマーサービスもメモリストアを使用
+            var timerAdapter = new MnemonicTimerDeviceMemoryAdapter(_repository, this, memoryStore);
+            timerAdapter.SetMemoryOnlyMode(true); // データベースアクセスを無効化
+            _timerService = timerAdapter;
+
+            // スピードサービスもメモリストアを使用
+            var speedAdapter = new MnemonicSpeedDeviceMemoryAdapter(_repository, memoryStore);
+            speedAdapter.SetMemoryOnlyMode(true); // データベースアクセスを無効化
+            _speedService = speedAdapter;
         }
 
         private bool CanExecute()
@@ -189,6 +240,12 @@ namespace KdxDesigner.ViewModels
             {
                 MessageBox.Show("システムの初期化が不完全なため、処理を実行できません。", "エラー");
                 return;
+            }
+            
+            // 現在のユーザー情報を設定
+            if (_authService?.CurrentSession != null)
+            {
+                CurrentUserEmail = _authService.CurrentSession.User?.Email ?? "Unknown User";
             }
 
             Companies = new ObservableCollection<Company>(_repository.GetCompanies());
@@ -897,8 +954,8 @@ namespace KdxDesigner.ViewModels
                   List<MnemonicDeviceWithCylinder> JoinedCylinderList,
                   List<MnemonicTimerDeviceWithOperation> JoinedOperationWithTimerList,
                   List<MnemonicTimerDeviceWithCylinder> JoinedCylinderWithTimerList,
-                  List<MnemonicSpeedDevice> SpeedDevice,
-                  List<Error> MnemonicErrors,
+                  List<Kdx.Contracts.DTOs.MnemonicSpeedDevice> SpeedDevice,
+                  List<ProcessError> MnemonicErrors,
                   List<ProsTime> ProsTime,
                   List<IO> IoList) Data, List<OutputError> Errors) PrepareDataForOutput()
         {
@@ -914,8 +971,8 @@ namespace KdxDesigner.ViewModels
                      new List<MnemonicDeviceWithCylinder>(),
                      new List<MnemonicTimerDeviceWithOperation>(),
                      new List<MnemonicTimerDeviceWithCylinder>(),
-                     new List<MnemonicSpeedDevice>(),
-                     new List<Error>(),
+                     new List<Kdx.Contracts.DTOs.MnemonicSpeedDevice>(),
+                     new List<ProcessError>(),
                      new List<ProsTime>(),
                      new List<IO>()),
                     new List<OutputError>()
@@ -963,7 +1020,15 @@ namespace KdxDesigner.ViewModels
             var timerDevices = _timerService!.GetMnemonicTimerDevice(plcId, cycleId);
             var prosTime = _prosTimeService!.GetProsTimeByMnemonicId(plcId, (int)MnemonicType.Operation);
 
-            var speedDevice = _speedService!.GetMnemonicSpeedDevice(plcId);
+            var speedDeviceModels = _speedService!.GetMnemonicSpeedDevice(plcId);
+            // KdxDesigner.Models から Kdx.Contracts.DTOs へマッピング
+            var speedDevice = speedDeviceModels.Select(s => new Kdx.Contracts.DTOs.MnemonicSpeedDevice
+            {
+                ID = s.ID,
+                CylinderId = s.CylinderId,
+                Device = s.Device,
+                PlcId = s.PlcId
+            }).ToList();
             var mnemonicErrors = _errorService!.GetErrors(plcId, cycleId, (int)MnemonicType.Operation);
 
             // JOIN処理
@@ -1284,6 +1349,40 @@ namespace KdxDesigner.ViewModels
             }
         }
 
+        #endregion
+        
+        #region Authentication Commands
+        
+        [RelayCommand]
+        private async Task SignOutAsync()
+        {
+            try
+            {
+                await _authService.SignOutAsync();
+                
+                // ログイン画面を表示
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    var loginWindow = new Views.LoginView();
+                    loginWindow.Show();
+                    
+                    // メインウィンドウを閉じる
+                    foreach (Window window in Application.Current.Windows)
+                    {
+                        if (window is Views.MainView)
+                        {
+                            window.Close();
+                            break;
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"サインアウトに失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
         #endregion
 
     }

@@ -1,10 +1,6 @@
-using Dapper;
-
 using KdxDesigner.Models;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using Kdx.Contracts.DTOs;
-
-using System.Data.OleDb;
 
 namespace KdxDesigner.Services.CylinderIO
 {
@@ -13,11 +9,11 @@ namespace KdxDesigner.Services.CylinderIO
     /// </summary>
     public class CylinderIOService : ICylinderIOService
     {
-        private readonly string _connectionString;
+        private readonly IAccessRepository _repository;
 
         public CylinderIOService(IAccessRepository repository)
         {
-            _connectionString = repository.ConnectionString;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         /// <summary>
@@ -27,14 +23,9 @@ namespace KdxDesigner.Services.CylinderIO
         {
             try
             {
-                using var connection = new OleDbConnection(_connectionString);
-                var sql = @"
-                    SELECT * FROM CylinderIO 
-                    WHERE CylinderId = @CylinderId AND PlcId = @PlcId
-                    ORDER BY SortOrder, IOType";
-                return connection.Query<Kdx.Contracts.DTOs.CylinderIO>(sql, new { CylinderId = cylinderId, PlcId = plcId }).ToList();
+                return _repository.GetCylinderIOs(cylinderId, plcId);
             }
-            catch (OleDbException ex) when (ex.Message.Contains("CylinderIO") && ex.Message.Contains("見つかりませんでした"))
+            catch (Exception ex) when (ex.Message.Contains("CylinderIO") && ex.Message.Contains("見つかりませんでした"))
             {
                 // テーブルが存在しない場合は空のリストを返す
                 return new List<Kdx.Contracts.DTOs.CylinderIO>();
@@ -46,12 +37,7 @@ namespace KdxDesigner.Services.CylinderIO
         /// </summary>
         public List<Kdx.Contracts.DTOs.CylinderIO> GetIOCylinders(string ioAddress, int plcId)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = @"
-                SELECT * FROM CylinderIO 
-                WHERE IOAddress = @IOAddress AND PlcId = @PlcId
-                ORDER BY CylinderId";
-            return connection.Query<Kdx.Contracts.DTOs.CylinderIO>(sql, new { IOAddress = ioAddress, PlcId = plcId }).ToList();
+            return _repository.GetIOCylinders(ioAddress, plcId);
         }
 
         /// <summary>
@@ -59,45 +45,16 @@ namespace KdxDesigner.Services.CylinderIO
         /// </summary>
         public void AddAssociation(int cylinderId, string ioAddress, int plcId, string ioType, string? comment = null)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            connection.Open();
-            using var transaction = connection.BeginTransaction();
+            // 既存の関連付けをチェック
+            var existing = _repository.GetCylinderIOs(cylinderId, plcId)
+                .FirstOrDefault(c => c.IOAddress == ioAddress);
 
-            try
+            if (existing != null)
             {
-                // 既存の関連付けをチェック
-                var checkSql = @"
-                    SELECT COUNT(*) FROM CylinderIO 
-                    WHERE CylinderId = @CylinderId 
-                      AND IOAddress = @IOAddress 
-                      AND PlcId = @PlcId";
-                
-                var count = connection.ExecuteScalar<int>(checkSql, 
-                    new { CylinderId = cylinderId, IOAddress = ioAddress, PlcId = plcId }, 
-                    transaction);
-
-                if (count > 0)
-                {
-                    throw new InvalidOperationException("この関連付けは既に存在します。");
-                }
-
-                // 新規追加
-                var insertSql = @"
-                    INSERT INTO CylinderIO (CylinderId, IOAddress, PlcId, IOType, Comment)
-                    VALUES (@CylinderId, @IOAddress, @PlcId, @IOType, @Comment)";
-                
-                connection.Execute(insertSql, 
-                    new { CylinderId = cylinderId, IOAddress = ioAddress, PlcId = plcId, 
-                          IOType = ioType, Comment = comment }, 
-                    transaction);
-
-                transaction.Commit();
+                throw new InvalidOperationException("この関連付けは既に存在します。");
             }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
+
+            _repository.AddCylinderIOAssociation(cylinderId, ioAddress, plcId, ioType, comment);
         }
 
         /// <summary>
@@ -105,14 +62,7 @@ namespace KdxDesigner.Services.CylinderIO
         /// </summary>
         public void RemoveAssociation(int cylinderId, string ioAddress, int plcId)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = @"
-                DELETE FROM CylinderIO 
-                WHERE CylinderId = @CylinderId 
-                  AND IOAddress = @IOAddress 
-                  AND PlcId = @PlcId";
-            
-            connection.Execute(sql, new { CylinderId = cylinderId, IOAddress = ioAddress, PlcId = plcId });
+            _repository.RemoveCylinderIOAssociation(cylinderId, ioAddress, plcId);
         }
 
         /// <summary>
@@ -120,9 +70,7 @@ namespace KdxDesigner.Services.CylinderIO
         /// </summary>
         public List<Kdx.Contracts.DTOs.CylinderIO> GetAllAssociations(int plcId)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "SELECT * FROM CylinderIO WHERE PlcId = @PlcId ORDER BY CylinderId, SortOrder";
-            return connection.Query<Kdx.Contracts.DTOs.CylinderIO>(sql, new { PlcId = plcId }).ToList();
+            return _repository.GetAllCylinderIOAssociations(plcId);
         }
     }
 }

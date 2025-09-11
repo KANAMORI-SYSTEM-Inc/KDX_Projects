@@ -5,15 +5,22 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Postgrest.Attributes;
+using Postgrest.Models;
 
 namespace Kdx.Contracts.DTOs
 {
-    [Table("Device")]
-    public class Device
+    [Postgrest.Attributes.Table("Device")]
+    public class Device : BaseModel
     {
-        [Key]
+        [PrimaryKey("Id")]
+        [Postgrest.Attributes.Column("Id")]
         public int Id { get; set; }
+        
+        [Postgrest.Attributes.Column("DeviceName")]
         public string? DeviceName { get; set; }
+        
+        [Postgrest.Attributes.Column("ModelId")]
         public int? ModelId { get; set; }
     }
     

@@ -9,6 +9,8 @@ using System.Linq;
 using System.Windows;
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
+using MnemonicDevice = Kdx.Contracts.DTOs.MnemonicDevice;
+using MnemonicSpeedDevice = Kdx.Contracts.DTOs.MnemonicSpeedDevice;
 
 namespace KdxDesigner.ViewModels
 {
@@ -21,25 +23,25 @@ namespace KdxDesigner.ViewModels
         private readonly int? _plcId;
         private readonly int? _cycleId;
 
-        [ObservableProperty] private ObservableCollection<MnemonicDevice> mnemonicDevices = new();
-        [ObservableProperty] private ObservableCollection<MnemonicTimerDevice> timerDevices = new();
-        [ObservableProperty] private ObservableCollection<MnemonicSpeedDevice> speedDevices = new();
+        [ObservableProperty] private ObservableCollection<MnemonicDevice> _mnemonicDevices = new();
+        [ObservableProperty] private ObservableCollection<MnemonicTimerDevice> _timerDevices = new();
+        [ObservableProperty] private ObservableCollection<MnemonicSpeedDevice> _speedDevices = new();
         
-        [ObservableProperty] private int selectedTabIndex = 0;
-        [ObservableProperty] private string statusMessage = string.Empty;
+        [ObservableProperty] private int _selectedTabIndex = 0;
+        [ObservableProperty] private string _statusMessage = string.Empty;
         
         // フィルタリング用
-        [ObservableProperty] private string filterText = string.Empty;
-        [ObservableProperty] private int? selectedMnemonicType;
+        [ObservableProperty] private string _filterText = string.Empty;
+        [ObservableProperty] private int? _selectedMnemonicType;
         
         // 統計情報
-        [ObservableProperty] private int totalMnemonicDeviceCount;
-        [ObservableProperty] private int totalTimerDeviceCount;
-        [ObservableProperty] private int totalSpeedDeviceCount;
-        [ObservableProperty] private int processCount;
-        [ObservableProperty] private int detailCount;
-        [ObservableProperty] private int operationCount;
-        [ObservableProperty] private int cylinderCount;
+        [ObservableProperty] private int _totalMnemonicDeviceCount;
+        [ObservableProperty] private int _totalTimerDeviceCount;
+        [ObservableProperty] private int _totalSpeedDeviceCount;
+        [ObservableProperty] private int _processCount;
+        [ObservableProperty] private int _detailCount;
+        [ObservableProperty] private int _operationCount;
+        [ObservableProperty] private int _cylinderCount;
 
         public ObservableCollection<MnemonicTypeItem> MnemonicTypes { get; } = new()
         {
@@ -77,7 +79,20 @@ namespace KdxDesigner.ViewModels
                 if (_plcId.HasValue)
                 {
                     var devices = _memoryStore.GetMnemonicDevices(_plcId.Value);
-                    MnemonicDevices = new ObservableCollection<MnemonicDevice>(devices);
+                    // KdxDesigner.Models から Kdx.Contracts.DTOs へマッピング
+                    var dtoDevices = devices.Select(d => new MnemonicDevice
+                    {
+                        ID = d.ID,
+                        MnemonicId = d.MnemonicId,
+                        RecordId = d.RecordId,
+                        DeviceLabel = d.DeviceLabel,
+                        StartNum = d.StartNum,
+                        OutCoilCount = d.OutCoilCount,
+                        PlcId = d.PlcId,
+                        Comment1 = d.Comment1,
+                        Comment2 = d.Comment2
+                    }).ToList();
+                    MnemonicDevices = new ObservableCollection<MnemonicDevice>(dtoDevices);
                     
                     // 統計情報の更新
                     TotalMnemonicDeviceCount = devices.Count;
@@ -99,7 +114,15 @@ namespace KdxDesigner.ViewModels
                 if (_plcId.HasValue)
                 {
                     var speeds = _memoryStore.GetSpeedDevices(_plcId.Value);
-                    SpeedDevices = new ObservableCollection<MnemonicSpeedDevice>(speeds);
+                    // KdxDesigner.Models から Kdx.Contracts.DTOs へマッピング
+                    var dtoSpeeds = speeds.Select(s => new MnemonicSpeedDevice
+                    {
+                        ID = s.ID,
+                        CylinderId = s.CylinderId,
+                        Device = s.Device,
+                        PlcId = s.PlcId
+                    }).ToList();
+                    SpeedDevices = new ObservableCollection<MnemonicSpeedDevice>(dtoSpeeds);
                     TotalSpeedDeviceCount = speeds.Count;
                 }
                 
@@ -140,7 +163,20 @@ namespace KdxDesigner.ViewModels
                     ).ToList();
                 }
                 
-                MnemonicDevices = new ObservableCollection<MnemonicDevice>(devices);
+                // KdxDesigner.Models から Kdx.Contracts.DTOs へマッピング
+                var dtoDevices = devices.Select(d => new MnemonicDevice
+                {
+                    ID = d.ID,
+                    MnemonicId = d.MnemonicId,
+                    RecordId = d.RecordId,
+                    DeviceLabel = d.DeviceLabel,
+                    StartNum = d.StartNum,
+                    OutCoilCount = d.OutCoilCount,
+                    PlcId = d.PlcId,
+                    Comment1 = d.Comment1,
+                    Comment2 = d.Comment2
+                }).ToList();
+                MnemonicDevices = new ObservableCollection<MnemonicDevice>(dtoDevices);
             }
         }
 

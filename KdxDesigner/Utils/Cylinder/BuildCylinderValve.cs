@@ -1,4 +1,4 @@
-﻿using KdxDesigner.Models;
+using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;
@@ -26,7 +26,7 @@ namespace KdxDesigner.Utils.Cylinder
                 List<MnemonicDeviceWithOperation> operations,
                 List<MnemonicDeviceWithCylinder> cylinders,
                 List<MnemonicTimerDeviceWithOperation> timers,
-                List<Error> mnemonicError,
+                List<ProcessError> mnemonicError,
                 List<ProsTime> prosTimes,
                 List<IO> ioList)
         {
@@ -147,7 +147,7 @@ namespace KdxDesigner.Utils.Cylinder
                 List<MnemonicDeviceWithOperation> operations,
                 List<MnemonicDeviceWithCylinder> cylinders,
                 List<MnemonicTimerDeviceWithOperation> timers,
-                List<Error> mnemonicError,
+                List<ProcessError> mnemonicError,
                 List<ProsTime> prosTimes,
                 List<IO> ioList)
         {
@@ -247,7 +247,7 @@ namespace KdxDesigner.Utils.Cylinder
                 List<MnemonicDeviceWithOperation> operations,
                 List<MnemonicDeviceWithCylinder> cylinders,
                 List<MnemonicTimerDeviceWithOperation> timers,
-                List<Error> mnemonicError,
+                List<ProcessError> mnemonicError,
                 List<ProsTime> prosTimes,
                 List<IO> ioList)
         {

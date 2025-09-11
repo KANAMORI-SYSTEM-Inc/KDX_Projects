@@ -5,6 +5,7 @@ using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Utils.Operation;
 using KdxDesigner.ViewModels;
+using MnemonicSpeedDevice = Kdx.Contracts.DTOs.MnemonicSpeedDevice;
 
 namespace KdxDesigner.Utils
 {
@@ -27,7 +28,7 @@ namespace KdxDesigner.Utils
             List<MnemonicDeviceWithCylinder> cylinders,
             List<MnemonicTimerDeviceWithOperation> timers,
             List<MnemonicSpeedDevice> speed,
-            List<Error> mnemonicErrors,
+            List<ProcessError> mnemonicErrors,
             List<ProsTime> prosTimes,
             List<IO> ioList)
         {

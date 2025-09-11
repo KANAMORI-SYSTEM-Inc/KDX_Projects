@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 
 using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.Services.MemonicTimerDevice;
 using KdxDesigner.Views;
 

@@ -1,14 +1,9 @@
-using Dapper;
-
-using KdxDesigner.Models;
-using KdxDesigner.Models.Define;
-using KdxDesigner.Services.Access;
-using KdxDesigner.ViewModels;
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
+using Kdx.Contracts.Interfaces;
 
-using System.Data;
-using System.Data.OleDb;
+using KdxDesigner.ViewModels;
+
 using Timer = Kdx.Contracts.DTOs.Timer;
 
 namespace KdxDesigner.Services.MemonicTimerDevice
@@ -44,9 +39,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <returns>MnemonicTimerDeviceのリスト</returns>
         public List<MnemonicTimerDevice> GetMnemonicTimerDevice(int plcId, int cycleId)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "SELECT * FROM MnemonicTimerDevice WHERE PlcId = @PlcId AND CycleId = @CycleId";
-            return connection.Query<MnemonicTimerDevice>(sql, new { PlcId = plcId, CycleId = cycleId }).ToList();
+            var mnemonicTimerDevice = _repository.GetMnemonicTimerDevicesByCycleId(plcId, cycleId);
+            return mnemonicTimerDevice;
         }
 
         /// <summary>
@@ -54,9 +48,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// </summary>
         public void DeleteAllMnemonicTimerDevice()
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "DELETE FROM MnemonicTimerDevice";
-            connection.Execute(sql);
+            _repository.DeleteAllMnemonicTimerDevices();
+
         }
 
         /// <summary>
@@ -68,23 +61,20 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <returns>MnemonicTimerDeviceのリスト</returns>
         public List<MnemonicTimerDevice> GetMnemonicTimerDeviceByCycle(int plcId, int cycleId, int mnemonicId)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "SELECT * FROM MnemonicTimerDevice WHERE PlcId = @PlcId AND CycleId = @CycleId AND MnemonicId = @MnemonicId";
-            return connection.Query<MnemonicTimerDevice>(sql, new { PlcId = plcId, CycleId = cycleId, MnemonicId = mnemonicId }).ToList();
+            var mnemonicTimerDevice = _repository.GetMnemonicTimerDevicesByCycleAndMnemonicId(plcId, cycleId, mnemonicId);
+            return mnemonicTimerDevice;
         }
 
         /// <summary>
         /// MnemonicTimerDeviceをPlcIdとMnemonicIdで取得するヘルパーメソッド
         /// </summary>
         /// <param name="plcId">PlcId</param>
-        /// <param name="cycleId">CycleId</param>
         /// <param name="mnemonicId">MnemonicId</param>
         /// <returns>MnemonicTimerDeviceのリスト</returns>
         public List<MnemonicTimerDevice> GetMnemonicTimerDeviceByMnemonic(int plcId, int mnemonicId)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "SELECT * FROM MnemonicTimerDevice WHERE PlcId = @PlcId AND MnemonicId = @MnemonicId";
-            return connection.Query<MnemonicTimerDevice>(sql, new { PlcId = plcId, MnemonicId = mnemonicId }).ToList();
+            var mnemonicTimerDevice = _repository.GetMnemonicTimerDevicesByMnemonicId(plcId, mnemonicId);
+            return mnemonicTimerDevice;
         }
 
         /// <summary>
@@ -95,62 +85,22 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <returns>単一のMnemonicTimerDevice</returns>
         public List<MnemonicTimerDevice> GetMnemonicTimerDeviceByTimerId(int plcId, int timerId)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "SELECT * FROM MnemonicTimerDevice WHERE PlcId = @PlcId AND TimerId = @TimerId";
-            return connection.Query<MnemonicTimerDevice>(sql, new { PlcId = plcId, TimerId = timerId }).ToList();
+
+            var mnemonicTimerDevice = _repository.GetMnemonicTimerDevicesByTimerId(plcId, timerId);
+            return mnemonicTimerDevice;
         }
 
         /// <summary>
         /// MnemonicTimerDeviceを挿入または更新するヘルパーメソッド
         /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="transaction"></param>
         /// <param name="deviceToSave"></param>
         /// <param name="existingRecord"></param>
         private void UpsertMnemonicTimerDevice(
-            OleDbConnection connection,
-            OleDbTransaction transaction,
             MnemonicTimerDevice deviceToSave,
             MnemonicTimerDevice? existingRecord)
         {
-            var parameters = new DynamicParameters(); // オブジェクトからパラメータを自動生成
-
-            parameters.Add("MnemonicId", deviceToSave.MnemonicId, DbType.Int32);
-            parameters.Add("RecordId", deviceToSave.RecordId, DbType.Int32);
-            parameters.Add("TimerId", deviceToSave.TimerId, DbType.Int32);
-            parameters.Add("TimerCategoryId", deviceToSave.TimerCategoryId, DbType.Int32);
-            parameters.Add("ProcessTimerDevice", deviceToSave.TimerDeviceT, DbType.String);
-            parameters.Add("TimerDevice", deviceToSave.TimerDeviceZR, DbType.String);
-            parameters.Add("PlcId", deviceToSave.PlcId, DbType.Int32); // result[0]は常に安全
-            parameters.Add("CycleId", deviceToSave.CycleId, DbType.Int32); // result[1]も常に安全
-            parameters.Add("Comment1", deviceToSave.Comment1, DbType.String);
-
-
-            if (existingRecord != null)
-            {
-                connection.Execute(@"
-                    UPDATE [MnemonicTimerDevice] SET
-                        [TimerCategoryId] = @TimerCategoryId,
-                        [ProcessTimerDevice] = @ProcessTimerDevice,
-                        [TimerDevice] = @TimerDevice,
-                        [PlcId] = @PlcId,
-                        [CycleId] = @CycleId,
-                        [Comment1] = @Comment1
-                    WHERE [MnemonicId] = @MnemonicId 
-                      AND [RecordId] = @RecordId 
-                      AND [TimerId] = @TimerId",
-                    parameters, transaction);
-            }
-            else
-            {
-                connection.Execute(@"
-                    INSERT INTO [MnemonicTimerDevice] (
-                        [MnemonicId], [RecordId], [TimerId], [TimerCategoryId], [ProcessTimerDevice], [TimerDevice], [PlcId], [CycleId], [Comment1]
-                    ) VALUES (
-                        @MnemonicId, @RecordId, @TimerId, @TimerCategoryId, @ProcessTimerDevice, @TimerDevice, @PlcId, @CycleId, @Comment1
-                    )",
-                    parameters, transaction);
-            }
+            // IAccessRepository経由でUpsertを実行
+            _repository.UpsertMnemonicTimerDevice(deviceToSave);
         }
 
         /// <summary>
@@ -166,10 +116,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             List<Timer> timers,
             List<ProcessDetail> details, int startNum, int plcId, ref int count)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            connection.Open();
-            using var transaction = connection.BeginTransaction();
-
             try
             {
                 // 1. 既存データを取得し、(MnemonicId, RecordId, TimerId)の複合キーを持つ辞書に変換
@@ -246,18 +192,15 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                                 Comment1 = timer.TimerName
                             };
 
-                            UpsertMnemonicTimerDevice(connection, transaction, deviceToSave, existingRecord);
+                            UpsertMnemonicTimerDevice(deviceToSave, existingRecord);
                             count++;
                         }
                     }
                 }
-
-                transaction.Commit();
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
-                Console.WriteLine($"SaveWithOperation 失敗: {ex.Message}");
+                Console.WriteLine($"SaveWithDetail 失敗: {ex.Message}");
                 // エラーログの記録や上位への例外通知など
                 // Debug.WriteLine($"SaveWithOperation 失敗: {ex.Message}");
                 throw;
@@ -271,7 +214,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <param name="operations"></param>
         /// <param name="startNum"></param>
         /// <param name="plcId"></param>
-        /// <param name="cycleId"></param>
         /// <param name="count"></param>
         /// issued by the user
         public void SaveWithOperation(
@@ -279,10 +221,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             List<Operation> operations,
             int startNum, int plcId, ref int count)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            connection.Open();
-            using var transaction = connection.BeginTransaction();
-
             try
             {
                 // 1. 既存データを取得し、(MnemonicId, RecordId, TimerId)の複合キーを持つ辞書に変換
@@ -358,17 +296,14 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                             };
 
                             // MnemonicTimerDeviceを挿入または更新
-                            UpsertMnemonicTimerDevice(connection, transaction, deviceToSave, existingRecord);
+                            UpsertMnemonicTimerDevice(deviceToSave, existingRecord);
                             count++;
                         }
                     }
                 }
-
-                transaction.Commit();
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
                 Console.WriteLine($"SaveWithOperation 失敗: {ex.Message}");
                 // エラーログの記録や上位への例外通知など
                 // Debug.WriteLine($"SaveWithOperation 失敗: {ex.Message}");
@@ -389,10 +324,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             List<Cylinder> cylinders,
             int startNum, int plcId, ref int count)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            connection.Open();
-            using var transaction = connection.BeginTransaction();
-
             try
             {
                 // 1. 既存データを取得し、(MnemonicId, RecordId, TimerId)の複合キーを持つ辞書に変換
@@ -470,18 +401,15 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                                 Comment1 = timer.TimerName
                             };
 
-                            UpsertMnemonicTimerDevice(connection, transaction, deviceToSave, existingRecord);
+                            UpsertMnemonicTimerDevice(deviceToSave, existingRecord);
                             count++;
                         }
                     }
                 }
                 // ★★★ 修正箇所 エンド ★★★
-
-                transaction.Commit();
             }
             catch (Exception ex)
             {
-                transaction.Rollback();
                 Console.WriteLine($"SaveWithCY 失敗: {ex.Message}");
                 throw;
             }

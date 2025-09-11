@@ -5,14 +5,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Postgrest.Attributes;
+using Postgrest.Models;
 
 namespace Kdx.Contracts.DTOs
 {
-    [Table("DriveMain")]
-    public class DriveMain
+    [Postgrest.Attributes.Table("DriveMain")]
+    public class DriveMain : BaseModel
     {
-        [Key]
+        [PrimaryKey("Id")]
+        [Postgrest.Attributes.Column("Id")]
         public int Id { get; set; }
+        [Postgrest.Attributes.Column("DriveMainName")]
         public string? DriveMainName { get; set; }
     }
     

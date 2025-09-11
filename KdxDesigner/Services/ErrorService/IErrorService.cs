@@ -16,20 +16,13 @@ namespace KdxDesigner.Services.ErrorService
         void DeleteErrorTable();
 
         /// <summary>
-        /// 指定されたニーモニックIDのエラーメッセージを取得する
-        /// </summary>
-        /// <param name="mnemonicId">ニーモニックID</param>
-        /// <returns>エラーメッセージのリスト</returns>
-        List<ErrorMessage> GetErrorMessage(int mnemonicId);
-
-        /// <summary>
         /// 指定された条件のエラー情報を取得する
         /// </summary>
         /// <param name="plcId">PLC ID</param>
         /// <param name="cycleId">サイクルID</param>
         /// <param name="mnemonicId">ニーモニックID</param>
         /// <returns>エラー情報のリスト</returns>
-        List<Kdx.Contracts.DTOs.Error> GetErrors(int plcId, int cycleId, int mnemonicId);
+        List<Kdx.Contracts.DTOs.ProcessError> GetErrors(int plcId, int cycleId, int mnemonicId);
 
         /// <summary>
         /// 操作リストからエラー情報を生成し保存する

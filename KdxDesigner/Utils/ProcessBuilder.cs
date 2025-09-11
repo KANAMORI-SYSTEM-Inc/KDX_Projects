@@ -2,7 +2,7 @@
 using KdxDesigner.Models;
 using KdxDesigner.Utils.Process;
 using KdxDesigner.Services;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using System.Windows;
 using KdxDesigner.Utils.ProcessDetail;
 using KdxDesigner.Models.Define;

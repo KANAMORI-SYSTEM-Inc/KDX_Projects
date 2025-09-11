@@ -1,7 +1,7 @@
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using KdxDesigner.Models;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.Services.Error;
 
 using KdxDesigner.Utils;

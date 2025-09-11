@@ -1,10 +1,6 @@
-using Dapper;
-
 using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
-using KdxDesigner.Services.Access;
-
-using System.Data.OleDb;
+using Kdx.Contracts.Interfaces;
 
 namespace KdxDesigner.Services.OperationIO
 {
@@ -13,11 +9,11 @@ namespace KdxDesigner.Services.OperationIO
     /// </summary>
     public class OperationIOService : IOperationIOService
     {
-        private readonly string _connectionString;
+        private readonly IAccessRepository _repository;
 
         public OperationIOService(IAccessRepository repository)
         {
-            _connectionString = repository.ConnectionString;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         /// <summary>
@@ -27,14 +23,9 @@ namespace KdxDesigner.Services.OperationIO
         {
             try
             {
-                using var connection = new OleDbConnection(_connectionString);
-                var sql = @"
-                    SELECT * FROM OperationIO 
-                    WHERE OperationId = @OperationId
-                    ORDER BY SortOrder, IOUsage";
-                return connection.Query<Kdx.Contracts.DTOs.OperationIO>(sql, new { OperationId = operationId }).ToList();
+                return _repository.GetOperationIOs(operationId);
             }
-            catch (OleDbException ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
+            catch (Exception ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
             {
                 // テーブルが存在しない場合は空のリストを返す
                 return new List<Kdx.Contracts.DTOs.OperationIO>();
@@ -48,14 +39,9 @@ namespace KdxDesigner.Services.OperationIO
         {
             try
             {
-                using var connection = new OleDbConnection(_connectionString);
-                var sql = @"
-                    SELECT * FROM OperationIO 
-                    WHERE IOAddress = @IOAddress AND PlcId = @PlcId
-                    ORDER BY OperationId";
-                return connection.Query<Kdx.Contracts.DTOs.OperationIO>(sql, new { IOAddress = ioAddress, PlcId = plcId }).ToList();
+                return _repository.GetIOOperations(ioAddress, plcId);
             }
-            catch (OleDbException ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
+            catch (Exception ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
             {
                 return new List<Kdx.Contracts.DTOs.OperationIO>();
             }
@@ -66,45 +52,16 @@ namespace KdxDesigner.Services.OperationIO
         /// </summary>
         public void AddAssociation(int operationId, string ioAddress, int plcId, string ioUsage, string? comment = null)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            connection.Open();
-            using var transaction = connection.BeginTransaction();
+            // 既存の関連付けをチェック
+            var existing = _repository.GetOperationIOs(operationId)
+                .FirstOrDefault(o => o.Address == ioAddress && o.PlcId == plcId);
 
-            try
+            if (existing != null)
             {
-                // 既存の関連付けをチェック
-                var checkSql = @"
-                    SELECT COUNT(*) FROM OperationIO 
-                    WHERE OperationId = @OperationId 
-                      AND IOAddress = @IOAddress 
-                      AND PlcId = @PlcId";
-                
-                var count = connection.ExecuteScalar<int>(checkSql, 
-                    new { OperationId = operationId, IOAddress = ioAddress, PlcId = plcId }, 
-                    transaction);
-
-                if (count > 0)
-                {
-                    throw new InvalidOperationException("この関連付けは既に存在します。");
-                }
-
-                // 新規追加
-                var insertSql = @"
-                    INSERT INTO OperationIO (OperationId, IOAddress, PlcId, IOUsage, Comment)
-                    VALUES (@OperationId, @IOAddress, @PlcId, @IOUsage, @Comment)";
-                
-                connection.Execute(insertSql, 
-                    new { OperationId = operationId, IOAddress = ioAddress, PlcId = plcId, 
-                          IOUsage = ioUsage, Comment = comment }, 
-                    transaction);
-
-                transaction.Commit();
+                throw new InvalidOperationException("この関連付けは既に存在します。");
             }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
+
+            _repository.AddOperationIOAssociation(operationId, ioAddress, plcId, ioUsage, comment);
         }
 
         /// <summary>
@@ -112,14 +69,7 @@ namespace KdxDesigner.Services.OperationIO
         /// </summary>
         public void RemoveAssociation(int operationId, string ioAddress, int plcId)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = @"
-                DELETE FROM OperationIO 
-                WHERE OperationId = @OperationId 
-                  AND IOAddress = @IOAddress 
-                  AND PlcId = @PlcId";
-            
-            connection.Execute(sql, new { OperationId = operationId, IOAddress = ioAddress, PlcId = plcId });
+            _repository.RemoveOperationIOAssociation(operationId, ioAddress, plcId);
         }
 
         /// <summary>
@@ -129,11 +79,9 @@ namespace KdxDesigner.Services.OperationIO
         {
             try
             {
-                using var connection = new OleDbConnection(_connectionString);
-                var sql = "SELECT * FROM OperationIO WHERE PlcId = @PlcId ORDER BY OperationId, SortOrder";
-                return connection.Query<Kdx.Contracts.DTOs.OperationIO>(sql, new { PlcId = plcId }).ToList();
+                return _repository.GetAllOperationIOAssociations(plcId);
             }
-            catch (OleDbException ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
+            catch (Exception ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
             {
                 return new List<Kdx.Contracts.DTOs.OperationIO>();
             }

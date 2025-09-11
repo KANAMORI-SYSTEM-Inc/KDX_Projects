@@ -538,10 +538,31 @@ namespace Kdx.Infrastructure.Repositories
 
         public async Task<List<IO>> GetIoListAsync()
         {
-            var response = await _supabaseClient
-                .From<IO>()
-                .Get();
-            return response.Models;
+            var allIOs = new List<IO>();
+            const int pageSize = 1000;
+            int offset = 0;
+            bool hasMore = true;
+
+            while (hasMore)
+            {
+                var response = await _supabaseClient
+                    .From<IO>()
+                    .Range(offset, offset + pageSize - 1)
+                    .Get();
+                
+                if (response?.Models != null && response.Models.Any())
+                {
+                    allIOs.AddRange(response.Models);
+                    offset += pageSize;
+                    hasMore = response.Models.Count == pageSize;
+                }
+                else
+                {
+                    hasMore = false;
+                }
+            }
+
+            return allIOs;
         }
 
         public async Task<List<TimerCategory>> GetTimerCategoryAsync()
@@ -1280,7 +1301,6 @@ namespace Kdx.Infrastructure.Repositories
         {
             try
             {
-                Debug.WriteLine($"[GetProsTimeByMnemonicIdAsync] 開始 - plcId: {plcId}, mnemonicId: {mnemonicId}");
                 
                 var response = await _supabaseClient
                     .From<ProsTime>()
@@ -1288,13 +1308,11 @@ namespace Kdx.Infrastructure.Repositories
                     .Get();
                 
                 var prosTimes = response?.Models ?? new List<ProsTime>();
-                Debug.WriteLine($"[GetProsTimeByMnemonicIdAsync] 取得完了 - {prosTimes.Count}件");
                 
                 return prosTimes;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[GetProsTimeByMnemonicIdAsync] エラー: {ex.Message}");
                 return new List<ProsTime>();
             }
         }

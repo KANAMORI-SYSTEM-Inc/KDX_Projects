@@ -6,10 +6,11 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C3D4E5F6-A7B8-9012-3456-789012CDEF01}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
-		docker-compose.yml = docker-compose.yml
-		Directory.Build.props = Directory.Build.props
-		README.md = README.md
+		KdxDesigner\appsettings.json = KdxDesigner\appsettings.json
 		CLAUDE.md = CLAUDE.md
+		Directory.Build.props = Directory.Build.props
+		docker-compose.yml = docker-compose.yml
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kdx.Contracts", "Kdx.Contracts\Kdx.Contracts.csproj", "{0C45821C-5ADA-4A38-AAC4-8ECF787A377E}"
@@ -19,8 +20,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kdx.Infrastructure", "Kdx.Infrastructure\Kdx.Infrastructure.csproj", "{7FAE96C0-63EC-4CBF-9458-528B57475373}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KdxDesigner", "KdxDesigner\KdxDesigner.csproj", "{234843D3-7D30-4DFE-8BB6-86B283C6B2A8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KdxMigrationAPI", "KdxMigrationAPI\KdxMigrationAPI.csproj", "{84C1280B-219E-4410-AAD9-AA265259A858}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,18 +79,6 @@ Global
 		{234843D3-7D30-4DFE-8BB6-86B283C6B2A8}.Release|x64.Build.0 = Release|Any CPU
 		{234843D3-7D30-4DFE-8BB6-86B283C6B2A8}.Release|x86.ActiveCfg = Release|Any CPU
 		{234843D3-7D30-4DFE-8BB6-86B283C6B2A8}.Release|x86.Build.0 = Release|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Debug|x64.Build.0 = Debug|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Debug|x86.Build.0 = Debug|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Release|Any CPU.Build.0 = Release|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Release|x64.ActiveCfg = Release|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Release|x64.Build.0 = Release|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Release|x86.ActiveCfg = Release|Any CPU
-		{84C1280B-219E-4410-AAD9-AA265259A858}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

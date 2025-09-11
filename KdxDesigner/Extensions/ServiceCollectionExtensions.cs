@@ -4,7 +4,7 @@ using Kdx.Infrastructure.Cache;
 using Kdx.Infrastructure.Options;
 using Kdx.Infrastructure.Repositories;
 using Kdx.Infrastructure.Services;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.Services.MnemonicDevice;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

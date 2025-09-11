@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 using KdxDesigner.Models.Define;
@@ -14,7 +14,6 @@ namespace KdxDesigner.ViewModels
 {
     public partial class SettingsViewModel : ObservableObject
     {
-        private readonly DatabasePathManager _pathManager;
 
         [ObservableProperty]
         private ObservableCollection<SettingItem> _settingItems = new();
@@ -27,10 +26,8 @@ namespace KdxDesigner.ViewModels
         public SettingsViewModel(Window window)
         {
             _window = window;
-            _pathManager = new DatabasePathManager();
 
             // 現在の設定を読み込んで表示
-            DatabasePath = _pathManager.CurrentDatabasePath;
             LoadSettings();
         }
 
@@ -47,27 +44,6 @@ namespace KdxDesigner.ViewModels
                                    .FirstOrDefault()?.Description ?? ""
                 })
             );
-        }
-
-        /// <summary>
-        /// ★【新規】データベースパスの変更ダイアログを開くコマンド
-        /// </summary>
-        [RelayCommand]
-        private void ChangeDatabasePath()
-        {
-            // ★ SelectAndSaveNewPathメソッドを呼び出す
-            if (_pathManager.SelectAndSaveNewPath())
-            {
-                // パスが正常に選択・保存されたら、UIの表示も更新
-                DatabasePath = _pathManager.CurrentDatabasePath;
-
-                MessageBox.Show(
-                    "データベースのパスが変更されました。\nアプリケーションを再起動して設定を反映してください。",
-                    "情報",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            // キャンセルされた場合は何もしない
         }
 
         /// <summary>

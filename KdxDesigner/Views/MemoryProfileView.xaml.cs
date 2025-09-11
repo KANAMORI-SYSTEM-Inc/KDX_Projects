@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 
 using KdxDesigner.ViewModels;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 
 namespace KdxDesigner.Views
 {

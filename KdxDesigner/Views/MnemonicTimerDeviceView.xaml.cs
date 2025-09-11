@@ -1,4 +1,4 @@
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.ViewModels;
 using System.Windows;
 

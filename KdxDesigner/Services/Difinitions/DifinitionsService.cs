@@ -1,12 +1,4 @@
-﻿using Dapper;
-
-using KdxDesigner.Models;
-using KdxDesigner.Services.Access;
-
-using System.Data;
-using System.Data.OleDb;
-using System.Diagnostics;
-
+using Kdx.Contracts.Interfaces;
 
 namespace KdxDesigner.Services.Difinitions
 {
@@ -15,21 +7,26 @@ namespace KdxDesigner.Services.Difinitions
     /// </summary>
     internal class DifinitionsService : IDifinitionsService
     {
+        private readonly IAccessRepository _repository;
 
-        private readonly string _connectionString;
-
-        public DifinitionsService(string connectionString)
+        public DifinitionsService(IAccessRepository repository)
         {
-            _connectionString = connectionString;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
-        // AccessRepository.cs に以下を追加:
         public List<Models.Difinitions> GetDifinitions(string category)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "SELECT * FROM Difinitions WHERE Category = @Category";
-            return connection.Query<Models.Difinitions>(sql, new { Category = category }).ToList();
+            // IAccessRepositoryのGetDifinitionsメソッドを使用（categoryパラメータを渡す）
+            var dtoDifinitions = _repository.GetDifinitions(category ?? string.Empty);
+            
+            // DTOからModelsへ変換
+            return dtoDifinitions.Select(d => new Models.Difinitions
+            {
+                // プロパティをマッピング（Difinitionsモデルの定義に基づいて調整が必要）
+                ID = d.ID,
+                Category = d.Category,
+                // 他のプロパティも必要に応じてマッピング
+            }).ToList();
         }
-
     }
 }

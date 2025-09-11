@@ -1,17 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Postgrest.Attributes;
+using Postgrest.Models;
 
 namespace Kdx.Contracts.DTOs
 {
-    [Table("TimerRecordIds")]
-    public class TimerRecordId
+    [Postgrest.Attributes.Table("TimerRecordIds")]
+    public class TimerRecordId : BaseModel
     {
-        [Key]
-        [Column(Order = 0)]
+        [PrimaryKey("TimerId")]
+        [Postgrest.Attributes.Column("TimerId")]
         public int TimerId { get; set; }
 
-        [Key]
-        [Column(Order = 1)]
+        [PrimaryKey("RecordId")]
+        [Postgrest.Attributes.Column("RecordId")]
         public int RecordId { get; set; }
     }
 }

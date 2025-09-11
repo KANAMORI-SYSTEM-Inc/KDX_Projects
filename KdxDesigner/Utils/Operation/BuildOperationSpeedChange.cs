@@ -7,6 +7,7 @@ using KdxDesigner.ViewModels;
 using Kdx.Contracts.DTOs;
 using OperationDto = Kdx.Contracts.DTOs.Operation;
 
+using MnemonicSpeedDevice = Kdx.Contracts.DTOs.MnemonicSpeedDevice;
 namespace KdxDesigner.Utils.Operation
 {
     internal class BuildOperationSpeedChange
@@ -29,7 +30,7 @@ namespace KdxDesigner.Utils.Operation
             List<MnemonicDeviceWithOperation> operations,
             List<MnemonicDeviceWithCylinder> cylinders,
             List<MnemonicTimerDeviceWithOperation> timers,
-            List<Error> mnemonicError,
+            List<ProcessError> mnemonicError,
             List<ProsTime> prosTimes,
             List<MnemonicSpeedDevice> speeds,
             List<IO> ioList,

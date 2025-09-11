@@ -16,7 +16,7 @@ namespace KdxDesigner.Models
                 new MnemonicTypeInfo { Id = 1, TableName = "Process", Description = "工程：工程詳細のまとまり（ブロック）" },
                 new MnemonicTypeInfo { Id = 2, TableName = "ProcessDetail", Description = "工程詳細：アクチュエータの動作タイミング" },
                 new MnemonicTypeInfo { Id = 3, TableName = "Operation", Description = "操作：アクチュエータが要求する動作" },
-                new MnemonicTypeInfo { Id = 4, TableName = "CY", Description = "出力：アクチュエータに指令" }
+                new MnemonicTypeInfo { Id = 4, TableName = "Cylinder", Description = "出力：アクチュエータに指令" }
             };
         }
     }

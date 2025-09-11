@@ -1,11 +1,6 @@
-using Dapper;
-
-using KdxDesigner.Models;
-using KdxDesigner.Services.Access;
 using Kdx.Contracts.DTOs;
-
-using System.Data;
-using System.Data.OleDb;
+using Kdx.Contracts.Interfaces;
+using KdxDesigner.Models;
 
 namespace KdxDesigner.Services.MnemonicSpeedDevice
 {
@@ -14,80 +9,34 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
     /// </summary>
     internal class MnemonicSpeedDeviceService : IMnemonicSpeedDeviceService
     {
-        private readonly string _connectionString;
+        private readonly IAccessRepository _repository;
 
         public MnemonicSpeedDeviceService(IAccessRepository repository)
         {
-            _connectionString = repository.ConnectionString;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         public void DeleteSpeedTable()
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "DELETE FROM MnemonicSpeedDevice";
-            connection.Execute(sql);
-
+            // TODO: Supabase対応実装
+            throw new NotImplementedException("Supabase対応が必要です");
         }
 
         // MnemonicDeviceテーブルからPlcIdとCycleIdに基づいてデータを取得する
         public List<Models.MnemonicSpeedDevice> GetMnemonicSpeedDevice(int plcId)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "SELECT * FROM MnemonicSpeedDevice WHERE PlcId = @PlcId";
-            return connection.Query<Models.MnemonicSpeedDevice>(sql, new { PlcId = plcId }).ToList();
+            // TODO: Supabase対応実装
+            // IAccessRepositoryにGetMnemonicSpeedDevicesメソッドを追加する必要がある
+            throw new NotImplementedException("Supabase対応が必要です");
         }
 
         public void Save(
             List<Cylinder> cys,
             int startNum, int plcId)
         {
-            using var connection = new OleDbConnection(_connectionString);
-            connection.Open();
-            using var transaction = connection.BeginTransaction();
-
-            // MnemonicDeviceテーブルの既存データを取得
-            var allExisting = GetMnemonicSpeedDevice(plcId);
-
-            int count = 0;
-            foreach (Cylinder cy in cys)
-            {
-                if (cy == null) continue;
-                var existing = allExisting.SingleOrDefault(m => m.CylinderId == cy.Id);
-                var speedDevice = "D" + (startNum + count).ToString();
-
-                var parameters = new DynamicParameters();
-                parameters.Add("CylinderId", cy.Id, DbType.Int32);
-                parameters.Add("Device", speedDevice, DbType.String);
-                parameters.Add("PlcId", plcId, DbType.Int32);
-
-                if (existing != null)
-                {
-                    parameters.Add("ID", existing.ID, DbType.Int32);
-                    connection.Execute(@"
-                        UPDATE [MnemonicSpeedDevice] SET
-                            [CylinderId] = @CylinderId,
-                            [Device] = @Device,
-                            [PlcId] = @PlcId
-                        WHERE [ID] = @ID",
-                        parameters, transaction);
-                }
-                else
-                {
-                    connection.Execute(@"
-                        INSERT INTO [MnemonicSpeedDevice] (
-                            [CylinderId], [Device], [PlcId]
-                        ) VALUES (
-                            @CylinderId, @Device, @PlcId
-                        )",
-                        parameters, transaction);
-                }
-                count++;
-            }
-
-            transaction.Commit();
+            // TODO: Supabase対応実装
+            // トランザクション処理をIAccessRepository経由で実装する必要がある
+            throw new NotImplementedException("Supabase対応が必要です");
         }
-
-
-
     }
 }

@@ -1,12 +1,6 @@
-using Dapper;
-
-using KdxDesigner.Services.Access;
-
-using System.Data;
-using System.Data.OleDb;
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
-
+using Kdx.Contracts.Interfaces;
 
 namespace KdxDesigner.Services.ErrorService
 {
@@ -15,53 +9,21 @@ namespace KdxDesigner.Services.ErrorService
     /// </summary>
     internal class ErrorService : IErrorService
     {
-        private readonly string _connectionString;
+        private readonly IAccessRepository _repository;
 
         public ErrorService(IAccessRepository repository)
         {
-            _connectionString = repository.ConnectionString;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
         }
 
         public void DeleteErrorTable()
         {
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "DELETE FROM Error";
-            connection.Execute(sql);
-
+            _repository.DeleteErrorTable();
         }
 
-        public List<ErrorMessage> GetErrorMessage(int mnemonicId)
+        public List<Kdx.Contracts.DTOs.ProcessError> GetErrors(int plcId, int cycleId, int mnemonicId)
         {
-            List<ErrorMessage> messages = new();
-
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "SELECT * FROM ErrorMessage " +
-                "WHERE MnemonicId = @MnemonicId ";
-            messages = connection.Query<ErrorMessage>(sql, new
-            {
-                MnemonicId = mnemonicId
-            }).ToList();
-
-            return messages;
-        }
-
-        public List<Kdx.Contracts.DTOs.Error> GetErrors(int plcId, int cycleId, int mnemonicId)
-        {
-            List<Kdx.Contracts.DTOs.Error> errors = new();
-
-            using var connection = new OleDbConnection(_connectionString);
-            var sql = "SELECT * FROM Error " +
-                "WHERE PlcId = @PlcId " +
-                "AND CycleId = @CycleId " +
-                "AND MnemonicId = @MnemonicId";
-            errors = connection.Query<Kdx.Contracts.DTOs.Error>(sql, new
-            {
-                PlcId = plcId,
-                CycleId = cycleId,
-                MnemonicId = mnemonicId
-            }).ToList();
-
-            return errors;
+            return _repository.GetErrors(plcId, cycleId, mnemonicId);
         }
 
         // Operationのリストを受け取り、Errorテーブルに保存する
@@ -74,13 +36,9 @@ namespace KdxDesigner.Services.ErrorService
             int cycleId
             )
         {
-            using var connection = new OleDbConnection(_connectionString);
-            connection.Open();
-            using var transaction = connection.BeginTransaction();
-
             // MnemonicDeviceテーブルの既存データを取得
             var allExisting = GetErrors(plcId, cycleId, (int)MnemonicType.Operation);
-            var messages = GetErrorMessage((int)MnemonicType.Operation);
+            var messages = _repository.GetErrorMessages((int)MnemonicType.Operation);
 
             int alarmCount = 0;
             foreach (Operation operation in operations)
@@ -119,12 +77,14 @@ namespace KdxDesigner.Services.ErrorService
                         break;
                 }
 
+                List<Kdx.Contracts.DTOs.ProcessError> insertErrors = new();
+                List<Kdx.Contracts.DTOs.ProcessError> updateErrors = new();
+
                 foreach (int id in AlarmIds)
                 {
                     string device = "M" + (startNum + alarmCount).ToString(); // 例: 01A01, 01A02, ...
                     string timerDevice = "T" + (startNumTimer + alarmCount).ToString(); // 例: T01A01, T01A02, ...
 
-                    var parameters = new DynamicParameters();
 
                     string comment = messages.FirstOrDefault(m => m.AlarmId == id)?.BaseMessage ?? string.Empty;
                     string alarm = messages.FirstOrDefault(m => m.AlarmId == id)?.BaseAlarm ?? string.Empty;
@@ -134,108 +94,44 @@ namespace KdxDesigner.Services.ErrorService
                     var comment3 = messages.FirstOrDefault(m => m.AlarmId == id)?.Category2 ?? string.Empty;
                     var comment4 = messages.FirstOrDefault(m => m.AlarmId == id)?.Category3 ?? string.Empty;
 
+                    Kdx.Contracts.DTOs.ProcessError saveError = new()
+                    {
+                        PlcId = plcId,
+                        CycleId = cycleId,
+                        Device = device,
+                        MnemonicId = (int)MnemonicType.Operation,
+                        RecordId = operation.Id,
+                        AlarmId = id,
+                        ErrorNum = alarmCount,
+                        Comment1 = "操作ｴﾗｰ",
+                        Comment2 = comment2,
+                        Comment3 = comment3,
+                        Comment4 = comment4,
+                        AlarmComment = alarm,
+                        MessageComment = comment,
+                        ErrorTime = count,
+                        ErrorTimeDevice = timerDevice
+                    };
 
-                    // 将来的にメッセージの代入処理を追加する。
-
-                    parameters.Add("PlcId", plcId, DbType.Int32);
-                    parameters.Add("CycleId", cycleId, DbType.Int32);
-                    parameters.Add("Device", device, DbType.String);
-                    parameters.Add("MnemonicId", (int)MnemonicType.Operation, DbType.Int32);
-                    parameters.Add("RecordId", operation.Id, DbType.Int32);
-                    parameters.Add("AlarmId", id, DbType.Int32);
-                    parameters.Add("ErrorNum", alarmCount, DbType.Int32);
-                    parameters.Add("Comment1", "操作ｴﾗｰ", DbType.String);
-                    parameters.Add("Comment2", comment2, DbType.String);
-                    parameters.Add("Comment3", comment3, DbType.String);
-                    parameters.Add("Comment4", comment4, DbType.String);
-                    parameters.Add("AlarmComment", comment, DbType.String);
-                    parameters.Add("MessageComment", comment, DbType.String);
-                    parameters.Add("ErrorTime", count, DbType.Int32);
-                    parameters.Add("ErrorTimeDevice", timerDevice, DbType.String);
 
                     if (existing != null)
                     {
-                        parameters.Add("ID", existing.ID, DbType.Int32);
-                        var sqlUpdate = @"
-                        UPDATE [Error] SET
-                            [PlcId] = ?,
-                            [CycleId] = ?,
-                            [Device] = ?,
-                            [MnemonicId] = ?,
-                            [RecordId] = ?,
-                            [AlarmId] = ?,
-                            [ErrorNum] = ?,
-                            [Comment1] = ?,
-                            [Comment2] = ?,
-                            [Comment3] = ?,
-                            [Comment4] = ?,
-                            [AlarmComment] = ?,
-                            [MessageComment] = ?,
-                            [ErrorTime] = ?,
-                            [ErrorTimeDevice] = ?
-                        WHERE [ID] = ?";
-
-                        var updateParams = new DynamicParameters();
-
-                        updateParams.Add("p1", plcId, DbType.Int32);
-                        updateParams.Add("p2", cycleId, DbType.Int32);
-                        updateParams.Add("p3", device, DbType.String);
-                        updateParams.Add("p4", (int)MnemonicType.Operation, DbType.Int32);
-                        updateParams.Add("p5", operation.Id, DbType.Int32);
-                        updateParams.Add("p6", id, DbType.Int32);
-                        updateParams.Add("p7", alarmCount, DbType.Int32);
-                        updateParams.Add("p8", "操作ｴﾗｰ", DbType.String);
-                        updateParams.Add("p9", comment2, DbType.String);
-                        updateParams.Add("p10", comment3, DbType.String);
-                        updateParams.Add("p11", comment4, DbType.String);
-                        updateParams.Add("p12", alarm, DbType.String);
-                        updateParams.Add("p13", comment, DbType.String);
-                        updateParams.Add("p14", count, DbType.Int32);
-                        updateParams.Add("p15", timerDevice, DbType.String);
-
-                        connection.Execute(sqlUpdate, updateParams, transaction);
+                        // 既存のレコードがある場合はIDを引き継ぐ
+                        updateErrors.Add(saveError);
                     }
                     else
                     {
-                        connection.Execute(@"
-                        INSERT INTO [Error] (
-                            [PlcId], 
-                            [CycleId], 
-                            [Device], 
-                            [MnemonicId], 
-                            [RecordId], 
-                            [AlarmId],
-                            [ErrorNum], 
-                            [Comment1],
-                            [Comment2],
-                            [Comment3],
-                            [Comment4],
-                            [AlarmComment], 
-                            [MessageComment],
-                            [ErrorTime],
-                            [ErrorTimeDevice])
-                        VALUES
-                            (@PlcId, 
-                            @CycleId, 
-                            @Device, 
-                            @MnemonicId, 
-                            @RecordId, 
-                            @AlarmId, 
-                            @ErrorNum, 
-                            @Comment1,
-                            @Comment2,
-                            @Comment3,
-                            @Comment4,
-                            @AlarmComment, 
-                            @MessageComment,
-                            @ErrorTime,
-                            @ErrorTimeDevice)",
-                        parameters, transaction);
+                        insertErrors.Add(saveError);
                     }
+
+                    // 将来的にメッセージの代入処理を追加する。
+
                     alarmCount++;
                 }
+
+                _repository.SaveErrors(insertErrors);
+                _repository.UpdateErrors(updateErrors);
             }
-            transaction.Commit();
         }
     }
 }

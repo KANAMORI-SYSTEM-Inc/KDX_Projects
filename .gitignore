@@ -222,3 +222,5 @@ coverage/
 # Comment out if you want to share this file
 # CLAUDE.md
 /nul
+/KdxDesigner/sppsettings.Development.json
+/KdxDesigner/appsettings.json

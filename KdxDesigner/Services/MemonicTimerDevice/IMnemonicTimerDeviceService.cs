@@ -20,11 +20,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         List<MnemonicTimerDevice> GetMnemonicTimerDevice(int plcId, int cycleId);
 
         /// <summary>
-        /// すべてのMnemonicTimerDeviceレコードを削除する
-        /// </summary>
-        void DeleteAllMnemonicTimerDevice();
-
-        /// <summary>
         /// MnemonicTimerDeviceをPlcId、CycleId、MnemonicIdで取得する
         /// </summary>
         /// <param name="plcId">PLC ID</param>

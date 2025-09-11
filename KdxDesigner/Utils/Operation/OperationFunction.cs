@@ -7,6 +7,7 @@ using KdxDesigner.Services.Error;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
 
+using MnemonicSpeedDevice = Kdx.Contracts.DTOs.MnemonicSpeedDevice;
 namespace KdxDesigner.Utils.Operation
 {
     internal class OperationFunction

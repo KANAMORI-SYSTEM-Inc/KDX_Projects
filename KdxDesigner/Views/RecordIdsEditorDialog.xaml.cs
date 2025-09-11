@@ -1,6 +1,6 @@
 using Kdx.Contracts.DTOs;
 using KdxDesigner.Models;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.ViewModels;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

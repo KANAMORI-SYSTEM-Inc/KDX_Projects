@@ -1,6 +1,6 @@
 using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.Utils.ProcessDetail;
 using System.Collections.Generic;

@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Kdx.Contracts.DTOs;
-using KdxDesigner.Services.Access;
+using Kdx.Contracts.Interfaces;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Process = Kdx.Contracts.DTOs.Process;

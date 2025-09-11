@@ -29,7 +29,7 @@ namespace KdxDesigner.Utils.Operation
             List<MnemonicDeviceWithOperation> operations,
             List<MnemonicDeviceWithCylinder> cylinders,
             List<MnemonicTimerDeviceWithOperation> timers,
-            List<Error> mnemonicError,
+            List<ProcessError> mnemonicError,
             List<ProsTime> prosTimes,
             List<IO> ioList)
         {
@@ -163,7 +163,7 @@ namespace KdxDesigner.Utils.Operation
                 List<MnemonicDeviceWithOperation> operations,
                 List<MnemonicDeviceWithCylinder> cylinders,
                 List<MnemonicTimerDeviceWithOperation> timers,
-                List<Error> mnemonicError,
+                List<ProcessError> mnemonicError,
                 List<ProsTime> prosTimes,
                 List<IO> ioList)
         {
@@ -311,7 +311,7 @@ namespace KdxDesigner.Utils.Operation
                 List<MnemonicDeviceWithOperation> operations,
                 List<MnemonicDeviceWithCylinder> cylinders,
                 List<MnemonicTimerDeviceWithOperation> timers,
-                List<Error> mnemonicError,
+                List<ProcessError> mnemonicError,
                 List<ProsTime> prosTimes,
                 List<IO> ioList)
         {

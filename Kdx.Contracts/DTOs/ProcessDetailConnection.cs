@@ -24,8 +24,5 @@ namespace Kdx.Contracts.DTOs
         
         [Postgrest.Attributes.Column("ToProcessId")]
         public int? ToProcessId { get; set; }
-        
-        [Postgrest.Attributes.Column("StartSensor")]
-        public string? StartSensor { get; set; }
     }
 }

@@ -1,7 +1,5 @@
 using Kdx.Contracts.DTOs;
-using Kdx.Contracts.Enums;
 using Supabase;
-using Supabase.Interfaces;
 using System.Diagnostics;
 using Timer = Kdx.Contracts.DTOs.Timer;
 
@@ -24,17 +22,17 @@ namespace Kdx.Infrastructure.Repositories
             try
             {
                 System.Diagnostics.Debug.WriteLine("Calling Supabase API for Companies...");
-                
+
                 // テーブルの存在とRLS設定を確認
                 var response = await _supabaseClient
                     .From<Company>()
                     .Select("*")
                     .Get();
-                    
+
                 System.Diagnostics.Debug.WriteLine($"Supabase returned {response?.Models?.Count ?? 0} companies");
-                
+
                 var companies = response?.Models?.ToList() ?? new List<Company>();
-                
+
                 // データが0件の場合、テストデータを挿入してみる
                 if (companies.Count == 0)
                 {
@@ -46,19 +44,19 @@ namespace Kdx.Infrastructure.Repositories
                             CompanyName = "Test Company",
                             CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                         };
-                        
+
                         var insertResponse = await _supabaseClient
                             .From<Company>()
                             .Insert(testCompany);
-                            
+
                         System.Diagnostics.Debug.WriteLine("Test company inserted successfully");
-                        
+
                         // 挿入後に再度取得
                         response = await _supabaseClient
                             .From<Company>()
                             .Select("*")
                             .Get();
-                            
+
                         companies = response?.Models?.ToList() ?? new List<Company>();
                         System.Diagnostics.Debug.WriteLine($"After insert, found {companies.Count} companies");
                     }
@@ -68,7 +66,7 @@ namespace Kdx.Infrastructure.Repositories
                         System.Diagnostics.Debug.WriteLine($"This might indicate RLS is enabled. Check Supabase dashboard.");
                     }
                 }
-                
+
                 return companies;
             }
             catch (Exception ex)
@@ -248,14 +246,14 @@ namespace Kdx.Infrastructure.Repositories
         {
             try
             {
-                
+
                 var response = await _supabaseClient
                     .From<TimerRecordId>()
                     .Where(t => t.TimerId == timerId)
                     .Get();
-                
+
                 var recordIds = response?.Models?.Select(t => t.RecordId).ToList() ?? new List<int>();
-                
+
                 return recordIds;
             }
             catch (Exception ex)
@@ -484,8 +482,8 @@ namespace Kdx.Infrastructure.Repositories
         {
             await _supabaseClient
                 .From<MnemonicTimerDevice>()
-                .Where(m => m.MnemonicId == device.MnemonicId && 
-                           m.RecordId == device.RecordId && 
+                .Where(m => m.MnemonicId == device.MnemonicId &&
+                           m.RecordId == device.RecordId &&
                            m.TimerId == device.TimerId)
                 .Update(device);
         }
@@ -503,8 +501,8 @@ namespace Kdx.Infrastructure.Repositories
         {
             await _supabaseClient
                 .From<MnemonicTimerDevice>()
-                .Where(m => m.MnemonicId == mnemonicId && 
-                           m.RecordId == recordId && 
+                .Where(m => m.MnemonicId == mnemonicId &&
+                           m.RecordId == recordId &&
                            m.TimerId == timerId)
                 .Delete();
         }
@@ -538,7 +536,7 @@ namespace Kdx.Infrastructure.Repositories
                 System.Diagnostics.Debug.WriteLine($"  スタックトレース: {ex.StackTrace}");
                 if (ex.InnerException != null)
                 {
-                    System.Diagnostics. Debug.WriteLine($"  内部エラー: {ex.InnerException.Message}");
+                    System.Diagnostics.Debug.WriteLine($"  内部エラー: {ex.InnerException.Message}");
                 }
                 throw;
             }
@@ -557,7 +555,7 @@ namespace Kdx.Infrastructure.Repositories
                     .From<IO>()
                     .Range(offset, offset + pageSize - 1)
                     .Get();
-                
+
                 if (response?.Models != null && response.Models.Any())
                 {
                     allIOs.AddRange(response.Models);
@@ -584,13 +582,13 @@ namespace Kdx.Infrastructure.Repositories
         public async Task<List<Servo>> GetServosAsync(int? plcId, int? cylinderId)
         {
             var query = (Postgrest.Table<Servo>)_supabaseClient.From<Servo>();
-            
+
             if (plcId.HasValue)
-                query = (Postgrest.Table<Servo>)query.Where(s => s.PlcId == plcId.Value);
-            
+                query = query.Where(s => s.PlcId == plcId.Value);
+
             if (cylinderId.HasValue)
-                query = (Postgrest.Table<Servo>)query.Where(s => s.CylinderId == cylinderId.Value);
-            
+                query = query.Where(s => s.CylinderId == cylinderId.Value);
+
             var response = await query.Get();
             return response.Models;
         }
@@ -635,15 +633,15 @@ namespace Kdx.Infrastructure.Repositories
                 .From<ProcessDetail>()
                 .Where(pd => pd.CycleId == cycleId)
                 .Get();
-            
+
             if (!processDetails.Models.Any())
                 return new List<ProcessDetailConnection>();
-            
+
             var processDetailIds = processDetails.Models.Select(pd => pd.Id).ToList();
-            
+
             // Get connections where either From or To ProcessDetailId is in our list
             var connections = new List<ProcessDetailConnection>();
-            
+
             // Get connections FROM our process details
             foreach (var pdId in processDetailIds)
             {
@@ -653,7 +651,7 @@ namespace Kdx.Infrastructure.Repositories
                     .Get();
                 connections.AddRange(fromConnections.Models);
             }
-            
+
             // Get connections TO our process details
             foreach (var pdId in processDetailIds)
             {
@@ -663,7 +661,7 @@ namespace Kdx.Infrastructure.Repositories
                     .Get();
                 connections.AddRange(toConnections.Models);
             }
-            
+
             // Remove duplicates and return
             return connections.Distinct().ToList();
         }
@@ -725,13 +723,13 @@ namespace Kdx.Infrastructure.Repositories
                 .From<ProcessDetail>()
                 .Where(pd => pd.CycleId == cycleId)
                 .Get();
-            
+
             if (!processDetails.Models.Any())
                 return new List<ProcessDetailFinish>();
-            
+
             var processDetailIds = processDetails.Models.Select(pd => pd.Id).ToList();
             var finishes = new List<ProcessDetailFinish>();
-            
+
             // ProcessDetailIdごとにFinishを取得
             foreach (var processDetailId in processDetailIds)
             {
@@ -739,10 +737,10 @@ namespace Kdx.Infrastructure.Repositories
                     .From<ProcessDetailFinish>()
                     .Where(f => f.ProcessDetailId == processDetailId)
                     .Get();
-                
+
                 finishes.AddRange(response.Models);
             }
-            
+
             return finishes;
         }
 
@@ -791,7 +789,7 @@ namespace Kdx.Infrastructure.Repositories
         {
             await _supabaseClient
                 .From<ProcessDetailFinish>()
-                .Where(p => p.ProcessDetailId == processDetailId && 
+                .Where(p => p.ProcessDetailId == processDetailId &&
                            p.FinishProcessDetailId == finishProcessDetailId)
                 .Delete();
         }
@@ -807,7 +805,7 @@ namespace Kdx.Infrastructure.Repositories
                 .From<Kdx.Contracts.DTOs.Process>()
                 .Where(p => p.CycleId == cycleId)
                 .Get();
-            
+
             if (!processes.Models.Any())
                 return new List<ProcessStartCondition>();
 
@@ -821,7 +819,7 @@ namespace Kdx.Infrastructure.Repositories
                     .From<ProcessStartCondition>()
                     .Where(c => c.ProcessId == processId)
                     .Get();
-                
+
                 conditions.AddRange(response.Models);
             }
 
@@ -872,7 +870,7 @@ namespace Kdx.Infrastructure.Repositories
                 .From<Kdx.Contracts.DTOs.Process>()
                 .Where(p => p.CycleId == cycleId)
                 .Get();
-            
+
             if (!processes.Models.Any())
                 return new List<ProcessFinishCondition>();
 
@@ -886,7 +884,7 @@ namespace Kdx.Infrastructure.Repositories
                     .From<ProcessFinishCondition>()
                     .Where(c => c.ProcessId == processId)
                     .Get();
-                
+
                 conditions.AddRange(response.Models);
             }
 
@@ -1199,14 +1197,14 @@ namespace Kdx.Infrastructure.Repositories
         {
             try
             {
-                
+
                 var response = await _supabaseClient
                     .From<ProsTime>()
                     .Where(p => p.PlcId == plcId && p.MnemonicId == mnemonicId)
                     .Get();
-                
+
                 var prosTimes = response?.Models ?? new List<ProsTime>();
-                
+
                 return prosTimes;
             }
             catch (Exception ex)
@@ -1251,7 +1249,7 @@ namespace Kdx.Infrastructure.Repositories
                 var response = await _supabaseClient
                     .From<ProsTimeDefinitions>()
                     .Get();
-                
+
                 return response?.Models ?? new List<ProsTimeDefinitions>();
             }
             catch (Exception ex)

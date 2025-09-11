@@ -3,7 +3,6 @@ using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using KdxDesigner.Models;
 using Kdx.Contracts.Interfaces;
-using KdxDesigner.Services.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +31,7 @@ namespace KdxDesigner.Services.MnemonicDevice
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _memoryStore = memoryStore ?? new MnemonicDeviceMemoryStore();
-            _dbService = new MnemonicDeviceService(repository);
+            _dbService = new MnemonicDeviceService(repository, memoryService);
             _memoryService = memoryService;
         }
         

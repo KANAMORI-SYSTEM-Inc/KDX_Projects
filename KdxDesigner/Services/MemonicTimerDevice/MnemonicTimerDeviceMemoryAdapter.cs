@@ -3,7 +3,6 @@ using Kdx.Contracts.Enums;
 using System.Diagnostics;
 
 using Kdx.Contracts.Interfaces;
-using KdxDesigner.Services.Memory;
 using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.ViewModels;
 
@@ -28,13 +27,14 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         public MnemonicTimerDeviceMemoryAdapter(
             IAccessRepository repository,
             MainViewModel mainViewModel,
-            IMnemonicDeviceMemoryStore memoryStore)
+            IMnemonicDeviceMemoryStore memoryStore,
+            IMemoryService memoryService)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _mainViewModel = mainViewModel ?? throw new ArgumentNullException(nameof(mainViewModel));
             _memoryStore = memoryStore ?? new MnemonicDeviceMemoryStore();
             _dbService = new MnemonicTimerDeviceService(repository, mainViewModel);
-            _memoryService = new MemoryService(repository);
+            _memoryService = memoryService ?? throw new ArgumentNullException(nameof(memoryService));
 
         }
 

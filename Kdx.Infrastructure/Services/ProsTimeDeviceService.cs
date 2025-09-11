@@ -1,15 +1,15 @@
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using Kdx.Contracts.Interfaces;
-
 using System.Diagnostics;
 
-namespace KdxDesigner.Services.ProsTimeDevice
+namespace Kdx.Infrastructure.Services
 {
     /// <summary>
     /// ProsTime（工程時間）デバイスの管理サービス実装
+    /// Infrastructure層に配置することで、ビジネスロジックをUI層から分離
     /// </summary>
-    internal class ProsTimeDeviceService : IProsTimeDeviceService
+    public class ProsTimeDeviceService : IProsTimeDeviceService
     {
         private readonly IAccessRepository _repository;
         private readonly Dictionary<int, OperationProsTimeConfig> _loadedOperationConfigs;
@@ -24,7 +24,7 @@ namespace KdxDesigner.Services.ProsTimeDevice
             }
         }
 
-        // デフォルト設定は引き続き静的メンバーとして保持可能
+        // デフォルト設定
         private static readonly OperationProsTimeConfig _defaultOperationConfig =
             new() { TotalProsTimeCount = 0, SortIdToCategoryIdMap = new Dictionary<int, int>() };
 
@@ -32,7 +32,6 @@ namespace KdxDesigner.Services.ProsTimeDevice
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _loadedOperationConfigs = LoadOperationProsTimeConfigsFromDb();
-
         }
 
         /// <summary>
@@ -41,20 +40,16 @@ namespace KdxDesigner.Services.ProsTimeDevice
         public void DeleteProsTimeTable()
         {
             _repository.DeleteProsTimeTable();
-
         }
 
         public List<ProsTime> GetProsTimeByPlcId(int plcId)
         {
             return _repository.GetProsTimeByPlcId(plcId);
-
         }
 
-        // MnemonicDeviceテーブルからPlcIdとMnemonicIdに基づいてデータを取得する
         public List<ProsTime> GetProsTimeByMnemonicId(int plcId, int mnemonicId)
         {
             return _repository.GetProsTimeByMnemonicId(plcId, mnemonicId);
-
         }
 
         private Dictionary<int, OperationProsTimeConfig> LoadOperationProsTimeConfigsFromDb()
@@ -76,13 +71,11 @@ namespace KdxDesigner.Services.ProsTimeDevice
                 foreach (var group in groupedData)
                 {
                     var operationCategoryKey = group.Key;
-                    // グループ内の TotalCount は全て同じはずなので、最初の要素から取得
                     var totalCount = group.First().TotalCount;
 
                     var map = new Dictionary<int, int>();
                     foreach (var item in group)
                     {
-                        // SortOrder と ResultingCategoryId のマッピングを追加
                         map[item.SortOrder] = item.OperationDefinitionsId;
                     }
 
@@ -95,25 +88,18 @@ namespace KdxDesigner.Services.ProsTimeDevice
             }
             catch (Exception ex)
             {
-                // データベースアクセスエラー: {ex.Message}
-                // エラー発生時はデフォルト設定を返す
                 Debug.WriteLine($"Error loading ProsTime definitions: {ex.Message}");
                 return GetDefaultConfigs();
             }
             
-            // 設定が読み込まれたが空の場合もデフォルト設定を使用
             if (!configs.Any())
             {
-                // 設定が空のため、デフォルト設定を使用
                 return GetDefaultConfigs();
             }
             
             return configs;
         }
         
-        /// <summary>
-        /// デフォルトのOperation設定を生成
-        /// </summary>
         private Dictionary<int, OperationProsTimeConfig> GetDefaultConfigs()
         {
             var configs = new Dictionary<int, OperationProsTimeConfig>();
@@ -131,10 +117,8 @@ namespace KdxDesigner.Services.ProsTimeDevice
                 };
             }
             
-            // {configs.Count}個のデフォルト設定を生成
             return configs;
         }
-
 
         public void SaveProsTime(List<Operation> operations, int startCurrent, int startPrevious, int startCylinder, int plcId)
         {
@@ -148,7 +132,6 @@ namespace KdxDesigner.Services.ProsTimeDevice
                     g => g.ToDictionary(pt => pt.SortId, pt => pt)
                 );
 
-            // 一括保存用のリストを作成
             var prosTimesToSave = new List<ProsTime>();
             int count = 0;
 
@@ -156,9 +139,8 @@ namespace KdxDesigner.Services.ProsTimeDevice
             {
                 if (operation == null || operation.CategoryId == null) continue;
 
-                var operationCategoryValue = operation.CategoryId.Value; // Null許容型から値を取得
+                var operationCategoryValue = operation.CategoryId.Value;
 
-                // ★変更: _loadedOperationConfigs (インスタンスメンバー) を使用
                 OperationProsTimeConfig currentConfig = _loadedOperationConfigs.TryGetValue(operationCategoryValue, out var specificConfig)
                                                         ? specificConfig
                                                         : _defaultOperationConfig;
@@ -204,12 +186,7 @@ namespace KdxDesigner.Services.ProsTimeDevice
             // 一括で保存
             if (uniqueProsTimes.Any())
             {
-                // 重複除去: 元データ{prosTimesToSave.Count}件 → {uniqueProsTimes.Count}件
                 _repository.SaveOrUpdateProsTimesBatch(uniqueProsTimes);
-            }
-            else
-            {
-                // 保存するProsTimeがありません
             }
         }
     }

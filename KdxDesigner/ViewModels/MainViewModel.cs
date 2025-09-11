@@ -18,7 +18,6 @@ using KdxDesigner.Services.MemonicTimerDevice;
 using KdxDesigner.Services.Memory;
 using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.Services.MnemonicSpeedDevice;
-using KdxDesigner.Services.ProsTimeDevice;
 using KdxDesigner.Utils;
 using KdxDesigner.Views;
 
@@ -42,9 +41,9 @@ namespace KdxDesigner.ViewModels
         protected private IMnemonicDeviceService? _mnemonicService;
         protected private IMnemonicTimerDeviceService? _timerService;
         protected private ErrorService? _errorService;
-        protected private ProsTimeDeviceService? _prosTimeService;
+        protected private IProsTimeDeviceService? _prosTimeService;
         protected private IMnemonicSpeedDeviceService? _speedService;
-        protected private MemoryService? _memoryService;
+        protected private IMemoryService? _memoryService;
         protected private WpfIOSelectorService? _ioSelectorService;
         protected private IMnemonicDeviceMemoryStore _mnemonicMemoryStore = null!; // InitializeServicesで初期化される
 
@@ -196,8 +195,10 @@ namespace KdxDesigner.ViewModels
         private void InitializeServices()
         {
             // サービスの初期化
-            _prosTimeService = new ProsTimeDeviceService(_repository);
-            _memoryService = new MemoryService(_repository);
+            _prosTimeService = App.Services?.GetService<IProsTimeDeviceService>() 
+                ?? new Kdx.Infrastructure.Services.ProsTimeDeviceService(_repository);
+            _memoryService = App.Services?.GetService<IMemoryService>()
+                ?? new Kdx.Infrastructure.Services.MemoryService(_repository);
             _ioSelectorService = new WpfIOSelectorService();
             _errorService = new ErrorService(_repository);
 
@@ -212,7 +213,7 @@ namespace KdxDesigner.ViewModels
             _mnemonicService = hybridService;
 
             // タイマーサービスもメモリストアを使用
-            var timerAdapter = new MnemonicTimerDeviceMemoryAdapter(_repository, this, memoryStore);
+            var timerAdapter = new MnemonicTimerDeviceMemoryAdapter(_repository, this, memoryStore, _memoryService);
             timerAdapter.SetMemoryOnlyMode(true); // データベースアクセスを無効化
             _timerService = timerAdapter;
 
@@ -1250,7 +1251,7 @@ namespace KdxDesigner.ViewModels
                                 (IsTimerMemory ? timerDevices.Count * 2 : 0);
             MemoryProgressValue = 0;
 
-            if (!await ProcessAndSaveMemoryAsync(IsErrorMemory, devicesC, _memoryService.SaveMnemonicMemories, "エラー")) return;
+            if (!await ProcessAndSaveMemoryAsync(IsErrorMemory, devicesC, device => _memoryService.SaveMnemonicMemories(_repository, device), "エラー")) return;
             //if (!await ProcessAndSaveMemoryAsync(true, timerDevices, _memoryService.SaveMnemonicTimerMemoriesT, "Timer (T)")) return;
             //if (!await ProcessAndSaveMemoryAsync(true, timerDevices, _memoryService.SaveMnemonicTimerMemoriesZR, "Timer (ZR)")) return;
 

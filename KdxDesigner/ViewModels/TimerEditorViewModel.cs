@@ -377,8 +377,7 @@ namespace KdxDesigner.ViewModels
                 try
                 {
                     // 既存のMnemonicTimerDeviceを削除
-                    _timerDeviceService.DeleteAllMnemonicTimerDevice();
-                    
+                    _repository.DeleteAllMnemonicTimerDevices();
                     // 必要なデータを取得
                     var timers = _repository.GetTimers();
                     var details = _repository.GetProcessDetails();

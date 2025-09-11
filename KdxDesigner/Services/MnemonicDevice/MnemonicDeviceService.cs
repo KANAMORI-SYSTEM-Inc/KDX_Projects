@@ -2,7 +2,6 @@ using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using Kdx.Contracts.Interfaces;
 using KdxDesigner.Models;
-using KdxDesigner.Services.Memory;
 using System.Data;
 
 namespace KdxDesigner.Services.MnemonicDevice
@@ -21,10 +20,10 @@ namespace KdxDesigner.Services.MnemonicDevice
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         }
 
-        public MnemonicDeviceService(IAccessRepository repository)
+        public MnemonicDeviceService(IAccessRepository repository, IMemoryService memoryService)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _memoryService = new MemoryService(repository);
+            _memoryService = memoryService ?? throw new ArgumentNullException(nameof(memoryService));
         }
 
         /// <summary>

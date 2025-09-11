@@ -45,15 +45,6 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        public void DeleteAllMnemonicTimerDevice()
-        {
-            _repository.DeleteAllMnemonicTimerDevices();
-
-        }
-
-        /// <summary>
         /// MnemonicTimerDeviceをPlcIdとMnemonicIdで取得するヘルパーメソッド
         /// </summary>
         /// <param name="plcId">PlcId</param>

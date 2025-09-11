@@ -1,0 +1,6 @@
+MSBUILD : error MSB1001: 不明なスイッチです。
+    完全なコマンド ライン: `C:\Program Files\dotnet\sdk\8.0.408\MSBuild.dll -maxcpucount -verbosity:m -nologo -restore -consoleloggerparameters:Summary --no-logo -distributedlogger:Microsoft.DotNet.Tools.MSBuild.MSBuildLogger,C:\Program Files\dotnet\sdk\8.0.408\dotnet.dll*Microsoft.DotNet.Tools.MSBuild.MSBuildForwardingLogger,C:\Program Files\dotnet\sdk\8.0.408\dotnet.dll`
+ 応答ファイルによって追加されたスイッチ:
+スイッチ: --no-logo
+
+スイッチの構文については、"MSBuild -help" と入力してください

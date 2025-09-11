@@ -592,7 +592,7 @@ namespace KdxDesigner.ViewModels
                         IsFinishConnection = false,
                         IsOtherCycleConnection = fromNode.ProcessDetail?.CycleId != _cycleId || toNode.ProcessDetail?.CycleId != _cycleId
                     };
-                    connection.DbStartSensor = conn.StartSensor ?? "";
+                    // StartSensor is stored in ProcessDetail, not in ProcessDetailConnection
 
                     AllConnections.Add(connection);
                     Connections.Add(connection);
@@ -612,7 +612,7 @@ namespace KdxDesigner.ViewModels
                             IsFinishConnection = false,
                             IsOtherCycleConnection = fromNode.ProcessDetail?.CycleId != _cycleId
                         };
-                        connection.DbStartSensor = conn.StartSensor ?? "";
+                        // StartSensor is stored in ProcessDetail, not in ProcessDetailConnection
 
                         AllConnections.Add(connection);
                         Connections.Add(connection);
@@ -1100,8 +1100,7 @@ namespace KdxDesigner.ViewModels
                             var dbConnection = new ProcessDetailConnection
                             {
                                 FromProcessDetailId = _connectionStartNode.ProcessDetail.Id,
-                                ToProcessDetailId = node.ProcessDetail.Id,
-                                StartSensor = ""
+                                ToProcessDetailId = node.ProcessDetail.Id
                             };
                             _repository.AddProcessDetailConnection(dbConnection);
                             _dbConnections.Add(dbConnection);
@@ -1195,13 +1194,8 @@ namespace KdxDesigner.ViewModels
                                 c.FromProcessDetailId == connection.FromNode.ProcessDetail.Id &&
                                 c.ToProcessDetailId == connection.ToNode.ProcessDetail.Id);
 
-                            if (conn != null)
-                            {
-                                conn.StartSensor = connection.StartSensor;
-                                // UpdateProcessDetailConnectionメソッドが存在しない場合は削除と追加で対応
-                                _repository.DeleteProcessDetailConnection(conn.Id);
-                                _repository.AddProcessDetailConnection(conn);
-                            }
+                            // StartSensor is now stored in ProcessDetail, not in ProcessDetailConnection
+                            // No need to update StartSensor on connection
                         }
                         // ProcessDetail -> Process の通常接続
                         else if (connection.FromNode.NodeType == ProcessFlowNodeType.ProcessDetail && 
@@ -1213,13 +1207,8 @@ namespace KdxDesigner.ViewModels
                                 c.FromProcessDetailId == connection.FromNode.ProcessDetail.Id &&
                                 c.ToProcessId == connection.ToNode.Process.Id);
 
-                            if (dbConnection != null)
-                            {
-                                dbConnection.StartSensor = connection.StartSensor;
-                                // UpdateProcessDetailConnectionメソッドが存在しない場合は削除と追加で対応
-                                _repository.DeleteProcessDetailConnection(dbConnection.Id);
-                                _repository.AddProcessDetailConnection(dbConnection);
-                            }
+                            // StartSensor is now stored in ProcessDetail, not in ProcessDetailConnection
+                            // No need to update StartSensor on connection
                         }
                     }
 

@@ -2,17 +2,17 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-using KdxDesigner.Services.Memory;
+using Kdx.Contracts.Interfaces;
 using KdxDesigner.Models;
 using Kdx.Contracts.DTOs;
 
 using Microsoft.Win32;
+using Microsoft.Extensions.DependencyInjection;
 
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using Kdx.Contracts.Interfaces;
 
 namespace KdxDesigner.ViewModels
 {
@@ -49,7 +49,8 @@ namespace KdxDesigner.ViewModels
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             
             // メモリカテゴリドロップダウンのリスト取得
-            var memoryService = new Services.Memory.MemoryService(_repository);
+            var memoryService = App.Services?.GetService<IMemoryService>() 
+                ?? new Kdx.Infrastructure.Services.MemoryService(_repository);
             MemoryCategories = new ObservableCollection<MemoryCategory>(memoryService.GetMemoryCategories());
             Memories = new ObservableCollection<Memory>();
         }
@@ -62,7 +63,8 @@ namespace KdxDesigner.ViewModels
 
             await Task.Run(() =>
             {
-                var memoryService = new Services.Memory.MemoryService(_repository);
+                var memoryService = App.Services?.GetService<IMemoryService>()
+                ?? new Kdx.Infrastructure.Services.MemoryService(_repository);
                 memoryService.SaveMemories(_plcId, Memories.ToList(), msg =>
                 {
                     // UIスレッドに戻してメッセージ更新
@@ -147,7 +149,8 @@ namespace KdxDesigner.ViewModels
         public void DBImport()
         {
             // DBからすべてのメモリを取得
-            var memoryService = new Services.Memory.MemoryService(_repository);
+            var memoryService = App.Services?.GetService<IMemoryService>()
+                ?? new Kdx.Infrastructure.Services.MemoryService(_repository);
             var allMemories = memoryService.GetMemories(_plcId);
 
             // フィルタされたリストを一時変数に

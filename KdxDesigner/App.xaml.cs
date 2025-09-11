@@ -76,6 +76,10 @@ namespace KdxDesigner
             services.AddScoped<ISupabaseRepository, SupabaseRepository>();
             services.AddScoped<IAccessRepository, SupabaseRepositoryAdapter>();
             
+            // Service層の登録（Infrastructure）
+            services.AddScoped<IProsTimeDeviceService, Kdx.Infrastructure.Services.ProsTimeDeviceService>();
+            services.AddScoped<IMemoryService, Kdx.Infrastructure.Services.MemoryService>();
+            
             // Supabase接続ヘルパーの登録
             services.AddSingleton<SupabaseConnectionHelper>();
             

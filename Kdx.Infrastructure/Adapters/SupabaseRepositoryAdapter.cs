@@ -543,11 +543,6 @@ namespace Kdx.Infrastructure.Adapters
             Task.Run(async () => await _supabaseRepository.UpdateErrorsAsync(errors)).GetAwaiter().GetResult();
         }
 
-        public void SaveMnemonicDeviceOperation(List<Operation> operations, List<IO> iOs, int startNum, int startNumTimer, int plcId, int cycleId)
-        {
-            Task.Run(async () => await _supabaseRepository.SaveMnemonicDeviceOperationAsync(operations, iOs, startNum, startNumTimer, plcId, cycleId)).GetAwaiter().GetResult();
-        }
-
         #endregion
 
         #region MnemonicDevice Methods

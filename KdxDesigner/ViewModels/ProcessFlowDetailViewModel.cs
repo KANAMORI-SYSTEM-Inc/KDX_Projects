@@ -995,7 +995,7 @@ namespace KdxDesigner.ViewModels
             if (node == null) return;
 
             // 接続を完成させる
-            if (_isConnecting && _connectionStartNode != null && _connectionStartNode != node)
+            if (IsConnecting && _connectionStartNode != null && _connectionStartNode != node)
             {
                 // ProcessからProcessDetailへの接続は許可しない（自動生成のため）
                 if (_connectionStartNode.NodeType == ProcessFlowNodeType.Process && 

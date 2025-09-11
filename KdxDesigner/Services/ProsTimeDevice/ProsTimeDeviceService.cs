@@ -2,6 +2,8 @@ using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using Kdx.Contracts.Interfaces;
 
+using System.Diagnostics;
+
 namespace KdxDesigner.Services.ProsTimeDevice
 {
     /// <summary>
@@ -23,7 +25,7 @@ namespace KdxDesigner.Services.ProsTimeDevice
         }
 
         // デフォルト設定は引き続き静的メンバーとして保持可能
-        private static readonly OperationProsTimeConfig DefaultOperationConfig =
+        private static readonly OperationProsTimeConfig _defaultOperationConfig =
             new() { TotalProsTimeCount = 0, SortIdToCategoryIdMap = new Dictionary<int, int>() };
 
         public ProsTimeDeviceService(IAccessRepository repository)
@@ -95,6 +97,7 @@ namespace KdxDesigner.Services.ProsTimeDevice
             {
                 // データベースアクセスエラー: {ex.Message}
                 // エラー発生時はデフォルト設定を返す
+                Debug.WriteLine($"Error loading ProsTime definitions: {ex.Message}");
                 return GetDefaultConfigs();
             }
             
@@ -158,7 +161,7 @@ namespace KdxDesigner.Services.ProsTimeDevice
                 // ★変更: _loadedOperationConfigs (インスタンスメンバー) を使用
                 OperationProsTimeConfig currentConfig = _loadedOperationConfigs.TryGetValue(operationCategoryValue, out var specificConfig)
                                                         ? specificConfig
-                                                        : DefaultOperationConfig;
+                                                        : _defaultOperationConfig;
 
                 int prosTimeCount = currentConfig.TotalProsTimeCount;
 

@@ -71,11 +71,17 @@ namespace KdxDesigner.Utils.ProcessDetail
             // --- 派生データ (コンストラクタで一度だけ計算) ---
             _label = detail.Mnemonic.DeviceLabel ?? string.Empty;
             _deviceNum = detail.Mnemonic.StartNum;
-            _process = _processes.FirstOrDefault(p => p.Mnemonic.RecordId == _detail.Detail.ProcessId);
-            if (_process == null)
+            if (_processes == null)
+            {
+                throw new ArgumentNullException(nameof(processes), "Processes list cannot be null");
+            }
+
+            var process = _processes.FirstOrDefault(p => p.Mnemonic.RecordId == _detail.Detail.ProcessId);
+            if (process == null)
             {
                 throw new InvalidOperationException($"Process with RecordId {_detail.Detail.ProcessId} not found for ProcessDetail {_detail.Detail.Id}");
             }
+            _process = process;
         }
 
         /// <summary>

@@ -248,7 +248,6 @@ namespace Kdx.Infrastructure.Repositories
         {
             try
             {
-                Debug.WriteLine($"[GetTimerRecordIdsAsync] TimerId={timerId}のRecordIdを取得");
                 
                 var response = await _supabaseClient
                     .From<TimerRecordId>()
@@ -256,7 +255,6 @@ namespace Kdx.Infrastructure.Repositories
                     .Get();
                 
                 var recordIds = response?.Models?.Select(t => t.RecordId).ToList() ?? new List<int>();
-                Debug.WriteLine($"[GetTimerRecordIdsAsync] 取得完了 - {recordIds.Count}件");
                 
                 return recordIds;
             }
@@ -270,16 +268,32 @@ namespace Kdx.Infrastructure.Repositories
         public async Task AddTimerRecordIdAsync(int timerId, int recordId)
         {
             // TimerRecordId関連テーブルが必要な場合は実装を追加
+            var timerRecord = new TimerRecordId
+            {
+                TimerId = timerId,
+                RecordId = recordId
+            };
+            await _supabaseClient
+                .From<TimerRecordId>()
+                .Insert(timerRecord);
         }
 
         public async Task DeleteTimerRecordIdAsync(int timerId, int recordId)
         {
             // TimerRecordId関連テーブルが必要な場合は実装を追加
+            await _supabaseClient
+                .From<TimerRecordId>()
+                .Where(t => t.TimerId == timerId && t.RecordId == recordId)
+                .Delete();
         }
 
         public async Task DeleteAllTimerRecordIdsAsync(int timerId)
         {
             // TimerRecordId関連テーブルが必要な場合は実装を追加
+            await _supabaseClient
+                .From<TimerRecordId>()
+                .Where(t => t.TimerId == timerId)
+                .Delete();
         }
 
         public async Task<List<Operation>> GetOperationsAsync()
@@ -452,6 +466,7 @@ namespace Kdx.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"[GetMnemonicTimerDevicesByMnemonicIdAsync] エラー: {ex.Message}");
                 return new List<MnemonicTimerDevice>();
             }
         }
@@ -516,13 +531,6 @@ namespace Kdx.Infrastructure.Repositories
                 var response = await _supabaseClient
                     .From<MnemonicTimerDevice>()
                     .Upsert(device);
-
-                System.Diagnostics.Debug.WriteLine($"[UpsertMnemonicTimerDeviceAsync] 完了");
-                
-                if (response?.Models != null && response.Models.Count > 0)
-                {
-                    System.Diagnostics.Debug.WriteLine($"  Upsertされたレコード数: {response.Models.Count}");
-                }
             }
             catch (Exception ex)
             {
@@ -711,11 +719,31 @@ namespace Kdx.Infrastructure.Repositories
 
         public async Task<List<ProcessDetailFinish>> GetProcessDetailFinishesAsync(int cycleId)
         {
-            var response = await _supabaseClient
-                .From<ProcessDetailFinish>()
-                .Where(p => p.CycleId == cycleId)
+            // ProcessDetailFinishテーブルにはCycleIdがないため、
+            // ProcessDetailテーブルから該当するCycleIdのProcessDetailIdを取得してフィルタリング
+            var processDetails = await _supabaseClient
+                .From<ProcessDetail>()
+                .Where(pd => pd.CycleId == cycleId)
                 .Get();
-            return response.Models;
+            
+            if (!processDetails.Models.Any())
+                return new List<ProcessDetailFinish>();
+            
+            var processDetailIds = processDetails.Models.Select(pd => pd.Id).ToList();
+            var finishes = new List<ProcessDetailFinish>();
+            
+            // ProcessDetailIdごとにFinishを取得
+            foreach (var processDetailId in processDetailIds)
+            {
+                var response = await _supabaseClient
+                    .From<ProcessDetailFinish>()
+                    .Where(f => f.ProcessDetailId == processDetailId)
+                    .Get();
+                
+                finishes.AddRange(response.Models);
+            }
+            
+            return finishes;
         }
 
         public async Task<List<ProcessDetailFinish>> GetAllProcessDetailFinishesAsync()
@@ -1076,136 +1104,6 @@ namespace Kdx.Infrastructure.Repositories
             }
         }
 
-        public async Task SaveMnemonicDeviceOperationAsync(List<Operation> operations, List<IO> iOs, int startNum, int startNumTimer, int plcId, int cycleId)
-        {
-            // TODO: Error テーブルの構造問題を解決するまで、この処理をスキップ
-            // 複雑なエラー処理ロジックが原因で重複キーエラーが発生しているため、一時的に無効化
-            return;
-
-            /*
-            if (operations == null || !operations.Any())
-                return;
-
-            // まず既存のエラーレコードをすべて削除
-            var existingErrors = await GetErrorsAsync(plcId, cycleId, (int)MnemonicType.Operation);
-            if (existingErrors.Any())
-            {
-                foreach (var existing in existingErrors)
-                {
-                    await _supabaseClient
-                        .From<Error>()
-                        .Where(e => e.ID == existing.ID)
-                        .Delete();
-                }
-            }
-
-            // エラーメッセージを取得
-            var messages = await GetErrorMessagesAsync((int)MnemonicType.Operation);
-
-            var errors = new List<Error>();
-            int alarmCount = 0;
-
-            foreach (var operation in operations)
-            {
-                if (operation == null) continue;
-                
-                var category = operation.CategoryId;
-                var alarmIds = new List<int>();
-
-                // カテゴリに基づいてAlarmIdを設定
-                switch (category)
-                {
-                    case 2:
-                    case 29:
-                    case 30: // 保持
-                        alarmIds.AddRange(new[] { 1, 2, 5 });
-                        break;
-                    case 3:
-                    case 9:
-                    case 15:
-                    case 27: // 速度制御INV1
-                        alarmIds.AddRange(new[] { 1, 2, 3, 4, 5 });
-                        break;
-                    case 4:
-                    case 10:
-                    case 16:
-                    case 28: // 速度制御INV2
-                        alarmIds.AddRange(new[] { 1, 2, 3, 4, 3, 4, 5 });
-                        break;
-                    case 5:
-                    case 11:
-                    case 17: // 速度制御INV3
-                        alarmIds.AddRange(new[] { 1, 2, 3, 4, 3, 4, 3, 4, 5 });
-                        break;
-                    case 6:
-                    case 12:
-                    case 18: // 速度制御INV4
-                        alarmIds.AddRange(new[] { 1, 2, 3, 4, 3, 4, 3, 4, 3, 4, 5 });
-                        break;
-                    case 7:
-                    case 13:
-                    case 19: // 速度制御INV5
-                        alarmIds.AddRange(new[] { 1, 2, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 5 });
-                        break;
-                    case 20: // バネ
-                        alarmIds.AddRange(new[] { 5 });
-                        break;
-                    case 31: // サーボ
-                        // サーボの場合は何も追加しない
-                        break;
-                    default:
-                        break;
-                }
-
-                foreach (int alarmId in alarmIds)
-                {
-                    string device = "M" + (startNum + alarmCount).ToString();
-                    string timerDevice = "T" + (startNumTimer + alarmCount).ToString();
-
-                    var message = messages.FirstOrDefault(m => m.AlarmId == alarmId);
-                    string comment = message?.BaseMessage ?? string.Empty;
-                    string alarm = message?.BaseAlarm ?? string.Empty;
-                    int count = message?.DefaultCountTime ?? 1000;
-
-                    var comment2 = (operation.Valve1 ?? "") + (operation.GoBack?.ToString() ?? "");
-                    var comment3 = message?.Category2 ?? string.Empty;
-                    var comment4 = message?.Category3 ?? string.Empty;
-
-                    var error = new Error
-                    {
-                        // IDは自動生成されるため指定しない
-                        PlcId = plcId,
-                        CycleId = cycleId,
-                        Device = device,
-                        MnemonicId = (int)MnemonicType.Operation,
-                        RecordId = operation.Id,
-                        AlarmId = alarmId,
-                        ErrorNum = alarmCount,
-                        Comment1 = "操作ｴﾗｰ",
-                        Comment2 = comment2,
-                        Comment3 = comment3,
-                        Comment4 = comment4,
-                        AlarmComment = alarm,
-                        MessageComment = comment,
-                        ErrorTime = count,
-                        ErrorTimeDevice = timerDevice
-                        // ErrorCountTime was removed - doesn't exist in database
-                    };
-
-                    errors.Add(error);
-                    alarmCount++;
-                }
-            }
-
-            // 新規レコードとして一括挿入
-            if (errors.Any())
-            {
-                await _supabaseClient
-                    .From<Error>()
-                    .Insert(errors);
-            }
-            */
-        }
 
         #endregion
 
@@ -1313,6 +1211,7 @@ namespace Kdx.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"[GetProsTimeByMnemonicIdAsync] エラー: {ex.Message}");
                 return new List<ProsTime>();
             }
         }
@@ -1358,6 +1257,7 @@ namespace Kdx.Infrastructure.Repositories
             catch (Exception ex)
             {
                 // エラー: {ex.Message}
+                Debug.WriteLine($"[GetProsTimeDefinitionsAsync] エラー: {ex.Message}");
                 return new List<ProsTimeDefinitions>();
             }
         }

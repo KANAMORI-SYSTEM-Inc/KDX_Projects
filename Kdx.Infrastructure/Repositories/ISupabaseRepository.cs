@@ -494,7 +494,6 @@ namespace Kdx.Infrastructure.Repositories
 
         Task UpdateErrorsAsync(List<ProcessError> errors);
 
-        Task SaveMnemonicDeviceOperationAsync(List<Operation> operations, List<IO> iOs, int startNum, int startNumTimer, int plcId, int cycleId);
         
         #endregion
 

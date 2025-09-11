@@ -19,7 +19,7 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
         
         public MnemonicSpeedDeviceMemoryAdapter(
             IAccessRepository repository,
-            IMnemonicDeviceMemoryStore memoryStore = null)
+            IMnemonicDeviceMemoryStore memoryStore = null!)
         {
             _memoryStore = memoryStore ?? new MnemonicDeviceMemoryStore();
             _dbService = new MnemonicSpeedDeviceService(repository);
@@ -59,9 +59,14 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
         /// <summary>
         /// シリンダーIDに基づいてMnemonicSpeedDeviceを取得
         /// </summary>
-        public Models.MnemonicSpeedDevice GetMnemonicSpeedDeviceByCylinderId(int cylinderId, int plcId)
+        public Models.MnemonicSpeedDevice? GetMnemonicSpeedDeviceByCylinderId(int cylinderId, int plcId)
         {
             var devices = GetMnemonicSpeedDevice(plcId);
+            if (devices == null || !devices.Any())
+            {
+                return null;
+            }
+
             return devices.FirstOrDefault(d => d.CylinderId == cylinderId);
         }
         

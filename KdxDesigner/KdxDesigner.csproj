@@ -52,9 +52,7 @@
     <Compile Include="ViewModels\*.cs" />
     <Compile Include="Models\*.cs" />
     <Compile Include="Models\Define\*.cs" />
-    <Compile Include="Services\*.cs" />
     <Compile Include="Services\**\*.cs" />
-    <Compile Include="Utils\*.cs" />
     <Compile Include="Utils\**\*.cs" />
   </ItemGroup>
 

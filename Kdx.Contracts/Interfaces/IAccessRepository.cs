@@ -538,11 +538,6 @@ namespace Kdx.Contracts.Interfaces
         /// </summary>
         List<ProcessError> GetErrors(int plcId, int cycleId, int mnemonicId);
         
-        /// <summary>
-        /// 操作デバイスのエラー情報を保存
-        /// </summary>
-        void SaveMnemonicDeviceOperation(List<Operation> operations, List<IO> iOs, int startNum, int startNumTimer, int plcId, int cycleId);
-
         void SaveErrors(List<ProcessError> errors);
 
         void UpdateErrors(List<ProcessError> errors);

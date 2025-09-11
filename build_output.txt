@@ -1,0 +1,12 @@
+  復元対象のプロジェクトを決定しています...
+  復元対象のすべてのプロジェクトは最新です。
+  Kdx.Contracts -> C:\Users\shimada.KANAMORI-SYSTEM\source\repos\KDX_Projects\bin\Kdx.Contracts\Debug\net8.0\Kdx.Contracts.dll
+  Kdx.Core -> C:\Users\shimada.KANAMORI-SYSTEM\source\repos\KDX_Projects\bin\Kdx.Core\Debug\net8.0\Kdx.Core.dll
+  Kdx.Infrastructure -> C:\Users\shimada.KANAMORI-SYSTEM\source\repos\KDX_Projects\bin\Kdx.Infrastructure\Debug\net8.0\Kdx.Infrastructure.dll
+  KdxDesigner -> C:\Users\shimada.KANAMORI-SYSTEM\source\repos\KDX_Projects\bin\KdxDesigner\Debug\net8.0-windows10.0.17763.0\KdxDesigner.dll
+
+ビルドに成功しました。
+    0 個の警告
+    0 エラー
+
+経過時間 00:00:01.25

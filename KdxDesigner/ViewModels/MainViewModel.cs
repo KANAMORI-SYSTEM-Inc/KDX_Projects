@@ -38,7 +38,7 @@ namespace KdxDesigner.ViewModels
 
     public partial class MainViewModel : ObservableObject
     {
-        protected private readonly IAccessRepository _repository;
+        protected private readonly IAccessRepository _repository = null!; // コンストラクタで初期化される
         protected private IMnemonicDeviceService? _mnemonicService;
         protected private IMnemonicTimerDeviceService? _timerService;
         protected private ErrorService? _errorService;
@@ -46,7 +46,7 @@ namespace KdxDesigner.ViewModels
         protected private IMnemonicSpeedDeviceService? _speedService;
         protected private MemoryService? _memoryService;
         protected private WpfIOSelectorService? _ioSelectorService;
-        protected private IMnemonicDeviceMemoryStore? _mnemonicMemoryStore;
+        protected private IMnemonicDeviceMemoryStore _mnemonicMemoryStore = null!; // InitializeServicesで初期化される
 
         // 開いているProcessFlowDetailWindowのリスト
         private readonly List<Window> _openProcessFlowWindows = new();
@@ -133,7 +133,7 @@ namespace KdxDesigner.ViewModels
             }
         }
         
-        private readonly IAuthenticationService _authService;
+        private readonly IAuthenticationService _authService = null!; // コンストラクタで初期化される
         private readonly SupabaseConnectionHelper? _supabaseHelper;
 
         // パラメータなしコンストラクタ（削除または例外をスロー）
@@ -694,7 +694,7 @@ namespace KdxDesigner.ViewModels
                 return;
             }
 
-            var view = new MemoryEditorView(SelectedPlc.Id);
+            var view = new MemoryEditorView(SelectedPlc.Id, _repository);
             view.ShowDialog();
         }
 
@@ -1204,7 +1204,7 @@ namespace KdxDesigner.ViewModels
                 return;
             }
 
-            _timerService.DeleteAllMnemonicTimerDevice();
+            _repository.DeleteAllMnemonicTimerDevices();
             _timerService.SaveWithDetail(timer, details, DeviceStartT, SelectedPlc!.Id, ref timerCount);
             _timerService.SaveWithOperation(timer, operations, DeviceStartT, SelectedPlc!.Id, ref timerCount);
             _timerService.SaveWithCY(timer, cylinders, DeviceStartT, SelectedPlc!.Id, ref timerCount);

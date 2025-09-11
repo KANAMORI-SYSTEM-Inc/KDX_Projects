@@ -13,8 +13,8 @@ namespace Kdx.Contracts.DTOs
         [Postgrest.Attributes.Column("Id")]
         public int Id { get; set; }
         
-        [Postgrest.Attributes.Column("CycleId")]
-        public int? CycleId { get; set; }
+        // CycleIdはProcessDetailFinishテーブルには存在しない
+        // ProcessDetailテーブル経由で取得する必要がある
         
         [Postgrest.Attributes.Column("ProcessDetailId")]
         public int ProcessDetailId { get; set; }

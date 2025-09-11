@@ -12,8 +12,8 @@ namespace KdxDesigner.Services.IOAddress
 {
     public class IOAddressService : IIOAddressService
     {
-        private const string LengthPrefix = "L-";
-        private const string UnderscorePrefix = "_";
+        private const string _lengthPrefix = "L-";
+        private const string _underscorePrefix = "_";
 
         private readonly IErrorAggregator _errorAggregator;
         private readonly IAccessRepository _repository;
@@ -220,7 +220,7 @@ namespace KdxDesigner.Services.IOAddress
                 return new FindIOResult { State = FindIOResultState.NotFound };
             }
 
-            if (ioText.StartsWith(LengthPrefix, StringComparison.OrdinalIgnoreCase))
+            if (ioText.StartsWith(_lengthPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 var lengthList = _repository.GetLengthByPlcId(_plcId);
 

@@ -1,4 +1,4 @@
-﻿// ViewModel: MemoryEditorViewModel.cs
+// ViewModel: MemoryEditorViewModel.cs
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -18,7 +18,7 @@ namespace KdxDesigner.ViewModels
 {
     public partial class MemoryEditorViewModel : ObservableObject
     {
-        private readonly IAccessRepository _repository;
+        private readonly IAccessRepository _repository = null!; // コンストラクタで初期化される
         public int _plcId;
 
         public MemoryEditorViewModel(IAccessRepository repository)
@@ -28,30 +28,30 @@ namespace KdxDesigner.ViewModels
 
         // アプリ側でのデバイス一覧変数を一次保存する
         [ObservableProperty]
-        private ObservableCollection<Memory> memories = new();
+        private ObservableCollection<Memory> _memories = new();
 
         // メモリカテゴリ（M, L, D...）を格納
         [ObservableProperty]
-        private ObservableCollection<MemoryCategory> memoryCategories = new();
+        private ObservableCollection<MemoryCategory> _memoryCategories = new();
 
         // ドロップダウンで選択されたメモリカテゴリ
         [ObservableProperty]
-        private MemoryCategory? selectedMemoryCategory;
+        private MemoryCategory? _selectedMemoryCategory;
 
         // ステータスメッセージ表示用
         [ObservableProperty]
-        private string saveStatusMessage = string.Empty;
+        private string _saveStatusMessage = string.Empty;
 
         // 初期化メソッド
-        public MemoryEditorViewModel(int plcId)
+        public MemoryEditorViewModel(int plcId, IAccessRepository repository)
         {
             _plcId = plcId;
-            // データベースの初期化
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            
             // メモリカテゴリドロップダウンのリスト取得
             var memoryService = new Services.Memory.MemoryService(_repository);
             MemoryCategories = new ObservableCollection<MemoryCategory>(memoryService.GetMemoryCategories());
             Memories = new ObservableCollection<Memory>();
-
         }
 
 

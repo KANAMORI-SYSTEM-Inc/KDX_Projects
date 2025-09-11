@@ -49,7 +49,7 @@ namespace KdxDesigner.ViewModels
             int timerCount = 0;
             
             // 既存の処理をそのまま呼び出す
-            _timerService!.DeleteAllMnemonicTimerDevice();
+            _repository.DeleteAllMnemonicTimerDevices();
             _timerService!.SaveWithDetail(timer, details, DeviceStartT, SelectedPlc!.Id, ref timerCount);
             _timerService!.SaveWithOperation(timer, operations, DeviceStartT, SelectedPlc!.Id, ref timerCount);
             _timerService!.SaveWithCY(timer, cylinders, DeviceStartT, SelectedPlc!.Id, ref timerCount);

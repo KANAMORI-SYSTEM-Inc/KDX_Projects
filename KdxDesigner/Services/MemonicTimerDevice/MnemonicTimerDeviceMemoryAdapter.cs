@@ -1,5 +1,6 @@
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
+using System.Diagnostics;
 
 using Kdx.Contracts.Interfaces;
 using KdxDesigner.Services.Memory;
@@ -89,14 +90,18 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// </summary>
         public void SaveWithDetail(List<Timer> timers, List<ProcessDetail> details, int startNum, int plcId, ref int count)
         {
+            Debug.WriteLine($"[MemoryAdapter.SaveWithDetail] 開始 - details: {details.Count}件, timers: {timers.Count}件, plcId: {plcId}");
+            
             var devices = new List<MnemonicTimerDevice>();
 
-            var allExisting = GetMnemonicTimerDeviceByMnemonic(plcId, (int)MnemonicType.Operation);
+            var allExisting = GetMnemonicTimerDeviceByMnemonic(plcId, (int)MnemonicType.ProcessDetail);
             var existingLookup = allExisting.ToDictionary(m => (m.MnemonicId, m.RecordId, m.TimerId), m => m);
 
             // 2. タイマーをRecordIdごとに整理した辞書を作成
             var timersByRecordId = new Dictionary<int, List<Timer>>();
             var detailTimersSource = timers.Where(t => t.MnemonicId == (int)MnemonicType.ProcessDetail);
+            Debug.WriteLine($"[MemoryAdapter.SaveWithDetail] ProcessDetailタイマー: {detailTimersSource.Count()}件");
+            
             var allMemoriesToSave = new List<Kdx.Contracts.DTOs.Memory>();
 
 
@@ -104,8 +109,11 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             {
                 // 中間テーブルからRecordIdを取得
                 var recordIds = _repository.GetTimerRecordIds(timer.ID);
+                Debug.WriteLine($"[MemoryAdapter.SaveWithDetail] Timer.ID={timer.ID}, TimerName={timer.TimerName}, RecordIds={recordIds.Count}件");
+                
                 foreach (var recordId in recordIds)
                 {
+                    Debug.WriteLine($"[MemoryAdapter.SaveWithDetail]   -> RecordId={recordId}");
                     if (!timersByRecordId.ContainsKey(recordId))
                     {
                         timersByRecordId[recordId] = new List<Timer>();
@@ -113,15 +121,24 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                     timersByRecordId[recordId].Add(timer);
                 }
             }
+            
+            Debug.WriteLine($"[MemoryAdapter.SaveWithDetail] timersByRecordId作成完了 - {timersByRecordId.Count}件のRecordId");
 
             foreach (var detail in details)
             {
 
                 if (detail == null) continue;
 
+                // デバッグ: 最初の数件のdetail.Idを出力
+                if (devices.Count < 5)
+                {
+                    Debug.WriteLine($"[MemoryAdapter.SaveWithDetail] Processing detail.Id={detail.Id}, Name={detail.DetailName}");
+                }
 
                 if (timersByRecordId.TryGetValue(detail.Id, out var detailTimers))
                 {
+                    Debug.WriteLine($"[MemoryAdapter.SaveWithDetail] Detail.Id={detail.Id}に対応するタイマー: {detailTimers.Count}件");
+                    
                     foreach (Timer timer in detailTimers)
                     {
                         var timerStartWith = "";
@@ -158,8 +175,10 @@ namespace KdxDesigner.Services.MemonicTimerDevice
 
                         devices.Add(device);
 
-                        // メモリストアに保存
-                        _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
+                        // メモリストアに保存（CycleIdは必ずMainViewModelから取得）
+                        var cycleId = _mainViewModel?.SelectedCycle?.Id ?? timer.CycleId ?? 1;
+                        Debug.WriteLine($"[MemoryAdapter.SaveWithDetail/Operation/CY] メモリストアに保存 - cycleId: {cycleId}, MnemonicId: {device.MnemonicId}, RecordId: {device.RecordId}, TimerId: {device.TimerId}");
+                        _memoryStore.AddOrUpdateTimerDevice(device, plcId, cycleId);
 
                         // 出力タイマのメモリレコードを生成
                         var memoryT = new Kdx.Contracts.DTOs.Memory
@@ -231,6 +250,8 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             {
                 _dbService.SaveWithDetail(timers, details, startNum, plcId, ref count);
             }
+            
+            Debug.WriteLine($"[MemoryAdapter.SaveWithDetail] 完了 - 保存したデバイス数: {devices.Count}");
         }
 
         /// <summary>
@@ -310,8 +331,10 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                             Comment1 = timer.TimerName
                         };
 
-                        // メモリストアに保存
-                        _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
+                        // メモリストアに保存（CycleIdは必ずMainViewModelから取得）
+                        var cycleId = _mainViewModel?.SelectedCycle?.Id ?? timer.CycleId ?? 1;
+                        Debug.WriteLine($"[MemoryAdapter.SaveWithDetail/Operation/CY] メモリストアに保存 - cycleId: {cycleId}, MnemonicId: {device.MnemonicId}, RecordId: {device.RecordId}, TimerId: {device.TimerId}");
+                        _memoryStore.AddOrUpdateTimerDevice(device, plcId, cycleId);
                         count++;
 
                         // --- 2. 対応するKdx.Contracts.DTOs.Memoryレコードを生成し、リストに蓄積 ---
@@ -470,8 +493,10 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                             Comment1 = timer.TimerName
                         };
 
-                        // メモリストアに保存
-                        _memoryStore.AddOrUpdateTimerDevice(device, plcId, timer.CycleId ?? 1);
+                        // メモリストアに保存（CycleIdは必ずMainViewModelから取得）
+                        var cycleId = _mainViewModel?.SelectedCycle?.Id ?? timer.CycleId ?? 1;
+                        Debug.WriteLine($"[MemoryAdapter.SaveWithDetail/Operation/CY] メモリストアに保存 - cycleId: {cycleId}, MnemonicId: {device.MnemonicId}, RecordId: {device.RecordId}, TimerId: {device.TimerId}");
+                        _memoryStore.AddOrUpdateTimerDevice(device, plcId, cycleId);
                         count++;
 
                         // --- 2. 対応するKdx.Contracts.DTOs.Memoryレコードを生成し、リストに蓄積 ---
@@ -559,9 +584,44 @@ namespace KdxDesigner.Services.MemonicTimerDevice
 
         public List<MnemonicTimerDevice> GetMnemonicTimerDeviceByMnemonic(int plcId, int mnemonicId)
         {
-            // 全サイクルのデータを取得する必要がある
-            // 現在のメモリストアの制限により、データベースから取得
-            return !_useMemoryStoreOnly ? _dbService.GetMnemonicTimerDeviceByMnemonic(plcId, mnemonicId) : new List<MnemonicTimerDevice>();
+            Debug.WriteLine($"[MemoryAdapter.GetMnemonicTimerDeviceByMnemonic] 開始 - plcId: {plcId}, mnemonicId: {mnemonicId}");
+            
+            // メモリストアから全サイクルのタイマーデバイスを取得してフィルタリング
+            var allDevices = new List<MnemonicTimerDevice>();
+            
+            // MainViewModelからCycleIdを取得（通常はSelectedCycle.Idを使用）
+            if (_mainViewModel?.SelectedCycle != null)
+            {
+                var cycleId = _mainViewModel.SelectedCycle.Id;
+                Debug.WriteLine($"[MemoryAdapter.GetMnemonicTimerDeviceByMnemonic] CycleId: {cycleId}");
+                
+                var devices = _memoryStore.GetTimerDevices(plcId, cycleId);
+                Debug.WriteLine($"[MemoryAdapter.GetMnemonicTimerDeviceByMnemonic] メモリストアから取得: {devices.Count}件");
+                
+                allDevices = devices.Where(d => d.MnemonicId == mnemonicId).ToList();
+                Debug.WriteLine($"[MemoryAdapter.GetMnemonicTimerDeviceByMnemonic] フィルタ後: {allDevices.Count}件");
+            }
+            else
+            {
+                Debug.WriteLine($"[MemoryAdapter.GetMnemonicTimerDeviceByMnemonic] SelectedCycleがnull");
+            }
+            
+            // メモリストアにデータがない場合、データベースから取得
+            if (!allDevices.Any() && !_useMemoryStoreOnly)
+            {
+                Debug.WriteLine($"[MemoryAdapter.GetMnemonicTimerDeviceByMnemonic] データベースから取得");
+                allDevices = _dbService.GetMnemonicTimerDeviceByMnemonic(plcId, mnemonicId);
+                Debug.WriteLine($"[MemoryAdapter.GetMnemonicTimerDeviceByMnemonic] データベースから: {allDevices.Count}件");
+                
+                // 取得したデータをメモリストアにキャッシュ
+                foreach (var device in allDevices)
+                {
+                    _memoryStore.AddOrUpdateTimerDevice(device, plcId, device.CycleId ?? 1);
+                }
+            }
+            
+            Debug.WriteLine($"[MemoryAdapter.GetMnemonicTimerDeviceByMnemonic] 完了 - 返却: {allDevices.Count}件");
+            return allDevices;
         }
 
         public List<MnemonicTimerDevice> GetMnemonicTimerDeviceByTimerId(int plcId, int timerId)

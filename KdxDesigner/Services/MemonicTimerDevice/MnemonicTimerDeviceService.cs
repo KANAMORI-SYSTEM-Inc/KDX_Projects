@@ -1,6 +1,7 @@
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using Kdx.Contracts.Interfaces;
+using System.Diagnostics;
 
 using KdxDesigner.ViewModels;
 
@@ -73,7 +74,9 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         /// <returns>MnemonicTimerDeviceのリスト</returns>
         public List<MnemonicTimerDevice> GetMnemonicTimerDeviceByMnemonic(int plcId, int mnemonicId)
         {
+            Debug.WriteLine($"[GetMnemonicTimerDeviceByMnemonic] 開始 - plcId: {plcId}, mnemonicId: {mnemonicId}");
             var mnemonicTimerDevice = _repository.GetMnemonicTimerDevicesByMnemonicId(plcId, mnemonicId);
+            Debug.WriteLine($"[GetMnemonicTimerDeviceByMnemonic] 取得完了 - {mnemonicTimerDevice.Count}件");
             return mnemonicTimerDevice;
         }
 
@@ -99,8 +102,21 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             MnemonicTimerDevice deviceToSave,
             MnemonicTimerDevice? existingRecord)
         {
-            // IAccessRepository経由でUpsertを実行
-            _repository.UpsertMnemonicTimerDevice(deviceToSave);
+            try
+            {
+                Debug.WriteLine($"[MnemonicTimerDeviceService.UpsertMnemonicTimerDevice] 開始");
+                Debug.WriteLine($"  保存対象: MnemonicId={deviceToSave.MnemonicId}, RecordId={deviceToSave.RecordId}, TimerId={deviceToSave.TimerId}");
+                
+                // IAccessRepository経由でUpsertを実行
+                _repository.UpsertMnemonicTimerDevice(deviceToSave);
+                
+                Debug.WriteLine($"[MnemonicTimerDeviceService.UpsertMnemonicTimerDevice] 完了");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[MnemonicTimerDeviceService.UpsertMnemonicTimerDevice] エラー: {ex.Message}");
+                throw;
+            }
         }
 
         /// <summary>
@@ -118,9 +134,14 @@ namespace KdxDesigner.Services.MemonicTimerDevice
         {
             try
             {
+                Debug.WriteLine($"[SaveWithDetail] 開始 - details: {details.Count}件, timers: {timers.Count}件");
+                
                 // 1. 既存データを取得し、(MnemonicId, RecordId, TimerId)の複合キーを持つ辞書に変換
+                Debug.WriteLine($"[SaveWithDetail] GetMnemonicTimerDeviceByMnemonic呼び出し前");
                 var allExisting = GetMnemonicTimerDeviceByMnemonic(plcId, (int)MnemonicType.ProcessDetail);
+                Debug.WriteLine($"[SaveWithDetail] 既存データ取得完了: {allExisting.Count}件");
                 var existingLookup = allExisting.ToDictionary(m => (m.MnemonicId, m.RecordId, m.TimerId), m => m);
+                Debug.WriteLine($"[SaveWithDetail] 辞書作成完了");
 
                 // 2. ProcessDetailに関連するタイマーをRecordIdごとに整理した辞書を作成
                 var timersByRecordId = new Dictionary<int, List<Timer>>();
@@ -145,6 +166,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                 {
                     if (detail == null)
                     {
+                        Debug.WriteLine($"[SaveWithDetail] スキップ - nullのdetail");
                         continue;
                     }
 
@@ -155,6 +177,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
                         {
                             if (timer == null)
                             {
+                                Debug.WriteLine($"[SaveWithDetail] スキップ - nullのtimer");
                                 continue;
                             }
 
@@ -200,7 +223,7 @@ namespace KdxDesigner.Services.MemonicTimerDevice
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"SaveWithDetail 失敗: {ex.Message}");
+                Debug.WriteLine($"SaveWithDetail 失敗: {ex.Message}");
                 // エラーログの記録や上位への例外通知など
                 // Debug.WriteLine($"SaveWithOperation 失敗: {ex.Message}");
                 throw;

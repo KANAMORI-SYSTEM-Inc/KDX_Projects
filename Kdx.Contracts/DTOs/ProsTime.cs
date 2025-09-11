@@ -13,18 +13,20 @@ namespace Kdx.Contracts.DTOs
     [Postgrest.Attributes.Table("ProsTime")]
     public class ProsTime : BaseModel
     {
-        [PrimaryKey("ID")]
-        [Postgrest.Attributes.Column("ID")]
-        public int ID { get; set; }
+        [PrimaryKey("PlcId")]
         [Required]
         [Postgrest.Attributes.Column("PlcId")]
         public int PlcId { get; set; }
         [Required]
         [Postgrest.Attributes.Column("MnemonicId")]
         public int MnemonicId { get; set; }
+
+        [PrimaryKey("RecordId")]
         [Required]
         [Postgrest.Attributes.Column("RecordId")]
         public int RecordId { get; set; }
+
+        [PrimaryKey("SortId")]
         [Required]
         [Postgrest.Attributes.Column("SortId")]
         public int SortId { get; set; }
@@ -40,6 +42,5 @@ namespace Kdx.Contracts.DTOs
         [Required]
         [Postgrest.Attributes.Column("CategoryId")]
         public int CategoryId { get; set; } // OperationDifinitionsのID
-
     }
 }

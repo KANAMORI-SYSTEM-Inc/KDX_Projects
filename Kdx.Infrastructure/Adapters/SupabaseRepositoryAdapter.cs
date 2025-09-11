@@ -2,6 +2,7 @@ using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Interfaces;
 using Kdx.Infrastructure.Configuration;
 using Kdx.Infrastructure.Repositories;
+using System.Diagnostics;
 using Timer = Kdx.Contracts.DTOs.Timer;
 
 namespace Kdx.Infrastructure.Adapters
@@ -56,17 +57,17 @@ namespace Kdx.Infrastructure.Adapters
             return Task.Run(async () => await _supabaseRepository.GetCyclesAsync()).GetAwaiter().GetResult();
         }
 
-        public List<Process> GetProcesses()
+        public List<Kdx.Contracts.DTOs.Process> GetProcesses()
         {
             return Task.Run(async () => await _supabaseRepository.GetProcessesAsync()).GetAwaiter().GetResult();
         }
 
-        public int AddProcess(Process process)
+        public int AddProcess(Kdx.Contracts.DTOs.Process process)
         {
             return Task.Run(async () => await _supabaseRepository.AddProcessAsync(process)).GetAwaiter().GetResult();
         }
 
-        public void UpdateProcess(Process process)
+        public void UpdateProcess(Kdx.Contracts.DTOs.Process process)
         {
             Task.Run(async () => await _supabaseRepository.UpdateProcessAsync(process)).GetAwaiter().GetResult();
         }
@@ -258,7 +259,10 @@ namespace Kdx.Infrastructure.Adapters
 
         public List<MnemonicTimerDevice> GetMnemonicTimerDevicesByMnemonicId(int plcId, int mnemonicId)
         {
-            return Task.Run(async () => await _supabaseRepository.GetMnemonicTimerDevicesByMnemonicIdAsync(plcId, mnemonicId)).GetAwaiter().GetResult();
+            Debug.WriteLine($"[SupabaseRepositoryAdapter.GetMnemonicTimerDevicesByMnemonicId] 開始 - plcId: {plcId}, mnemonicId: {mnemonicId}");
+            var result = Task.Run(async () => await _supabaseRepository.GetMnemonicTimerDevicesByMnemonicIdAsync(plcId, mnemonicId)).GetAwaiter().GetResult();
+            Debug.WriteLine($"[SupabaseRepositoryAdapter.GetMnemonicTimerDevicesByMnemonicId] 完了 - {result.Count}件");
+            return result;
         }
 
         public List<MnemonicTimerDevice> GetMnemonicTimerDevicesByTimerId(int plcId, int timerId)
@@ -288,7 +292,17 @@ namespace Kdx.Infrastructure.Adapters
 
         public void UpsertMnemonicTimerDevice(MnemonicTimerDevice device)
         {
-            Task.Run(async () => await _supabaseRepository.UpsertMnemonicTimerDeviceAsync(device)).GetAwaiter().GetResult();
+            try
+            {
+                Debug.WriteLine($"[SupabaseRepositoryAdapter.UpsertMnemonicTimerDevice] 開始");
+                Task.Run(async () => await _supabaseRepository.UpsertMnemonicTimerDeviceAsync(device)).GetAwaiter().GetResult();
+                Debug.WriteLine($"[SupabaseRepositoryAdapter.UpsertMnemonicTimerDevice] 完了");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[SupabaseRepositoryAdapter.UpsertMnemonicTimerDevice] エラー: {ex.Message}");
+                throw;
+            }
         }
 
         public List<IO> GetIoList()

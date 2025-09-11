@@ -10,7 +10,7 @@ using Postgrest.Models;
 
 namespace Kdx.Contracts.DTOs
 {
-    [Postgrest.Attributes.Table("ProsTimeCategory")]
+    [Postgrest.Attributes.Table("ProsTimeDefinitions")]
     public class ProsTimeDefinitions : BaseModel
     {
         [PrimaryKey("Id")]

@@ -29,7 +29,8 @@ namespace KdxDesigner.Services.ProsTimeDevice
         public ProsTimeDeviceService(IAccessRepository repository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            _loadedOperationConfigs = new Dictionary<int, OperationProsTimeConfig>(); // TODO: Supabase対応実装時に初期化
+            _loadedOperationConfigs = LoadOperationProsTimeConfigsFromDb();
+
         }
 
         /// <summary>
@@ -53,6 +54,84 @@ namespace KdxDesigner.Services.ProsTimeDevice
             return _repository.GetProsTimeByMnemonicId(plcId, mnemonicId);
 
         }
+
+        private Dictionary<int, OperationProsTimeConfig> LoadOperationProsTimeConfigsFromDb()
+        {
+            var configs = new Dictionary<int, OperationProsTimeConfig>();
+
+            try
+            {
+                var rawConfigData = _repository.GetProsTimeDefinitions();
+
+                if (rawConfigData == null || !rawConfigData.Any())
+                {
+                    // ProsTimeDefinitionsテーブルから設定を読み込めませんでした
+                    return configs; // 空のコンフィグを返す
+                }
+
+                var groupedData = rawConfigData.GroupBy(r => r.OperationCategoryId);
+
+                foreach (var group in groupedData)
+                {
+                    var operationCategoryKey = group.Key;
+                    // グループ内の TotalCount は全て同じはずなので、最初の要素から取得
+                    var totalCount = group.First().TotalCount;
+
+                    var map = new Dictionary<int, int>();
+                    foreach (var item in group)
+                    {
+                        // SortOrder と ResultingCategoryId のマッピングを追加
+                        map[item.SortOrder] = item.OperationDefinitionsId;
+                    }
+
+                    configs[operationCategoryKey] = new OperationProsTimeConfig
+                    {
+                        TotalProsTimeCount = totalCount,
+                        SortIdToCategoryIdMap = map
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                // データベースアクセスエラー: {ex.Message}
+                // エラー発生時はデフォルト設定を返す
+                return GetDefaultConfigs();
+            }
+            
+            // 設定が読み込まれたが空の場合もデフォルト設定を使用
+            if (!configs.Any())
+            {
+                // 設定が空のため、デフォルト設定を使用
+                return GetDefaultConfigs();
+            }
+            
+            return configs;
+        }
+        
+        /// <summary>
+        /// デフォルトのOperation設定を生成
+        /// </summary>
+        private Dictionary<int, OperationProsTimeConfig> GetDefaultConfigs()
+        {
+            var configs = new Dictionary<int, OperationProsTimeConfig>();
+            
+            // 各CategoryIdに対してデフォルト設定を生成（5個のProsTime）
+            for (int categoryId = 1; categoryId <= 20; categoryId++)
+            {
+                configs[categoryId] = new OperationProsTimeConfig
+                {
+                    TotalProsTimeCount = 5,
+                    SortIdToCategoryIdMap = new Dictionary<int, int>
+                    {
+                        {0, 1}, {1, 2}, {2, 3}, {3, 4}, {4, 5}
+                    }
+                };
+            }
+            
+            // {configs.Count}個のデフォルト設定を生成
+            return configs;
+        }
+
 
         public void SaveProsTime(List<Operation> operations, int startCurrent, int startPrevious, int startCylinder, int plcId)
         {
@@ -113,10 +192,21 @@ namespace KdxDesigner.Services.ProsTimeDevice
                 }
             }
 
+            // 重複を除去（PlcId, MnemonicId, RecordId, SortIdの組み合わせでユニークにする）
+            var uniqueProsTimes = prosTimesToSave
+                .GroupBy(pt => new { pt.PlcId, pt.MnemonicId, pt.RecordId, pt.SortId })
+                .Select(g => g.First())
+                .ToList();
+            
             // 一括で保存
-            if (prosTimesToSave.Any())
+            if (uniqueProsTimes.Any())
             {
-                _repository.SaveOrUpdateProsTimesBatch(prosTimesToSave);
+                // 重複除去: 元データ{prosTimesToSave.Count}件 → {uniqueProsTimes.Count}件
+                _repository.SaveOrUpdateProsTimesBatch(uniqueProsTimes);
+            }
+            else
+            {
+                // 保存するProsTimeがありません
             }
         }
     }

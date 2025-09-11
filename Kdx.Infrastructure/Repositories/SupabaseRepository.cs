@@ -2,6 +2,7 @@ using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using Supabase;
 using Supabase.Interfaces;
+using System.Diagnostics;
 using Timer = Kdx.Contracts.DTOs.Timer;
 
 namespace Kdx.Infrastructure.Repositories
@@ -102,26 +103,26 @@ namespace Kdx.Infrastructure.Repositories
             return response.Models;
         }
 
-        public async Task<List<Process>> GetProcessesAsync()
+        public async Task<List<Kdx.Contracts.DTOs.Process>> GetProcessesAsync()
         {
             var response = await _supabaseClient
-                .From<Process>()
+                .From<Kdx.Contracts.DTOs.Process>()
                 .Get();
             return response.Models;
         }
 
-        public async Task<int> AddProcessAsync(Process process)
+        public async Task<int> AddProcessAsync(Kdx.Contracts.DTOs.Process process)
         {
             var response = await _supabaseClient
-                .From<Process>()
+                .From<Kdx.Contracts.DTOs.Process>()
                 .Insert(process);
             return response.Models.FirstOrDefault()?.Id ?? 0;
         }
 
-        public async Task UpdateProcessAsync(Process process)
+        public async Task UpdateProcessAsync(Kdx.Contracts.DTOs.Process process)
         {
             await _supabaseClient
-                .From<Process>()
+                .From<Kdx.Contracts.DTOs.Process>()
                 .Where(p => p.Id == process.Id)
                 .Update(process);
         }
@@ -245,8 +246,25 @@ namespace Kdx.Infrastructure.Repositories
 
         public async Task<List<int>> GetTimerRecordIdsAsync(int timerId)
         {
-            // TimerRecordId関連テーブルが必要な場合は実装を追加
-            return new List<int>();
+            try
+            {
+                Debug.WriteLine($"[GetTimerRecordIdsAsync] TimerId={timerId}のRecordIdを取得");
+                
+                var response = await _supabaseClient
+                    .From<TimerRecordId>()
+                    .Where(t => t.TimerId == timerId)
+                    .Get();
+                
+                var recordIds = response?.Models?.Select(t => t.RecordId).ToList() ?? new List<int>();
+                Debug.WriteLine($"[GetTimerRecordIdsAsync] 取得完了 - {recordIds.Count}件");
+                
+                return recordIds;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[GetTimerRecordIdsAsync] エラー: {ex.Message}");
+                return new List<int>();
+            }
         }
 
         public async Task AddTimerRecordIdAsync(int timerId, int recordId)
@@ -342,7 +360,7 @@ namespace Kdx.Infrastructure.Repositories
         public async Task DeleteProcessAsync(int id)
         {
             await _supabaseClient
-                .From<Process>()
+                .From<Kdx.Contracts.DTOs.Process>()
                 .Where(p => p.Id == id)
                 .Delete();
         }
@@ -424,11 +442,18 @@ namespace Kdx.Infrastructure.Repositories
 
         public async Task<List<MnemonicTimerDevice>> GetMnemonicTimerDevicesByMnemonicIdAsync(int plcId, int mnemonicId)
         {
-            var response = await _supabaseClient
-                .From<MnemonicTimerDevice>()
-                .Where(m => m.PlcId == plcId && m.MnemonicId == mnemonicId)
-                .Get();
-            return response.Models;
+            try
+            {
+                var response = await _supabaseClient
+                    .From<MnemonicTimerDevice>()
+                    .Where(m => m.PlcId == plcId && m.MnemonicId == mnemonicId)
+                    .Get();
+                return response?.Models ?? new List<MnemonicTimerDevice>();
+            }
+            catch (Exception ex)
+            {
+                return new List<MnemonicTimerDevice>();
+            }
         }
 
         public async Task<List<MnemonicTimerDevice>> GetMnemonicTimerDevicesByTimerIdAsync(int plcId, int timerId)
@@ -478,11 +503,37 @@ namespace Kdx.Infrastructure.Repositories
 
         public async Task UpsertMnemonicTimerDeviceAsync(MnemonicTimerDevice device)
         {
-            // Supabaseのupsert機能を使用
-            // OnConflictで複合キーの競合時の動作を指定
-            await _supabaseClient
-                .From<MnemonicTimerDevice>()
-                .Upsert(device);
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"[UpsertMnemonicTimerDeviceAsync] 開始");
+                System.Diagnostics.Debug.WriteLine($"  MnemonicId: {device.MnemonicId}, RecordId: {device.RecordId}, TimerId: {device.TimerId}");
+                System.Diagnostics.Debug.WriteLine($"  PlcId: {device.PlcId}, CycleId: {device.CycleId}");
+                System.Diagnostics.Debug.WriteLine($"  TimerDeviceT: {device.TimerDeviceT}, TimerDeviceZR: {device.TimerDeviceZR}");
+                System.Diagnostics.Debug.WriteLine($"  Comment1: {device.Comment1}");
+
+                // Supabaseのupsert機能を使用
+                // upsertは自動的に主キーで競合を検出して更新または挿入を行う
+                var response = await _supabaseClient
+                    .From<MnemonicTimerDevice>()
+                    .Upsert(device);
+
+                System.Diagnostics.Debug.WriteLine($"[UpsertMnemonicTimerDeviceAsync] 完了");
+                
+                if (response?.Models != null && response.Models.Count > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  Upsertされたレコード数: {response.Models.Count}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[UpsertMnemonicTimerDeviceAsync] エラー発生: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"  スタックトレース: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics. Debug.WriteLine($"  内部エラー: {ex.InnerException.Message}");
+                }
+                throw;
+            }
         }
 
         public async Task<List<IO>> GetIoListAsync()
@@ -704,7 +755,7 @@ namespace Kdx.Infrastructure.Repositories
             // まずProcessテーブルから該当するCycleIdのProcessIdを取得し、
             // それらのProcessIdに関連するStartConditionを取得する
             var processes = await _supabaseClient
-                .From<Process>()
+                .From<Kdx.Contracts.DTOs.Process>()
                 .Where(p => p.CycleId == cycleId)
                 .Get();
             
@@ -769,7 +820,7 @@ namespace Kdx.Infrastructure.Repositories
             // ProcessFinishConditionテーブルにもCycleIdがないため、
             // ProcessStartConditionと同様の処理を行う
             var processes = await _supabaseClient
-                .From<Process>()
+                .From<Kdx.Contracts.DTOs.Process>()
                 .Where(p => p.CycleId == cycleId)
                 .Get();
             
@@ -1227,11 +1278,25 @@ namespace Kdx.Infrastructure.Repositories
 
         public async Task<List<ProsTime>> GetProsTimeByMnemonicIdAsync(int plcId, int mnemonicId)
         {
-            var response = await _supabaseClient
-                .From<ProsTime>()
-                .Where(p => p.PlcId == plcId && p.MnemonicId == mnemonicId)
-                .Get();
-            return response.Models;
+            try
+            {
+                Debug.WriteLine($"[GetProsTimeByMnemonicIdAsync] 開始 - plcId: {plcId}, mnemonicId: {mnemonicId}");
+                
+                var response = await _supabaseClient
+                    .From<ProsTime>()
+                    .Where(p => p.PlcId == plcId && p.MnemonicId == mnemonicId)
+                    .Get();
+                
+                var prosTimes = response?.Models ?? new List<ProsTime>();
+                Debug.WriteLine($"[GetProsTimeByMnemonicIdAsync] 取得完了 - {prosTimes.Count}件");
+                
+                return prosTimes;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[GetProsTimeByMnemonicIdAsync] エラー: {ex.Message}");
+                return new List<ProsTime>();
+            }
         }
 
         public async Task DeleteProsTimeTableAsync()
@@ -1239,7 +1304,7 @@ namespace Kdx.Infrastructure.Repositories
             // Supabase requires a WHERE clause for DELETE. To delete all records, we use a condition that's always true
             await _supabaseClient
                 .From<ProsTime>()
-                .Filter("ID", Postgrest.Constants.Operator.GreaterThanOrEqual, "0")
+                .Filter("SortId", Postgrest.Constants.Operator.GreaterThanOrEqual, "0")
                 .Delete();
         }
 
@@ -1264,10 +1329,19 @@ namespace Kdx.Infrastructure.Repositories
 
         public async Task<List<ProsTimeDefinitions>> GetProsTimeDefinitionsAsync()
         {
-            var response = await _supabaseClient
-                .From<ProsTimeDefinitions>()
-                .Get();
-            return response.Models;
+            try
+            {
+                var response = await _supabaseClient
+                    .From<ProsTimeDefinitions>()
+                    .Get();
+                
+                return response?.Models ?? new List<ProsTimeDefinitions>();
+            }
+            catch (Exception ex)
+            {
+                // エラー: {ex.Message}
+                return new List<ProsTimeDefinitions>();
+            }
         }
 
         #endregion
@@ -1324,7 +1398,7 @@ namespace Kdx.Infrastructure.Repositories
             return response.Models;
         }
 
-        public async Task<Difinitions> GetDifinitionAsync(string category)
+        public async Task<Difinitions?> GetDifinitionAsync(string category)
         {
             var response = await _supabaseClient
                 .From<Difinitions>()

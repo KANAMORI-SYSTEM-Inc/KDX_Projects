@@ -1198,10 +1198,23 @@ namespace KdxDesigner.ViewModels
             int timerCount = 0;
 
             // Timerテーブルの保存
-            _timerService!.DeleteAllMnemonicTimerDevice();
-            _timerService!.SaveWithDetail(timer, details, DeviceStartT, SelectedPlc!.Id, ref timerCount);
-            _timerService!.SaveWithOperation(timer, operations, DeviceStartT, SelectedPlc!.Id, ref timerCount);
-            _timerService!.SaveWithCY(timer, cylinders, DeviceStartT, SelectedPlc!.Id, ref timerCount);
+            if (_timerService == null)
+            {
+                MessageBox.Show("TimerServiceが初期化されていません。", "エラー");
+                return;
+            }
+
+            Debug.WriteLine($"[MainViewModel] タイマーデバイス保存開始");
+            Debug.WriteLine($"  timer数: {timer.Count}, details数: {details.Count}, operations数: {operations.Count}, cylinders数: {cylinders.Count}");
+            
+            _timerService.DeleteAllMnemonicTimerDevice();
+            Debug.WriteLine($"[MainViewModel] SaveWithDetail呼び出し開始");
+            _timerService.SaveWithDetail(timer, details, DeviceStartT, SelectedPlc!.Id, ref timerCount);
+            Debug.WriteLine($"[MainViewModel] SaveWithOperation呼び出し開始");
+            _timerService.SaveWithOperation(timer, operations, DeviceStartT, SelectedPlc!.Id, ref timerCount);
+            Debug.WriteLine($"[MainViewModel] SaveWithCY呼び出し開始");
+            _timerService.SaveWithCY(timer, cylinders, DeviceStartT, SelectedPlc!.Id, ref timerCount);
+            Debug.WriteLine($"[MainViewModel] タイマーデバイス保存完了");
 
             // Errorテーブルの保存
             _errorService!.DeleteErrorTable();

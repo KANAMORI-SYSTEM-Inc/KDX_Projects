@@ -158,16 +158,20 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// </summary>
         public void AddOrUpdateTimerDevice(MnemonicTimerDevice device, int plcId, int cycleId)
         {
+            // AddOrUpdateTimerDevice: plcId={plcId}, cycleId={cycleId}
+            
             lock (_lock)
             {
                 if (!_timerDevices.ContainsKey(plcId))
                 {
                     _timerDevices[plcId] = new Dictionary<int, List<MnemonicTimerDevice>>();
+                    // PlcId {plcId} の辞書を新規作成
                 }
                 
                 if (!_timerDevices[plcId].ContainsKey(cycleId))
                 {
                     _timerDevices[plcId][cycleId] = new List<MnemonicTimerDevice>();
+                    // CycleId {cycleId} のリストを新規作成
                 }
                 
                 // 既存のデバイスを検索（複合キーで識別）
@@ -179,9 +183,11 @@ namespace KdxDesigner.Services.MnemonicDevice
                 if (existing != null)
                 {
                     _timerDevices[plcId][cycleId].Remove(existing);
+                    // 既存デバイスを削除
                 }
                 
                 _timerDevices[plcId][cycleId].Add(device);
+                // デバイスを追加
             }
         }
         
@@ -190,13 +196,18 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// </summary>
         public List<MnemonicTimerDevice> GetTimerDevices(int plcId, int cycleId)
         {
+            // GetTimerDevices: plcId={plcId}, cycleId={cycleId}
+            
             lock (_lock)
             {
-                if (_timerDevices.ContainsKey(plcId) && 
-                    _timerDevices[plcId].ContainsKey(cycleId))
+                if (_timerDevices.ContainsKey(plcId))
                 {
-                    return new List<MnemonicTimerDevice>(_timerDevices[plcId][cycleId]);
+                    if (_timerDevices[plcId].ContainsKey(cycleId))
+                    {
+                        return new List<MnemonicTimerDevice>(_timerDevices[plcId][cycleId]);
+                    }
                 }
+                
                 return new List<MnemonicTimerDevice>();
             }
         }

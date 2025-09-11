@@ -12,6 +12,8 @@ namespace KdxDesigner.ViewModels
     {
         private readonly IAuthenticationService _authService;
         private readonly IOAuthCallbackListener _callbackListener;
+        private bool _mainWindowOpened = false;
+        private readonly object _mainWindowLock = new object();
 
         [ObservableProperty]
         private bool _isLoading = false;
@@ -30,24 +32,67 @@ namespace KdxDesigner.ViewModels
             _authService = authService ?? throw new ArgumentNullException(nameof(authService));
             _callbackListener = callbackListener ?? throw new ArgumentNullException(nameof(callbackListener));
             
-            // 既存のセッションをチェック
-            CheckExistingSession();
+            // 認証状態変更イベントをリッスン
+            _authService.AuthStateChanged += OnAuthStateChanged;
+            
+            // 既存のセッションをチェック（少し遅延させて復元処理を待つ）
+            Task.Run(async () =>
+            {
+                await Task.Delay(500); // セッション復元を待つ
+                await CheckExistingSession();
+            });
         }
 
-        private async void CheckExistingSession()
+        private void OnAuthStateChanged(object? sender, Supabase.Gotrue.Session? session)
+        {
+            if (session != null && !_mainWindowOpened)
+            {
+                System.Diagnostics.Debug.WriteLine("OnAuthStateChanged: Session detected, opening MainWindow...");
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    StatusMessage = "自動ログインに成功しました";
+                    OpenMainWindow();
+                });
+            }
+        }
+
+        private async Task CheckExistingSession()
         {
             try
             {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    IsLoading = true;
+                    StatusMessage = "保存されたセッションを確認しています...";
+                });
+
                 var session = await _authService.GetSessionAsync();
                 if (session != null)
                 {
-                    // 既にサインイン済みの場合、メインウィンドウを開く
-                    OpenMainWindow();
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        StatusMessage = "自動ログインに成功しました";
+                        // 既にサインイン済みの場合、メインウィンドウを開く
+                        OpenMainWindow();
+                    });
+                }
+                else
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        StatusMessage = "";
+                        IsLoading = false;
+                    });
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Session check failed: {ex.Message}");
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    StatusMessage = "";
+                    IsLoading = false;
+                });
             }
         }
 
@@ -156,21 +201,49 @@ namespace KdxDesigner.ViewModels
 
         private void OpenMainWindow()
         {
+            lock (_mainWindowLock)
+            {
+                if (_mainWindowOpened)
+                {
+                    System.Diagnostics.Debug.WriteLine("MainWindow already opened, skipping...");
+                    return;
+                }
+                _mainWindowOpened = true;
+            }
+
             Application.Current.Dispatcher.Invoke(() =>
             {
+                // 既存のMainViewがないか確認
+                foreach (Window window in Application.Current.Windows)
+                {
+                    if (window is Views.MainView)
+                    {
+                        System.Diagnostics.Debug.WriteLine("MainView already exists, activating it...");
+                        window.Activate();
+                        CloseLoginWindow();
+                        return;
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine("Creating new MainView...");
                 var mainWindow = new Views.MainView();
                 mainWindow.Show();
                 
-                // ログインウィンドウを閉じる
-                foreach (Window window in Application.Current.Windows)
-                {
-                    if (window is Views.LoginView)
-                    {
-                        window.Close();
-                        break;
-                    }
-                }
+                CloseLoginWindow();
             });
+        }
+
+        private void CloseLoginWindow()
+        {
+            // ログインウィンドウを閉じる
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window is Views.LoginView)
+                {
+                    window.Close();
+                    break;
+                }
+            }
         }
         
         [RelayCommand]

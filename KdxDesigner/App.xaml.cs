@@ -80,6 +80,7 @@ namespace KdxDesigner
             services.AddSingleton<SupabaseConnectionHelper>();
             
             // 認証サービスの登録
+            services.AddSingleton<ISessionStorageService, SessionStorageService>();
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
             services.AddSingleton<IOAuthCallbackListener, OAuthCallbackListener>();
             

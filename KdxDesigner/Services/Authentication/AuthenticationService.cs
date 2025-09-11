@@ -22,6 +22,7 @@ namespace KdxDesigner.Services.Authentication
     public class AuthenticationService : IAuthenticationService
     {
         private readonly SupabaseClient _supabaseClient;
+        private readonly ISessionStorageService _sessionStorage;
         private Session? _currentSession;
 
         public event EventHandler<Session?> AuthStateChanged = delegate { };
@@ -29,9 +30,10 @@ namespace KdxDesigner.Services.Authentication
         public Session? CurrentSession => _currentSession;
         public bool IsAuthenticated => _currentSession != null;
 
-        public AuthenticationService(SupabaseClient supabaseClient)
+        public AuthenticationService(SupabaseClient supabaseClient, ISessionStorageService sessionStorage)
         {
             _supabaseClient = supabaseClient ?? throw new ArgumentNullException(nameof(supabaseClient));
+            _sessionStorage = sessionStorage ?? throw new ArgumentNullException(nameof(sessionStorage));
             
             System.Diagnostics.Debug.WriteLine($"AuthenticationService initialized");
             
@@ -45,12 +47,25 @@ namespace KdxDesigner.Services.Authentication
                 {
                     _currentSession = _supabaseClient.Auth.CurrentSession;
                     AuthStateChanged?.Invoke(this, _currentSession);
+                    
+                    // セッションを保存
+                    if (_currentSession != null && changed == Constants.AuthState.SignedIn)
+                    {
+                        Task.Run(async () => await SaveSessionAsync(_currentSession));
+                    }
+                    else if (changed == Constants.AuthState.SignedOut)
+                    {
+                        Task.Run(async () => await _sessionStorage.ClearSessionAsync());
+                    }
                 }
             });
 
             // 初期セッションを取得
             _currentSession = _supabaseClient.Auth.CurrentSession;
             System.Diagnostics.Debug.WriteLine($"Initial session: {(_currentSession != null ? "Exists" : "None")}");
+            
+            // 保存されたセッションを自動的に復元
+            Task.Run(async () => await TryRestoreSessionAsync());
         }
 
         public async Task<string?> SignInWithGitHubAsync()
@@ -105,6 +120,13 @@ namespace KdxDesigner.Services.Authentication
                 // PKCEは使用しないのでcodeVerifierは空文字列
                 var session = await _supabaseClient.Auth.ExchangeCodeForSession(code, string.Empty);
                 _currentSession = session;
+                
+                // セッションを保存
+                if (session != null)
+                {
+                    await SaveSessionAsync(session);
+                }
+                
                 System.Diagnostics.Debug.WriteLine($"Session exchanged successfully");
                 return session;
             }
@@ -121,6 +143,10 @@ namespace KdxDesigner.Services.Authentication
             {
                 await _supabaseClient.Auth.SignOut();
                 _currentSession = null;
+                
+                // セッションをクリア
+                await _sessionStorage.ClearSessionAsync();
+                
                 System.Diagnostics.Debug.WriteLine("Sign out successful");
             }
             catch (Exception ex)
@@ -144,6 +170,64 @@ namespace KdxDesigner.Services.Authentication
             }
         }
         
+        private async Task<bool> TryRestoreSessionAsync()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("Attempting to restore saved session...");
+                
+                // カスタムストレージからセッションを読み込み
+                var sessionData = await _sessionStorage.LoadSessionAsync();
+                
+                if (sessionData != null)
+                {
+                    // Supabaseにセッションを設定
+                    var session = await _supabaseClient.Auth.SetSession(sessionData.AccessToken, sessionData.RefreshToken);
+                    
+                    if (session != null)
+                    {
+                        _currentSession = session;
+                        System.Diagnostics.Debug.WriteLine("Session restored successfully");
+                        System.Diagnostics.Debug.WriteLine($"User email: {sessionData.UserEmail}");
+                        
+                        // セッション復元を通知
+                        AuthStateChanged?.Invoke(this, _currentSession);
+                        return true;
+                    }
+                }
+                
+                System.Diagnostics.Debug.WriteLine("No saved session found");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to restore session: {ex.Message}");
+                return false;
+            }
+        }
+        
+        private async Task SaveSessionAsync(Session session)
+        {
+            try
+            {
+                if (session?.AccessToken != null && session?.RefreshToken != null)
+                {
+                    var expiresIn = session.ExpiresIn > 0 ? session.ExpiresIn : 3600; // デフォルト1時間
+                    await _sessionStorage.SaveSessionAsync(
+                        session.AccessToken,
+                        session.RefreshToken,
+                        expiresIn,
+                        session.User?.Email
+                    );
+                    System.Diagnostics.Debug.WriteLine("Session saved to storage");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to save session: {ex.Message}");
+            }
+        }
+        
         public async Task<bool> SignInWithEmailAsync(string email, string password)
         {
             try
@@ -156,6 +240,10 @@ namespace KdxDesigner.Services.Authentication
                 {
                     _currentSession = session;
                     System.Diagnostics.Debug.WriteLine("Email sign in successful");
+                    
+                    // セッションを保存
+                    await SaveSessionAsync(session);
+                    
                     return true;
                 }
                 

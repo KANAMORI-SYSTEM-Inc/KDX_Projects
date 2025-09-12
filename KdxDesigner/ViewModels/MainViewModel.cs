@@ -18,6 +18,7 @@ using KdxDesigner.Services.MemonicTimerDevice;
 using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.Services.MnemonicSpeedDevice;
 using KdxDesigner.Utils;
+using KdxDesigner.Utils.Cylinder;
 using KdxDesigner.Views;
 
 using Microsoft.Extensions.Configuration;

@@ -2,12 +2,11 @@ using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;
-using KdxDesigner.Utils.Cylinder;
 using KdxDesigner.ViewModels;
 using Kdx.Contracts.DTOs;
 using MnemonicSpeedDevice = Kdx.Contracts.DTOs.MnemonicSpeedDevice;
 
-namespace KdxDesigner.Utils
+namespace KdxDesigner.Utils.Cylinder
 {
     public class CylinderBuilder
     {

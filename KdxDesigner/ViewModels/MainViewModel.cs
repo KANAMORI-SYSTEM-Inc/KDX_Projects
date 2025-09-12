@@ -15,10 +15,12 @@ using KdxDesigner.Services.ErrorService;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Services.IOSelector;
 using KdxDesigner.Services.MemonicTimerDevice;
-using KdxDesigner.Services.Memory;
 using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.Services.MnemonicSpeedDevice;
 using KdxDesigner.Utils;
+using KdxDesigner.Utils.Cylinder;
+using KdxDesigner.Utils.ProcessDetail;
+using KdxDesigner.Utils.Operation;
 using KdxDesigner.Views;
 
 using Microsoft.Extensions.Configuration;
@@ -869,7 +871,7 @@ namespace KdxDesigner.ViewModels
                 // CylinderBuilder
                 var cyErrorAggregator = new ErrorAggregator((int)MnemonicType.CY);
                 var cyIoAddressService = new IOAddressService(cyErrorAggregator, _repository, SelectedPlc.Id, _ioSelectorService);
-                var cylinderBuilder = new CylinderBuilder(this, cyErrorAggregator, cyIoAddressService);
+                var cylinderBuilder = new CylinderBuilder(this, cyErrorAggregator, cyIoAddressService, _repository);
                 var cylinderRows = cylinderBuilder.GenerateLadder(
                     data.JoinedProcessDetailList,
                     data.JoinedOperationList,
@@ -1305,9 +1307,9 @@ namespace KdxDesigner.ViewModels
             try
             {
                 // メモリに保存されたデバイスの数をカウント
-                var devices = _mnemonicService?.GetMnemonicDevice(SelectedPlc.Id) ?? new List<Models.MnemonicDevice>();
+                var devices = _mnemonicService?.GetMnemonicDevice(SelectedPlc.Id) ?? new List<Kdx.Contracts.DTOs.MnemonicDevice>();
                 var timerDevices = _timerService?.GetMnemonicTimerDevice(SelectedPlc.Id, SelectedCycle.Id) ?? new List<MnemonicTimerDevice>();
-                var speedDevices = _speedService?.GetMnemonicSpeedDevice(SelectedPlc.Id) ?? new List<Models.MnemonicSpeedDevice>();
+                var speedDevices = _speedService?.GetMnemonicSpeedDevice(SelectedPlc.Id) ?? new List<Kdx.Contracts.DTOs.MnemonicSpeedDevice>();
 
                 int totalCount = devices.Count + timerDevices.Count + speedDevices.Count;
                 TotalMemoryDeviceCount = totalCount;

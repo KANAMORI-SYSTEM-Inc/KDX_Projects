@@ -9,6 +9,9 @@ using KdxDesigner.ViewModels;
 
 namespace KdxDesigner.Services
 {
+    /// <summary>
+    /// はしご君で利用するラダーメモリプロファイルの管理
+    /// </summary>
     public class MemoryProfileManager
     {
         private readonly string _profilesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MemoryProfiles");

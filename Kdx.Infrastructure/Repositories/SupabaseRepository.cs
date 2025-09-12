@@ -133,10 +133,19 @@ namespace Kdx.Infrastructure.Repositories
             return response.Models;
         }
 
-        public async Task<Machine?> GetMachineByIdAsync(int id)
+        public async Task<Machine?> GetMachineByIdAsync(int nameId, int driveSubId)
         {
             var response = await _supabaseClient
                 .From<Machine>()
+                .Where(m => m.MacineNameId == nameId && m.DriveSubId == driveSubId)
+                .Single();
+            return response;
+        }
+
+        public async Task<MachineName?> GetMachineNameByIdAsync(int id)
+        {
+            var response = await _supabaseClient
+                .From<MachineName>()
                 .Where(m => m.Id == id)
                 .Single();
             return response;

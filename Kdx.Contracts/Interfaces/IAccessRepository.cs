@@ -61,7 +61,10 @@ namespace Kdx.Contracts.Interfaces
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Machine? GetMachineById(int id);
+       MachineName? GetMachineNameById(int id);
+
+        Machine? GetMachineById(int nameId, int driveSubId);
+
 
         /// <summary>
         /// 全ての駆動部(主)情報を取得します。

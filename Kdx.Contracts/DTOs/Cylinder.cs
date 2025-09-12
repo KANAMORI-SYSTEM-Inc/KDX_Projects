@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Postgrest.Attributes;
 using Postgrest.Models;
 
@@ -9,53 +7,53 @@ namespace Kdx.Contracts.DTOs
     public class Cylinder : BaseModel
     {
         [PrimaryKey("Id")]
-        [Postgrest.Attributes.Column("Id")]
+        [Column("Id")]
         public int Id { get; set; }
-        [Postgrest.Attributes.Column("PlcId")]
+        [Column("PlcId")]
         public int PlcId { get; set; } = 0;  // デフォルト値を0に設定
-        [Postgrest.Attributes.Column("PUCO")]
+        [Column("PUCO")]
         public string? PUCO { get; set; }
-        [Postgrest.Attributes.Column("CYNum")]
+        [Column("CYNum")]
         public string CYNum { get; set; } = string.Empty;
-        [Postgrest.Attributes.Column("Go")]
+        [Column("Go")]
         public string? Go { get; set; }
-        [Postgrest.Attributes.Column("Back")]
+        [Column("Back")]
         public string? Back { get; set; }
-        [Postgrest.Attributes.Column("OilNum")]
+        [Column("OilNum")]
         public string? OilNum { get; set; }
-        [Postgrest.Attributes.Column("MachineId")]
-        public int? MachineId { get; set; }
-        [Postgrest.Attributes.Column("DriveSub")]
-        public int? DriveSub { get; set; }
-        [Postgrest.Attributes.Column("PlaceId")]
+        [Column("MachineNameId")]
+        public int? MachineNameId { get; set; }
+        [Column("DriveSubId")]
+        public int? DriveSubId { get; set; }
+        [Column("PlaceId")]
         public int? PlaceId { get; set; }
-        [Postgrest.Attributes.Column("CYNameSub")]
+        [Column("CYNameSub")]
         public int? CYNameSub { get; set; }
-        [Postgrest.Attributes.Column("SensorId")]
+        [Column("SensorId")]
         public int? SensorId { get; set; }
-        [Postgrest.Attributes.Column("FlowType")]
+        [Column("FlowType")]
         public string? FlowType { get; set; }
-        [Postgrest.Attributes.Column("ProcessStartCycle")]
+        [Column("ProcessStartCycle")]
         public string? ProcessStartCycle { get; set; }
-        [Postgrest.Attributes.Column("GoSensorCount")]
+        [Column("GoSensorCount")]
         public int? GoSensorCount { get; set; }
-        [Postgrest.Attributes.Column("BackSensorCount")]
+        [Column("BackSensorCount")]
         public int? BackSensorCount { get; set; }
-        [Postgrest.Attributes.Column("RetentionSensorGo")]
+        [Column("RetentionSensorGo")]
         public string? RetentionSensorGo { get; set; }
-        [Postgrest.Attributes.Column("RetentionSensorBack")]
+        [Column("RetentionSensorBack")]
         public string? RetentionSensorBack { get; set; }
-        [Postgrest.Attributes.Column("SortNumber")]
+        [Column("SortNumber")]
         public int? SortNumber { get; set; }
-        [Postgrest.Attributes.Column("CycleId")]
+        [Column("CycleId")]
         public int? CycleId { get; set; }
-        [Postgrest.Attributes.Column("FlowCount")]
+        [Column("FlowCount")]
         public int? FlowCount { get; set; }
-        [Postgrest.Attributes.Column("ManualButton")]
+        [Column("ManualButton")]
         public string ManualButton { get; set; } = string.Empty;
-        [Postgrest.Attributes.Column("FlowCYGo")]
+        [Column("FlowCYGo")]
         public string? FlowCYGo { get; set; } = string.Empty;
-        [Postgrest.Attributes.Column("FlowCYBack")]
+        [Column("FlowCYBack")]
         public string? FlowCYBack { get; set; } = string.Empty;
     }
 }

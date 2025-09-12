@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using Supabase;
 using System.Diagnostics;
 
 namespace KdxDesigner.Services
@@ -9,7 +6,7 @@ namespace KdxDesigner.Services
     {
         private readonly Supabase.Client _client;
         private bool _isInitialized = false;
-        private readonly object _lockObject = new object();
+        private readonly object _lockObject = new();
 
         public SupabaseConnectionHelper(Supabase.Client client)
         {
@@ -31,12 +28,12 @@ namespace KdxDesigner.Services
             {
                 Debug.WriteLine("Initializing Supabase client...");
                 await _client.InitializeAsync();
-                
+
                 lock (_lockObject)
                 {
                     _isInitialized = true;
                 }
-                
+
                 Debug.WriteLine("Supabase client initialized successfully");
                 return true;
             }

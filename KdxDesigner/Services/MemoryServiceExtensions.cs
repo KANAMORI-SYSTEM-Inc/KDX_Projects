@@ -1,9 +1,9 @@
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Interfaces;
-using KdxDesigner.Models;
+
 using System.Diagnostics;
 
-namespace KdxDesigner.Services.Memory
+namespace KdxDesigner.Services
 {
     /// <summary>
     /// MemoryServiceのKdxDesigner特有の拡張メソッド
@@ -11,7 +11,10 @@ namespace KdxDesigner.Services.Memory
     /// </summary>
     public static class MemoryServiceExtensions
     {
-        public static bool SaveMnemonicMemories(this IMemoryService memoryService, IAccessRepository repository, Models.MnemonicDevice device)
+        public static bool SaveMnemonicMemories(
+            this IMemoryService memoryService,
+            IAccessRepository repository,
+            Kdx.Contracts.DTOs.MnemonicDevice device)
         {
             if (device?.PlcId == null) return false; // PlcId が必須
 
@@ -22,7 +25,7 @@ namespace KdxDesigner.Services.Memory
                     .Where(m => !string.IsNullOrEmpty(m.Device))
                     .ToDictionary(m => m.Device!, m => m); // Deviceで検索 (PlcIdは共通)
 
-                int deviceLabelCategoryId = device.DeviceLabel switch
+                var deviceLabelCategoryId = device.DeviceLabel switch
                 {
                     "L" => 1,
                     "M" => 2,
@@ -34,8 +37,8 @@ namespace KdxDesigner.Services.Memory
                     "C" => 8,
                     _ => 1, // TODO: エラー処理または明確なデフォルト値
                 };
-                
-                string mnemonicTypeBasedCategoryString = device.MnemonicId switch
+
+                var mnemonicTypeBasedCategoryString = device.MnemonicId switch
                 {
                     1 => "工程",
                     2 => "工程詳細",
@@ -43,8 +46,8 @@ namespace KdxDesigner.Services.Memory
                     4 => "出力",
                     _ => "なし", // TODO: エラー処理または明確なデフォルト値
                 };
-                
-                List<Kdx.Contracts.DTOs.Difinitions> difinitions = device.MnemonicId switch
+
+                var difinitions = device.MnemonicId switch
                 {
                     1 => repository.GetDifinitions("Process"),
                     2 => repository.GetDifinitions("ProcessDetail"),
@@ -53,17 +56,17 @@ namespace KdxDesigner.Services.Memory
                     _ => new List<Kdx.Contracts.DTOs.Difinitions>()
                 };
 
-                var memoriesToSave = new List<Kdx.Contracts.DTOs.Memory>();
+                var memoriesToSave = new List<Memory>();
 
-                int startNum = device.StartNum;
-                int endNum = device.StartNum + device.OutCoilCount - 1;
+                var startNum = device.StartNum;
+                var endNum = device.StartNum + device.OutCoilCount - 1;
 
-                for (int num = startNum; num <= endNum; num++)
+                for (var num = startNum; num <= endNum; num++)
                 {
-                    string deviceString = $"{device.DeviceLabel}{num}";
+                    var deviceString = $"{device.DeviceLabel}{num}";
 
-                    string deviceDefinitionString = "";
-                    int numWithinMnemonic = num - startNum;
+                    var deviceDefinitionString = "";
+                    var numWithinMnemonic = num - startNum;
                     if (numWithinMnemonic < difinitions.Count)
                     {
                         deviceDefinitionString = difinitions[numWithinMnemonic].DefName ?? "";
@@ -76,7 +79,7 @@ namespace KdxDesigner.Services.Memory
                         continue;
                     }
 
-                    var memory = new Kdx.Contracts.DTOs.Memory
+                    var memory = new Memory
                     {
                         PlcId = device.PlcId,
                         MemoryCategory = deviceLabelCategoryId,

@@ -10,7 +10,7 @@ using Postgrest.Models;
 
 namespace Kdx.Contracts.DTOs
 {
-    [Postgrest.Attributes.Table("DeviceSub")]
+    [Postgrest.Attributes.Table("DriveSub")]
     public class DriveSub : BaseModel
     {
         [PrimaryKey("Id")]

@@ -31,12 +31,12 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// </summary>
         /// <param name="plcId"></param>
         /// <returns></returns>
-        public List<Models.MnemonicDevice> GetMnemonicDevice(int plcId)
+        public List<Kdx.Contracts.DTOs.MnemonicDevice> GetMnemonicDevice(int plcId)
         {
             // IAccessRepository経由で取得
             var dtoDevices = _repository.GetMnemonicDevices(plcId);
             // DTOからModelsへ変換
-            return dtoDevices.Select(d => new Models.MnemonicDevice
+            return dtoDevices.Select(d => new Kdx.Contracts.DTOs.MnemonicDevice
             {
                 ID = d.ID,
                 MnemonicId = d.MnemonicId,
@@ -56,12 +56,12 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <param name="plcId"></param>
         /// <param name="mnemonicId"></param>
         /// <returns></returns>
-        public List<Models.MnemonicDevice> GetMnemonicDeviceByMnemonic(int plcId, int mnemonicId)
+        public List<Kdx.Contracts.DTOs.MnemonicDevice> GetMnemonicDeviceByMnemonic(int plcId, int mnemonicId)
         {
             // IAccessRepository経由で取得
             var dtoDevices = _repository.GetMnemonicDevicesByMnemonic(plcId, mnemonicId);
             // DTOからModelsへ変換
-            return dtoDevices.Select(d => new Models.MnemonicDevice
+            return dtoDevices.Select(d => new Kdx.Contracts.DTOs.MnemonicDevice
             {
                 ID = d.ID,
                 MnemonicId = d.MnemonicId,

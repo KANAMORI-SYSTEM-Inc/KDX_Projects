@@ -1,12 +1,11 @@
 using Kdx.Contracts.DTOs;
 using Kdx.Core.Domain.Interfaces;
-using System.Collections.Generic;
 
 namespace Kdx.Infrastructure.Cache
 {
     public class MnemonicDeviceMemoryStore : IMnemonicDeviceMemoryStore
     {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private readonly Dictionary<int, Dictionary<int, List<MnemonicTimerDevice>>> _timerDevices;
 
         public MnemonicDeviceMemoryStore()

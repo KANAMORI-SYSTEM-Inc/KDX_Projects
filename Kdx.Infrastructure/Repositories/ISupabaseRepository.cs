@@ -56,7 +56,14 @@ namespace Kdx.Infrastructure.Repositories
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task<Machine?> GetMachineByIdAsync(int id);
+        Task<Machine?> GetMachineByIdAsync(int nameId, int driveSubId);
+
+        /// <summary>
+        /// idで指定された機械名称情報を取得します。
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>MachineName?</returns>
+        Task<MachineName?> GetMachineNameByIdAsync(int id);
 
         /// <summary>
         /// 全ての駆動部(主)情報を取得します。

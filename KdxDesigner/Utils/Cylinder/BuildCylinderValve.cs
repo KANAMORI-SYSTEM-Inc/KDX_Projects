@@ -5,6 +5,7 @@ using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
 using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Interfaces;
 
 namespace KdxDesigner.Utils.Cylinder
 {
@@ -13,11 +14,13 @@ namespace KdxDesigner.Utils.Cylinder
         private readonly MainViewModel _mainViewModel;
         private readonly IErrorAggregator _errorAggregator;
         private readonly IIOAddressService _ioAddressService;
-        public BuildCylinderValve(MainViewModel mainViewModel, IErrorAggregator errorAggregator, IIOAddressService ioAddressService)
+        private readonly IAccessRepository _repository;
+        public BuildCylinderValve(MainViewModel mainViewModel, IErrorAggregator errorAggregator, IIOAddressService ioAddressService, IAccessRepository accessRepository)
         {
             _mainViewModel = mainViewModel;
             _errorAggregator = errorAggregator;
             _ioAddressService = ioAddressService;
+            _repository = accessRepository;
         }
 
         public List<LadderCsvRow> Valve1(
@@ -92,29 +95,21 @@ namespace KdxDesigner.Utils.Cylinder
             result.AddRange(functions.CyclePulse());
 
             // 保持出力
-            switch (cylinder.Cylinder.MachineId)
+            if (cylinder.Cylinder.MachineNameId == null || cylinder.Cylinder.DriveSubId == null) return result;
+
+            Machine? machine = _repository.GetMachineById(cylinder.Cylinder.MachineNameId!.Value, cylinder.Cylinder.DriveSubId!.Value);
+
+            if (machine == null) return result;
+
+            if (machine.UseValveRetention == false)
             {
-                case 4:
-                case 7:
-                case 15:
-                case 16:
-                case 18:
-                case 22:
-                case 24:
-                case 25:
-                case 26:
-                case 27:
-                case 28:
-                case 32:
-                case 33:
-                case 34:
-                    result.AddRange(functions.Excitation(sensors));
-                    break;
-                default:
-                    // 保持
-                    result.AddRange(functions.OutputRetention());
-                    result.AddRange(functions.Retention(sensors));
-                    break;
+                result.AddRange(functions.Excitation(sensors));
+
+            }
+            else
+            {
+                result.AddRange(functions.OutputRetention());
+                result.AddRange(functions.Retention(sensors));
             }
 
             // マニュアル
@@ -315,29 +310,21 @@ namespace KdxDesigner.Utils.Cylinder
             result.AddRange(functions.CyclePulse());
 
             // 保持出力
-            switch (cylinder.Cylinder.MachineId)
+            if (cylinder.Cylinder.MachineNameId == null || cylinder.Cylinder.DriveSubId == null) return result;
+
+            Machine? machine = _repository.GetMachineById(cylinder.Cylinder.MachineNameId!.Value, cylinder.Cylinder.DriveSubId!.Value);
+
+            if (machine == null) return result;
+
+            if (machine.UseValveRetention == false)
             {
-                case 4:
-                case 7:
-                case 15:
-                case 16:
-                case 18:
-                case 22:
-                case 24:
-                case 25:
-                case 26:
-                case 27:
-                case 28:
-                case 32:
-                case 33:
-                case 34:
-                    result.AddRange(functions.Excitation(sensors));
-                    break;
-                default:
-                    // 保持
-                    result.AddRange(functions.OutputRetention());
-                    result.AddRange(functions.Retention(sensors));
-                    break;
+                result.AddRange(functions.Excitation(sensors));
+
+            }
+            else
+            {
+                result.AddRange(functions.OutputRetention());
+                result.AddRange(functions.Retention(sensors));
             }
 
             // マニュアル

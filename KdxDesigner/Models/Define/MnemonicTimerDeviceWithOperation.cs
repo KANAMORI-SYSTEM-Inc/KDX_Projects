@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +9,7 @@ namespace KdxDesigner.Models.Define
 {
     public class MnemonicTimerDeviceWithOperation
     {
-        public MnemonicTimerDevice Timer { get; set; } = default!;
+        public Kdx.Contracts.DTOs.MnemonicTimerDevice Timer { get; set; } = default!;
         public Operation Operation { get; set; } = default!;
         
     }

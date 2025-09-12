@@ -3,11 +3,10 @@ using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Services.Error;
-using KdxDesigner.Utils.Operation;
 using KdxDesigner.ViewModels;
 using MnemonicSpeedDevice = Kdx.Contracts.DTOs.MnemonicSpeedDevice;
 
-namespace KdxDesigner.Utils
+namespace KdxDesigner.Utils.Operation
 {
     public class OperationBuilder
     {

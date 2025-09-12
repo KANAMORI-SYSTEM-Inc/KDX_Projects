@@ -15,7 +15,7 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// </summary>
         /// <param name="plcId">PLC ID</param>
         /// <returns>ニーモニックデバイスのリスト</returns>
-        List<Models.MnemonicDevice> GetMnemonicDevice(int plcId);
+        List<Kdx.Contracts.DTOs.MnemonicDevice> GetMnemonicDevice(int plcId);
 
         /// <summary>
         /// 指定されたPLC IDとニーモニックIDのニーモニックデバイスを取得する
@@ -23,7 +23,7 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <param name="plcId">PLC ID</param>
         /// <param name="mnemonicId">ニーモニックID</param>
         /// <returns>ニーモニックデバイスのリスト</returns>
-        List<Models.MnemonicDevice> GetMnemonicDeviceByMnemonic(int plcId, int mnemonicId);
+        List<Kdx.Contracts.DTOs.MnemonicDevice> GetMnemonicDeviceByMnemonic(int plcId, int mnemonicId);
 
         /// <summary>
         /// 指定されたPLC IDとニーモニックIDのニーモニックデバイスを削除する

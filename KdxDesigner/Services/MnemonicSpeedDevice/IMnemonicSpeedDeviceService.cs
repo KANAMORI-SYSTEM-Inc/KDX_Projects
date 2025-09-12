@@ -1,7 +1,4 @@
-using KdxDesigner.Models;
 using Kdx.Contracts.DTOs;
-
-using System.Collections.Generic;
 
 namespace KdxDesigner.Services.MnemonicSpeedDevice
 {
@@ -20,7 +17,7 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
         /// </summary>
         /// <param name="plcId">PLC ID</param>
         /// <returns>MnemonicSpeedDeviceレコードのリスト</returns>
-        List<Models.MnemonicSpeedDevice> GetMnemonicSpeedDevice(int plcId);
+        List<Kdx.Contracts.DTOs.MnemonicSpeedDevice> GetMnemonicSpeedDevice(int plcId);
 
         /// <summary>
         /// シリンダーリストから速度デバイス情報を生成し保存する

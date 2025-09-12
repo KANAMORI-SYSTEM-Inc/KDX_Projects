@@ -2,25 +2,27 @@ using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;
-using KdxDesigner.Utils.Cylinder;
 using KdxDesigner.ViewModels;
 using Kdx.Contracts.DTOs;
 using MnemonicSpeedDevice = Kdx.Contracts.DTOs.MnemonicSpeedDevice;
+using Kdx.Contracts.Interfaces;
 
-namespace KdxDesigner.Utils
+namespace KdxDesigner.Utils.Cylinder
 {
     public class CylinderBuilder
     {
         private readonly MainViewModel _mainViewModel;
         private readonly IErrorAggregator _errorAggregator;
         private readonly IIOAddressService _ioService;
+        private readonly IAccessRepository _repository;
 
 
-        public CylinderBuilder(MainViewModel mainViewModel, IErrorAggregator errorAggregator, IIOAddressService ioService)
+        public CylinderBuilder(MainViewModel mainViewModel, IErrorAggregator errorAggregator, IIOAddressService ioService, IAccessRepository repository)
         {
             _mainViewModel = mainViewModel;
             _errorAggregator = errorAggregator;
             _ioService = ioService;
+            _repository = repository;
         }
 
         public List<LadderCsvRow> GenerateLadder(
@@ -36,13 +38,13 @@ namespace KdxDesigner.Utils
         {
             LadderCsvRow.ResetKeyCounter();
             var result = new List<LadderCsvRow>();
-            var builder = new BuildCylinderValve(_mainViewModel, _errorAggregator, _ioService);
+            var builder = new BuildCylinderValve(_mainViewModel, _errorAggregator, _ioService, _repository);
             var speedBuilder = new BuildCylinderSpeed(_mainViewModel, _errorAggregator, _ioService);
             var positionBuilder = new BuildCylinderPosition(_mainViewModel, _errorAggregator, _ioService);
 
             foreach (var cylinder in cylinders)
             {
-                switch (cylinder.Cylinder.DriveSub)
+                switch (cylinder.Cylinder.DriveSubId)
                 {
                     case 1:
                     case 4:

@@ -1,6 +1,5 @@
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Interfaces;
-using KdxDesigner.Models;
 
 namespace KdxDesigner.Services.MnemonicSpeedDevice
 {
@@ -23,7 +22,7 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
         }
 
         // MnemonicDeviceテーブルからPlcIdとCycleIdに基づいてデータを取得する
-        public List<Models.MnemonicSpeedDevice> GetMnemonicSpeedDevice(int plcId)
+        public List<Kdx.Contracts.DTOs.MnemonicSpeedDevice> GetMnemonicSpeedDevice(int plcId)
         {
             // TODO: Supabase対応実装
             // IAccessRepositoryにGetMnemonicSpeedDevicesメソッドを追加する必要がある

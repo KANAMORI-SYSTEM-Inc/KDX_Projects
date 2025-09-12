@@ -77,9 +77,14 @@ namespace Kdx.Infrastructure.Adapters
             return Task.Run(async () => await _supabaseRepository.GetMachinesAsync()).GetAwaiter().GetResult();
         }
 
-        public Machine? GetMachineById(int id)
+        public Machine? GetMachineById(int nameId, int driveSubId)
         {
-            return Task.Run(async () => await _supabaseRepository.GetMachineByIdAsync(id)).GetAwaiter().GetResult();
+            return Task.Run(async () => await _supabaseRepository.GetMachineByIdAsync(nameId, driveSubId)).GetAwaiter().GetResult();
+        }
+
+        public MachineName? GetMachineNameById(int id)
+        {
+            return Task.Run(async () => await _supabaseRepository.GetMachineNameByIdAsync(id)).GetAwaiter().GetResult();
         }
 
         public List<DriveMain> GetDriveMains()

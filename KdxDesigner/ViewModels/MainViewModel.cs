@@ -871,7 +871,7 @@ namespace KdxDesigner.ViewModels
                 // CylinderBuilder
                 var cyErrorAggregator = new ErrorAggregator((int)MnemonicType.CY);
                 var cyIoAddressService = new IOAddressService(cyErrorAggregator, _repository, SelectedPlc.Id, _ioSelectorService);
-                var cylinderBuilder = new CylinderBuilder(this, cyErrorAggregator, cyIoAddressService);
+                var cylinderBuilder = new CylinderBuilder(this, cyErrorAggregator, cyIoAddressService, _repository);
                 var cylinderRows = cylinderBuilder.GenerateLadder(
                     data.JoinedProcessDetailList,
                     data.JoinedOperationList,

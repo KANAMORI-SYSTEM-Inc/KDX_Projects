@@ -1,20 +1,23 @@
-using System.ComponentModel.DataAnnotations;
 using Postgrest.Attributes;
 using Postgrest.Models;
 
 namespace Kdx.Contracts.DTOs
 {
-    [Postgrest.Attributes.Table("Machine")]
+    [Table("Machine")]
     public class Machine : BaseModel
     {
-        [PrimaryKey("Id")]
-        [Postgrest.Attributes.Column("Id")]
-        public int Id { get; set; }
-        
-        [Postgrest.Attributes.Column("MachineName")]
-        public string MachineName { get; set; } = string.Empty;
-        
-        [Postgrest.Attributes.Column("ShortName")]
-        public string ShortName { get; set; } = string.Empty;
+        [PrimaryKey("MachineNameId")]
+        [Column("MachineNameId")]
+        public int MacineNameId { get; set; }
+
+        [PrimaryKey("DriveSubId")]
+        [Column("DriveSubIdId")]
+        public int DriveSubId { get; set; }
+
+        [Column("UseValveRetention")]
+        public bool UseValveRetention { get; set; } = false;
+
+        [Column("Description")]
+        public string? Description { get; set; }
     }
 }

@@ -206,16 +206,15 @@ namespace KdxDesigner.Services.MnemonicDevice
                     Cylinder? cY = _repository.GetCYById(operation.CYId!.Value);
 
                     // 3. CYオブジェクトが取得でき、かつその中にMachineIdが存在するかチェック
-                    if (cY != null && cY.MachineId.HasValue)
+                    if (cY != null && cY.MachineNameId.HasValue)
                     {
-                        // 4. MachineIdを使ってMachineオブジェクトを取得
-                        Kdx.Contracts.DTOs.Machine? machine = _repository.GetMachineById(cY.MachineId.Value);
+                        MachineName? machineName = _repository.GetMachineNameById(cY.MachineNameId!.Value);
 
                         // 5. Machineオブジェクトが取得できたことを確認してから、コメントを生成
-                        if (machine != null)
+                        if (machineName != null)
                         {
                             // CYNumやShortNameがnullの場合も考慮し、空文字列として結合
-                            comment1 = (cY.CYNum ?? "") + (machine.ShortName ?? "");
+                            comment1 = (cY.CYNum ?? "") + (machineName.ShortName ?? "");
                         }
                         else
                         {
@@ -338,11 +337,11 @@ namespace KdxDesigner.Services.MnemonicDevice
                 }
 
                 string? comment2 = string.Empty;
-                if (cylinder.MachineId != null)
+                if (cylinder.MachineNameId != null)
                 {
                     // MachineIdがnullの場合はスキップ
-                    var machine = _repository.GetMachineById((int)cylinder.MachineId);
-                    comment2 = machine?.ShortName ?? "未設定";
+                    var machineName = _repository.GetMachineNameById((int)cylinder.MachineNameId);
+                    comment2 = machineName?.ShortName ?? "未設定";
                 }
 
                 var device = new Kdx.Contracts.DTOs.MnemonicDevice

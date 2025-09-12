@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using KdxDesigner.Models;
 using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.Services.MnemonicDevice
@@ -14,22 +12,22 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// MnemonicDeviceを追加または更新
         /// </summary>
-        void AddOrUpdateMnemonicDevice(Models.MnemonicDevice device, int plcId);
+        void AddOrUpdateMnemonicDevice(Kdx.Contracts.DTOs.MnemonicDevice device, int plcId);
         
         /// <summary>
         /// 複数のMnemonicDeviceを一括追加
         /// </summary>
-        void BulkAddMnemonicDevices(List<Models.MnemonicDevice> devices, int plcId);
+        void BulkAddMnemonicDevices(List<Kdx.Contracts.DTOs.MnemonicDevice> devices, int plcId);
         
         /// <summary>
         /// MnemonicDeviceを取得
         /// </summary>
-        List<Models.MnemonicDevice> GetMnemonicDevices(int plcId);
+        List<Kdx.Contracts.DTOs.MnemonicDevice> GetMnemonicDevices(int plcId);
         
         /// <summary>
         /// MnemonicIdでフィルタリングして取得
         /// </summary>
-        List<Models.MnemonicDevice> GetMnemonicDevicesByMnemonic(int plcId, int mnemonicId);
+        List<Kdx.Contracts.DTOs.MnemonicDevice> GetMnemonicDevicesByMnemonic(int plcId, int mnemonicId);
         
         /// <summary>
         /// すべてのMnemonicDeviceをクリア
@@ -62,12 +60,12 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// MnemonicSpeedDeviceを追加または更新
         /// </summary>
-        void AddOrUpdateSpeedDevice(Models.MnemonicSpeedDevice device, int plcId);
+        void AddOrUpdateSpeedDevice(Kdx.Contracts.DTOs.MnemonicSpeedDevice device, int plcId);
         
         /// <summary>
         /// MnemonicSpeedDeviceを取得
         /// </summary>
-        List<Models.MnemonicSpeedDevice> GetSpeedDevices(int plcId);
+        List<Kdx.Contracts.DTOs.MnemonicSpeedDevice> GetSpeedDevices(int plcId);
         
         /// <summary>
         /// スピードデバイスをクリア

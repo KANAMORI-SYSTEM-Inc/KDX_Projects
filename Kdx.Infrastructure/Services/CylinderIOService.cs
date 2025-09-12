@@ -1,8 +1,10 @@
-using KdxDesigner.Models;
-using Kdx.Contracts.Interfaces;
 using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace KdxDesigner.Services.CylinderIO
+namespace Kdx.Infrastructure.Services
 {
     /// <summary>
     /// CylinderIOテーブルのデータ操作を行うサービスクラス
@@ -19,7 +21,7 @@ namespace KdxDesigner.Services.CylinderIO
         /// <summary>
         /// 指定されたCYに関連付けられたIOのリストを取得
         /// </summary>
-        public List<Kdx.Contracts.DTOs.CylinderIO> GetCylinderIOs(int cylinderId, int plcId)
+        public List<CylinderIO> GetCylinderIOs(int cylinderId, int plcId)
         {
             try
             {
@@ -28,14 +30,14 @@ namespace KdxDesigner.Services.CylinderIO
             catch (Exception ex) when (ex.Message.Contains("CylinderIO") && ex.Message.Contains("見つかりませんでした"))
             {
                 // テーブルが存在しない場合は空のリストを返す
-                return new List<Kdx.Contracts.DTOs.CylinderIO>();
+                return new List<CylinderIO>();
             }
         }
 
         /// <summary>
         /// 指定されたIOに関連付けられたCYのリストを取得
         /// </summary>
-        public List<Kdx.Contracts.DTOs.CylinderIO> GetIOCylinders(string ioAddress, int plcId)
+        public List<CylinderIO> GetIOCylinders(string ioAddress, int plcId)
         {
             return _repository.GetIOCylinders(ioAddress, plcId);
         }
@@ -68,7 +70,7 @@ namespace KdxDesigner.Services.CylinderIO
         /// <summary>
         /// 指定されたPLCのすべての関連付けを取得
         /// </summary>
-        public List<Kdx.Contracts.DTOs.CylinderIO> GetAllAssociations(int plcId)
+        public List<CylinderIO> GetAllAssociations(int plcId)
         {
             return _repository.GetAllCylinderIOAssociations(plcId);
         }

@@ -1,8 +1,10 @@
 using Kdx.Contracts.DTOs;
-using KdxDesigner.Models;
 using Kdx.Contracts.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace KdxDesigner.Services.OperationIO
+namespace Kdx.Infrastructure.Services
 {
     /// <summary>
     /// OperationIOテーブルのデータ操作を行うサービスクラス
@@ -19,7 +21,7 @@ namespace KdxDesigner.Services.OperationIO
         /// <summary>
         /// 指定されたOperationに関連付けられたIOのリストを取得
         /// </summary>
-        public List<Kdx.Contracts.DTOs.OperationIO> GetOperationIOs(int operationId)
+        public List<OperationIO> GetOperationIOs(int operationId)
         {
             try
             {
@@ -28,14 +30,14 @@ namespace KdxDesigner.Services.OperationIO
             catch (Exception ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
             {
                 // テーブルが存在しない場合は空のリストを返す
-                return new List<Kdx.Contracts.DTOs.OperationIO>();
+                return new List<OperationIO>();
             }
         }
 
         /// <summary>
         /// 指定されたIOに関連付けられたOperationのリストを取得
         /// </summary>
-        public List<Kdx.Contracts.DTOs.OperationIO> GetIOOperations(string ioAddress, int plcId)
+        public List<OperationIO> GetIOOperations(string ioAddress, int plcId)
         {
             try
             {
@@ -43,7 +45,7 @@ namespace KdxDesigner.Services.OperationIO
             }
             catch (Exception ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
             {
-                return new List<Kdx.Contracts.DTOs.OperationIO>();
+                return new List<OperationIO>();
             }
         }
 
@@ -54,7 +56,7 @@ namespace KdxDesigner.Services.OperationIO
         {
             // 既存の関連付けをチェック
             var existing = _repository.GetOperationIOs(operationId)
-                .FirstOrDefault(o => o.Address == ioAddress && o.PlcId == plcId);
+                .FirstOrDefault(o => o.IOAddress == ioAddress && o.PlcId == plcId);
 
             if (existing != null)
             {
@@ -75,7 +77,7 @@ namespace KdxDesigner.Services.OperationIO
         /// <summary>
         /// 指定されたPLCのすべての関連付けを取得
         /// </summary>
-        public List<Kdx.Contracts.DTOs.OperationIO> GetAllAssociations(int plcId)
+        public List<OperationIO> GetAllAssociations(int plcId)
         {
             try
             {
@@ -83,7 +85,7 @@ namespace KdxDesigner.Services.OperationIO
             }
             catch (Exception ex) when (ex.Message.Contains("OperationIO") && ex.Message.Contains("見つかりませんでした"))
             {
-                return new List<Kdx.Contracts.DTOs.OperationIO>();
+                return new List<OperationIO>();
             }
         }
     }

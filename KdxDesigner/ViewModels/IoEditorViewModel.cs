@@ -15,9 +15,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Data;
-using KdxDesigner.Services.CylinderIO;
 using KdxDesigner.Services.LinkDevice;
-using KdxDesigner.Services.OperationIO;
+using Kdx.Infrastructure.Services;
+using Kdx.Contracts.ViewModels;
+using Kdx.Contracts.ViewModels;
 
 namespace KdxDesigner.ViewModels
 {
@@ -25,7 +26,7 @@ namespace KdxDesigner.ViewModels
     {
         private readonly IAccessRepository _repository;
         private readonly LinkDeviceService _linkDeviceService;
-        private readonly CylinderIOService _cylinderIOService;
+        private readonly Kdx.Infrastructure.Services.CylinderIOService _cylinderIOService;
         private readonly OperationIOService _operationIOService;
         private readonly MainViewModel _mainViewModel;
 
@@ -61,13 +62,13 @@ namespace KdxDesigner.ViewModels
         /// 選択されたCYに関連付けられたIOリスト
         /// </summary>
         [ObservableProperty]
-        private ObservableCollection<CylinderIOViewModel> _associatedIoList;
+        private ObservableCollection<Kdx.Contracts.ViewModels.CylinderIOViewModel> _associatedIoList;
         
         /// <summary>
         /// 選択された関連付け済みIO
         /// </summary>
         [ObservableProperty]
-        private CylinderIOViewModel? _selectedAssociatedIo;
+        private Kdx.Contracts.ViewModels.CylinderIOViewModel? _selectedAssociatedIo;
         
         /// <summary>
         /// CYリストのフィルタテキスト
@@ -107,13 +108,13 @@ namespace KdxDesigner.ViewModels
         /// 選択されたOperationに関連付けられたIOリスト
         /// </summary>
         [ObservableProperty]
-        private ObservableCollection<OperationIOViewModel> _operationAssociatedIoList;
+        private ObservableCollection<Kdx.Contracts.ViewModels.OperationIOViewModel> _operationAssociatedIoList;
         
         /// <summary>
         /// 選択されたOperation関連付け済みIO
         /// </summary>
         [ObservableProperty]
-        private OperationIOViewModel? _selectedOperationAssociatedIo;
+        private Kdx.Contracts.ViewModels.OperationIOViewModel? _selectedOperationAssociatedIo;
         
         /// <summary>
         /// Operationリストのフィルタテキスト
@@ -142,7 +143,7 @@ namespace KdxDesigner.ViewModels
             _repository = repository;
             _mainViewModel = mainViewModel;
             _linkDeviceService = new LinkDeviceService(_repository);
-            _cylinderIOService = new CylinderIOService(_repository);
+            _cylinderIOService = new Kdx.Infrastructure.Services.CylinderIOService(_repository);
             _operationIOService = new OperationIOService(_repository);
 
             // ★ IOをIOViewModelでラップしてリストを作成
@@ -153,11 +154,11 @@ namespace KdxDesigner.ViewModels
             
             // CYリストの初期化
             _cyList = new ObservableCollection<Cylinder>();
-            _associatedIoList = new ObservableCollection<CylinderIOViewModel>();
+            _associatedIoList = new ObservableCollection<Kdx.Contracts.ViewModels.CylinderIOViewModel>();
             
             // Operationリストの初期化
             _operationList = new ObservableCollection<Operation>();
-            _operationAssociatedIoList = new ObservableCollection<OperationIOViewModel>();
+            _operationAssociatedIoList = new ObservableCollection<Kdx.Contracts.ViewModels.OperationIOViewModel>();
             
             // フィルタリング用のCollectionViewを作成
             CyListView = CollectionViewSource.GetDefaultView(_cyList);
@@ -418,7 +419,7 @@ namespace KdxDesigner.ViewModels
                 var io = ioList.FirstOrDefault(i => i.Address == assoc.IOAddress && i.PlcId == assoc.PlcId);
                 if (io != null)
                 {
-                    AssociatedIoList.Add(new CylinderIOViewModel
+                    AssociatedIoList.Add(new Kdx.Contracts.ViewModels.CylinderIOViewModel
                     {
                         CylinderId = assoc.CylinderId,
                         IOAddress = assoc.IOAddress,
@@ -552,7 +553,7 @@ namespace KdxDesigner.ViewModels
                 return true;
             }
             
-            if (item is CylinderIOViewModel ioVm)
+            if (item is Kdx.Contracts.ViewModels.CylinderIOViewModel ioVm)
             {
                 string searchTerm = AssociatedIoFilterText.ToLower();
                 return (ioVm.IOType?.ToLower().Contains(searchTerm) ?? false) ||
@@ -599,7 +600,7 @@ namespace KdxDesigner.ViewModels
                     var io = ioList.FirstOrDefault(i => i.Address == assoc.IOAddress && i.PlcId == assoc.PlcId);
                     if (io != null)
                     {
-                        OperationAssociatedIoList.Add(new OperationIOViewModel
+                        OperationAssociatedIoList.Add(new Kdx.Contracts.ViewModels.OperationIOViewModel
                         {
                             OperationId = assoc.OperationId,
                             IOAddress = assoc.IOAddress,
@@ -732,7 +733,7 @@ namespace KdxDesigner.ViewModels
                 return true;
             }
             
-            if (item is OperationIOViewModel ioVm)
+            if (item is Kdx.Contracts.ViewModels.OperationIOViewModel ioVm)
             {
                 string searchTerm = OperationAssociatedIoFilterText.ToLower();
                 return (ioVm.IOUsage?.ToLower().Contains(searchTerm) ?? false) ||

@@ -9,7 +9,7 @@ namespace KdxDesigner.Models.Define
 {
     public class MnemonicTimerDeviceWithCylinder
     {
-        public MnemonicTimerDevice Timer { get; set; } = default!;
+        public Kdx.Contracts.DTOs.MnemonicTimerDevice Timer { get; set; } = default!;
         public Cylinder Cylinder { get; set; } = default!;
         
     }

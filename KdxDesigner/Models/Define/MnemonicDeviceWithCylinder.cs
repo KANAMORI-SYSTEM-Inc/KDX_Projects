@@ -9,7 +9,7 @@ namespace KdxDesigner.Models.Define
 {
     public class MnemonicDeviceWithCylinder
     {
-        public MnemonicDevice Mnemonic { get; set; } = default!;
+        public Kdx.Contracts.DTOs.MnemonicDevice Mnemonic { get; set; } = default!;
         public Cylinder Cylinder { get; set; } = default!;
         
     }

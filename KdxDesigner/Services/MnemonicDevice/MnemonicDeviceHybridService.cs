@@ -46,7 +46,7 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// PlcIdに基づいてニーモニックデバイスのリストを取得
         /// </summary>
-        public List<Models.MnemonicDevice> GetMnemonicDevice(int plcId)
+        public List<Kdx.Contracts.DTOs.MnemonicDevice> GetMnemonicDevice(int plcId)
         {
             // まずメモリストアから取得を試みる
             var devices = _memoryStore.GetMnemonicDevices(plcId);
@@ -69,7 +69,7 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// PlcIdとMnemonicIdに基づいてニーモニックデバイスのリストを取得
         /// </summary>
-        public List<Models.MnemonicDevice> GetMnemonicDeviceByMnemonic(int plcId, int mnemonicId)
+        public List<Kdx.Contracts.DTOs.MnemonicDevice> GetMnemonicDeviceByMnemonic(int plcId, int mnemonicId)
         {
             // メモリストアから取得
             var devices = _memoryStore.GetMnemonicDevicesByMnemonic(plcId, mnemonicId);
@@ -122,12 +122,12 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// </summary>
         public void SaveMnemonicDeviceProcess(List<Process> processes, int startNum, int plcId)
         {
-            var devices = new List<Models.MnemonicDevice>();
+            var devices = new List<Kdx.Contracts.DTOs.MnemonicDevice>();
             var memories = new List<Kdx.Contracts.DTOs.Memory>();
             
             foreach (var process in processes)
             {
-                var device = new Models.MnemonicDevice
+                var device = new Kdx.Contracts.DTOs.MnemonicDevice
                 {
                     MnemonicId = (int)MnemonicType.Process,
                     RecordId = process.Id,
@@ -168,7 +168,7 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// </summary>
         public void SaveMnemonicDeviceProcessDetail(List<ProcessDetail> details, int startNum, int plcId)
         {
-            var devices = new List<Models.MnemonicDevice>();
+            var devices = new List<Kdx.Contracts.DTOs.MnemonicDevice>();
             var memories = new List<Kdx.Contracts.DTOs.Memory>();
 
             
@@ -237,7 +237,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                 }
 
 
-                var device = new Models.MnemonicDevice
+                var device = new Kdx.Contracts.DTOs.MnemonicDevice
                 {
                     MnemonicId = (int)MnemonicType.ProcessDetail,
                     RecordId = detail.Id,
@@ -276,12 +276,12 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// </summary>
         public void SaveMnemonicDeviceOperation(List<Operation> operations, int startNum, int plcId)
         {
-            var devices = new List<Models.MnemonicDevice>();
+            var devices = new List<Kdx.Contracts.DTOs.MnemonicDevice>();
             var memories = new List<Kdx.Contracts.DTOs.Memory>();
             
             foreach (var operation in operations)
             {
-                var device = new Models.MnemonicDevice
+                var device = new Kdx.Contracts.DTOs.MnemonicDevice
                 {
                     MnemonicId = (int)MnemonicType.Operation,
                     RecordId = operation.Id,
@@ -326,7 +326,7 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// </summary>
         public void SaveMnemonicDeviceCY(List<Cylinder> cylinders, int startNum, int plcId)
         {
-            var devices = new List<Models.MnemonicDevice>();
+            var devices = new List<Kdx.Contracts.DTOs.MnemonicDevice>();
             var memories = new List<Kdx.Contracts.DTOs.Memory>();
             
             foreach (var cylinder in cylinders)
@@ -345,7 +345,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                     comment2 = machine?.ShortName ?? "未設定";
                 }
 
-                var device = new Models.MnemonicDevice
+                var device = new Kdx.Contracts.DTOs.MnemonicDevice
                 {
                     MnemonicId = (int)MnemonicType.CY,
                     RecordId = cylinder.Id,
@@ -398,7 +398,7 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// デバイス情報からメモリデータを生成
         /// </summary>
-        private Kdx.Contracts.DTOs.Memory GenerateMemoryForDevice(Models.MnemonicDevice device, int outcoilIndex)
+        private Kdx.Contracts.DTOs.Memory GenerateMemoryForDevice(Kdx.Contracts.DTOs.MnemonicDevice device, int outcoilIndex)
         {
             var deviceNum = device.StartNum + outcoilIndex;
             var deviceString = device.DeviceLabel + deviceNum.ToString();

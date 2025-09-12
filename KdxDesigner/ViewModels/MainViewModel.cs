@@ -15,7 +15,6 @@ using KdxDesigner.Services.ErrorService;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Services.IOSelector;
 using KdxDesigner.Services.MemonicTimerDevice;
-using KdxDesigner.Services.Memory;
 using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.Services.MnemonicSpeedDevice;
 using KdxDesigner.Utils;
@@ -1305,9 +1304,9 @@ namespace KdxDesigner.ViewModels
             try
             {
                 // メモリに保存されたデバイスの数をカウント
-                var devices = _mnemonicService?.GetMnemonicDevice(SelectedPlc.Id) ?? new List<Models.MnemonicDevice>();
+                var devices = _mnemonicService?.GetMnemonicDevice(SelectedPlc.Id) ?? new List<Kdx.Contracts.DTOs.MnemonicDevice>();
                 var timerDevices = _timerService?.GetMnemonicTimerDevice(SelectedPlc.Id, SelectedCycle.Id) ?? new List<MnemonicTimerDevice>();
-                var speedDevices = _speedService?.GetMnemonicSpeedDevice(SelectedPlc.Id) ?? new List<Models.MnemonicSpeedDevice>();
+                var speedDevices = _speedService?.GetMnemonicSpeedDevice(SelectedPlc.Id) ?? new List<Kdx.Contracts.DTOs.MnemonicSpeedDevice>();
 
                 int totalCount = devices.Count + timerDevices.Count + speedDevices.Count;
                 TotalMemoryDeviceCount = totalCount;

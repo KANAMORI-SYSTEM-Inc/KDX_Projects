@@ -36,7 +36,7 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
         /// <summary>
         /// PlcIdに基づいてMnemonicSpeedDeviceを取得
         /// </summary>
-        public List<Models.MnemonicSpeedDevice> GetMnemonicSpeedDevice(int plcId)
+        public List<Kdx.Contracts.DTOs.MnemonicSpeedDevice> GetMnemonicSpeedDevice(int plcId)
         {
             // メモリストアから取得
             var devices = _memoryStore.GetSpeedDevices(plcId);
@@ -59,7 +59,7 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
         /// <summary>
         /// シリンダーIDに基づいてMnemonicSpeedDeviceを取得
         /// </summary>
-        public Models.MnemonicSpeedDevice? GetMnemonicSpeedDeviceByCylinderId(int cylinderId, int plcId)
+        public Kdx.Contracts.DTOs.MnemonicSpeedDevice? GetMnemonicSpeedDeviceByCylinderId(int cylinderId, int plcId)
         {
             var devices = GetMnemonicSpeedDevice(plcId);
             if (devices == null || !devices.Any())
@@ -94,12 +94,12 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
             // 既存のデータをクリア
             _memoryStore.ClearSpeedDevices(plcId);
             
-            var devices = new List<Models.MnemonicSpeedDevice>();
+            var devices = new List<Kdx.Contracts.DTOs.MnemonicSpeedDevice>();
             int deviceNum = startNum;
             
             foreach (var cylinder in cylinders)
             {
-                var device = new Models.MnemonicSpeedDevice
+                var device = new Kdx.Contracts.DTOs.MnemonicSpeedDevice
                 {
                     ID = cylinder.Id,  // 一時的なID
                     CylinderId = cylinder.Id,
@@ -125,7 +125,7 @@ namespace KdxDesigner.Services.MnemonicSpeedDevice
         /// <summary>
         /// 単一のスピードデバイスを保存
         /// </summary>
-        public void SaveSingle(Models.MnemonicSpeedDevice speedDevice)
+        public void SaveSingle(Kdx.Contracts.DTOs.MnemonicSpeedDevice speedDevice)
         {
             // メモリストアに保存
             _memoryStore.AddOrUpdateSpeedDevice(speedDevice, speedDevice.PlcId);

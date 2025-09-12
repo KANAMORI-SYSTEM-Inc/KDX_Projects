@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Kdx.Contracts.DTOs;
 
-namespace KdxDesigner.ViewModels
+namespace Kdx.Contracts.ViewModels
 {
     /// <summary>
     /// 関連付け済みIOリストに表示するためのViewModel

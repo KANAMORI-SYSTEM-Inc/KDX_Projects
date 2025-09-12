@@ -16,13 +16,13 @@ namespace KdxDesigner.Services.MnemonicDevice
         private readonly object _lock = new object();
         
         // MnemonicDeviceのメモリストア（PlcId -> List<MnemonicDevice>）
-        private readonly Dictionary<int, List<Models.MnemonicDevice>> _mnemonicDevices;
+        private readonly Dictionary<int, List<Kdx.Contracts.DTOs.MnemonicDevice>> _mnemonicDevices;
         
         // MnemonicTimerDeviceのメモリストア（PlcId -> CycleId -> List<MnemonicTimerDevice>）
         private readonly Dictionary<int, Dictionary<int, List<MnemonicTimerDevice>>> _timerDevices;
         
         // MnemonicSpeedDeviceのメモリストア（PlcId -> List<MnemonicSpeedDevice>）
-        private readonly Dictionary<int, List<Models.MnemonicSpeedDevice>> _speedDevices;
+        private readonly Dictionary<int, List<Kdx.Contracts.DTOs.MnemonicSpeedDevice>> _speedDevices;
         
         // 生成されたメモリデータのキャッシュ（PlcId -> List<Memory>）
         private readonly Dictionary<int, List<Kdx.Contracts.DTOs.Memory>> _generatedMemories;
@@ -31,9 +31,9 @@ namespace KdxDesigner.Services.MnemonicDevice
         
         public MnemonicDeviceMemoryStore()
         {
-            _mnemonicDevices = new Dictionary<int, List<Models.MnemonicDevice>>();
+            _mnemonicDevices = new Dictionary<int, List<Kdx.Contracts.DTOs.MnemonicDevice>>();
             _timerDevices = new Dictionary<int, Dictionary<int, List<MnemonicTimerDevice>>>();
-            _speedDevices = new Dictionary<int, List<Models.MnemonicSpeedDevice>>();
+            _speedDevices = new Dictionary<int, List<Kdx.Contracts.DTOs.MnemonicSpeedDevice>>();
             _generatedMemories = new Dictionary<int, List<Kdx.Contracts.DTOs.Memory>>();
         }
         
@@ -42,13 +42,13 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// MnemonicDeviceを追加または更新
         /// </summary>
-        public void AddOrUpdateMnemonicDevice(Models.MnemonicDevice device, int plcId)
+        public void AddOrUpdateMnemonicDevice(Kdx.Contracts.DTOs.MnemonicDevice device, int plcId)
         {
             lock (_lock)
             {
                 if (!_mnemonicDevices.ContainsKey(plcId))
                 {
-                    _mnemonicDevices[plcId] = new List<Models.MnemonicDevice>();
+                    _mnemonicDevices[plcId] = new List<Kdx.Contracts.DTOs.MnemonicDevice>();
                 }
                 
                 // IDが未設定の場合は新規作成
@@ -75,13 +75,13 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// 複数のMnemonicDeviceを一括追加
         /// </summary>
-        public void BulkAddMnemonicDevices(List<Models.MnemonicDevice> devices, int plcId)
+        public void BulkAddMnemonicDevices(List<Kdx.Contracts.DTOs.MnemonicDevice> devices, int plcId)
         {
             lock (_lock)
             {
                 if (!_mnemonicDevices.ContainsKey(plcId))
                 {
-                    _mnemonicDevices[plcId] = new List<Models.MnemonicDevice>();
+                    _mnemonicDevices[plcId] = new List<Kdx.Contracts.DTOs.MnemonicDevice>();
                 }
                 
                 // 新しいデバイスを追加
@@ -99,23 +99,23 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// MnemonicDeviceを取得
         /// </summary>
-        public List<Models.MnemonicDevice> GetMnemonicDevices(int plcId)
+        public List<Kdx.Contracts.DTOs.MnemonicDevice> GetMnemonicDevices(int plcId)
         {
             lock (_lock)
             {
                 if (_mnemonicDevices.ContainsKey(plcId))
                 {
                     // 防御的コピーを返す
-                    return new List<Models.MnemonicDevice>(_mnemonicDevices[plcId]);
+                    return new List<Kdx.Contracts.DTOs.MnemonicDevice>(_mnemonicDevices[plcId]);
                 }
-                return new List<Models.MnemonicDevice>();
+                return new List<Kdx.Contracts.DTOs.MnemonicDevice>();
             }
         }
         
         /// <summary>
         /// MnemonicIdでフィルタリングして取得
         /// </summary>
-        public List<Models.MnemonicDevice> GetMnemonicDevicesByMnemonic(int plcId, int mnemonicId)
+        public List<Kdx.Contracts.DTOs.MnemonicDevice> GetMnemonicDevicesByMnemonic(int plcId, int mnemonicId)
         {
             lock (_lock)
             {
@@ -125,7 +125,7 @@ namespace KdxDesigner.Services.MnemonicDevice
                         .Where(d => d.MnemonicId == mnemonicId)
                         .ToList();
                 }
-                return new List<Models.MnemonicDevice>();
+                return new List<Kdx.Contracts.DTOs.MnemonicDevice>();
             }
         }
         
@@ -234,13 +234,13 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// MnemonicSpeedDeviceを追加または更新
         /// </summary>
-        public void AddOrUpdateSpeedDevice(Models.MnemonicSpeedDevice device, int plcId)
+        public void AddOrUpdateSpeedDevice(Kdx.Contracts.DTOs.MnemonicSpeedDevice device, int plcId)
         {
             lock (_lock)
             {
                 if (!_speedDevices.ContainsKey(plcId))
                 {
-                    _speedDevices[plcId] = new List<Models.MnemonicSpeedDevice>();
+                    _speedDevices[plcId] = new List<Kdx.Contracts.DTOs.MnemonicSpeedDevice>();
                 }
                 
                 // 既存のデバイスを検索
@@ -259,15 +259,15 @@ namespace KdxDesigner.Services.MnemonicDevice
         /// <summary>
         /// MnemonicSpeedDeviceを取得
         /// </summary>
-        public List<Models.MnemonicSpeedDevice> GetSpeedDevices(int plcId)
+        public List<Kdx.Contracts.DTOs.MnemonicSpeedDevice> GetSpeedDevices(int plcId)
         {
             lock (_lock)
             {
                 if (_speedDevices.ContainsKey(plcId))
                 {
-                    return new List<Models.MnemonicSpeedDevice>(_speedDevices[plcId]);
+                    return new List<Kdx.Contracts.DTOs.MnemonicSpeedDevice>(_speedDevices[plcId]);
                 }
-                return new List<Models.MnemonicSpeedDevice>();
+                return new List<Kdx.Contracts.DTOs.MnemonicSpeedDevice>();
             }
         }
         

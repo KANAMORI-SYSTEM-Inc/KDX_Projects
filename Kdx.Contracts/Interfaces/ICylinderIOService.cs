@@ -1,9 +1,7 @@
 using Kdx.Contracts.DTOs;
-using KdxDesigner.Models;
-
 using System.Collections.Generic;
 
-namespace KdxDesigner.Services.CylinderIO
+namespace Kdx.Contracts.Interfaces
 {
     /// <summary>
     /// CylinderIOテーブルのデータ操作を行うサービスインターフェース
@@ -16,7 +14,7 @@ namespace KdxDesigner.Services.CylinderIO
         /// <param name="cylinderId">シリンダーID</param>
         /// <param name="plcId">PLC ID</param>
         /// <returns>CylinderIOレコードのリスト</returns>
-        List<Kdx.Contracts.DTOs.CylinderIO> GetCylinderIOs(int cylinderId, int plcId);
+        List<CylinderIO> GetCylinderIOs(int cylinderId, int plcId);
 
         /// <summary>
         /// 指定されたIOに関連付けられたCYのリストを取得
@@ -24,7 +22,7 @@ namespace KdxDesigner.Services.CylinderIO
         /// <param name="ioAddress">IOアドレス</param>
         /// <param name="plcId">PLC ID</param>
         /// <returns>CylinderIOレコードのリスト</returns>
-        List<Kdx.Contracts.DTOs.CylinderIO> GetIOCylinders(string ioAddress, int plcId);
+        List<CylinderIO> GetIOCylinders(string ioAddress, int plcId);
 
         /// <summary>
         /// CYとIOの関連付けを追加
@@ -49,6 +47,6 @@ namespace KdxDesigner.Services.CylinderIO
         /// </summary>
         /// <param name="plcId">PLC ID</param>
         /// <returns>CylinderIOレコードのリスト</returns>
-        List<Kdx.Contracts.DTOs.CylinderIO> GetAllAssociations(int plcId);
+        List<CylinderIO> GetAllAssociations(int plcId);
     }
 }

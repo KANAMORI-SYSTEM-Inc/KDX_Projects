@@ -32,7 +32,8 @@
       "Bash(grep:*)",
       "Bash(sed:*)",
       "Bash(del \"C:\\Users\\shimada.KANAMORI-SYSTEM\\source\\repos\\KDX_Projects\\Kdx.Infrastructure\\Repositories\\MnemonicTimerDeviceRepository.cs\")",
-      "Bash(del \"C:\\Users\\shimada.KANAMORI-SYSTEM\\source\\repos\\KDX_Projects\\KdxDesigner\\Services\\Memory\\IMemoryService.cs\")"
+      "Bash(del \"C:\\Users\\shimada.KANAMORI-SYSTEM\\source\\repos\\KDX_Projects\\KdxDesigner\\Services\\Memory\\IMemoryService.cs\")",
+      "Bash(del \"C:\\Users\\shimada.KANAMORI-SYSTEM\\source\\repos\\KDX_Projects\\KdxDesigner\\Services\\OperationIO\\IOperationIOService.cs\")"
     ],
     "deny": []
   }

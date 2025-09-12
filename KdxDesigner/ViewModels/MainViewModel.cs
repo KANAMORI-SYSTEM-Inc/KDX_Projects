@@ -19,6 +19,8 @@ using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.Services.MnemonicSpeedDevice;
 using KdxDesigner.Utils;
 using KdxDesigner.Utils.Cylinder;
+using KdxDesigner.Utils.ProcessDetail;
+using KdxDesigner.Utils.Operation;
 using KdxDesigner.Views;
 
 using Microsoft.Extensions.Configuration;

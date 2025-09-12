@@ -1,9 +1,10 @@
 using Kdx.Contracts.DTOs;
+
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Utils.MnemonicCommon;
 
-namespace KdxDesigner.Utils
+namespace KdxDesigner.Utils.Operation
 {
     internal class ProsTimeBuilder
     {
@@ -20,7 +21,7 @@ namespace KdxDesigner.Utils
             int outNum)
         {
             List<LadderCsvRow>? result = new();
-            List<ProsTime> prosTimeList = prosTimes.Where(p => p.RecordId == operation.Id).OrderBy(p => p.SortId).ToList();
+            var prosTimeList = prosTimes.Where(p => p.RecordId == operation.Id).OrderBy(p => p.SortId).ToList();
 
             // カウント信号の追加
             result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
@@ -32,7 +33,7 @@ namespace KdxDesigner.Utils
 
             foreach (var pros in prosTimeList)
             {
-                if (String.IsNullOrEmpty(pros.CurrentDevice) || String.IsNullOrEmpty(pros.PreviousDevice)) continue;
+                if (string.IsNullOrEmpty(pros.CurrentDevice) || string.IsNullOrEmpty(pros.PreviousDevice)) continue;
 
                 switch (pros.CategoryId)
                 {
@@ -53,14 +54,14 @@ namespace KdxDesigner.Utils
             var count = "K" + prosTimeList.Count.ToString();
 
             // リセット信号の追加
-            if (String.IsNullOrEmpty(current) || String.IsNullOrEmpty(previous)) return result;
+            if (string.IsNullOrEmpty(current) || string.IsNullOrEmpty(previous)) return result;
             result.Add(LadderRow.AddLDP(label + (outNum + 19).ToString()));
             result.AddRange(LadderRow.AddBMOVSet(current, previous, count));
             result.AddRange(LadderRow.AddFMOVSet("K0", current, count));
 
             // CYタイム 全体
-            string cylinderDevice = prosTimeList.SingleOrDefault(p => p.SortId == 0)?.CylinderDevice ?? "";
-            string finalProsDevice = prosTimeList.OrderByDescending(p => p.SortId).FirstOrDefault()?.PreviousDevice ?? "";
+            var cylinderDevice = prosTimeList.SingleOrDefault(p => p.SortId == 0)?.CylinderDevice ?? "";
+            var finalProsDevice = prosTimeList.OrderByDescending(p => p.SortId).FirstOrDefault()?.PreviousDevice ?? "";
 
             result.Add(LadderRow.AddLDP(label + (outNum + 19).ToString()));
             result.AddRange(LadderRow.AddMOVPSet(
@@ -72,7 +73,7 @@ namespace KdxDesigner.Utils
                 if (pros.SortId == 0) continue; // SortId 0は全体のCYタイムなのでスキップ
                 var previousDevice1 = pros.PreviousDevice;
                 var previousDevice2 = prosTimeList.SingleOrDefault(p => p.SortId == pros.SortId - 1)?.PreviousDevice ?? "";
-                string cylinderDeviceSort = prosTimeList.SingleOrDefault(p => p.SortId == pros.SortId)?.CylinderDevice ?? "";
+                var cylinderDeviceSort = prosTimeList.SingleOrDefault(p => p.SortId == pros.SortId)?.CylinderDevice ?? "";
 
                 result.AddRange(LadderRow.AddSUBP(
                 previousDevice1,

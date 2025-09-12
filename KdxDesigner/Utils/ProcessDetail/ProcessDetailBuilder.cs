@@ -1,13 +1,12 @@
-﻿using KdxDesigner.Models;
+using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Services.Error;
-using KdxDesigner.Utils.ProcessDetail;
 using KdxDesigner.ViewModels;
 using Kdx.Contracts.Interfaces;
 using Kdx.Contracts.DTOs;
 
-namespace KdxDesigner.Utils
+namespace KdxDesigner.Utils.ProcessDetail
 {
     public class ProcessDetailBuilder
     {

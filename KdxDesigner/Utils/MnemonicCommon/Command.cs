@@ -1,4 +1,4 @@
-﻿namespace KdxDesigner.Utils
+namespace KdxDesigner.Utils.MnemonicCommon
 {
     public static class Command
     {

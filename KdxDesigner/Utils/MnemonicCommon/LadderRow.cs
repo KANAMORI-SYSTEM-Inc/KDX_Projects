@@ -1,4 +1,4 @@
-﻿using KdxDesigner.Models.Define;
+using KdxDesigner.Models.Define;
 
 namespace KdxDesigner.Utils.MnemonicCommon
 {

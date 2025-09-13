@@ -101,6 +101,15 @@ namespace Kdx.Infrastructure.Repositories
             return response.Models;
         }
 
+        public async Task<List<CylinderCycle>> GetCylinderCyclesByPlcIdAsync(int plcId)
+        {
+            var response = await _supabaseClient
+                .From<CylinderCycle>()
+                .Where(c => c.PlcId == plcId)
+                .Get();
+            return response.Models;
+        }
+
         public async Task<List<Kdx.Contracts.DTOs.Process>> GetProcessesAsync()
         {
             var response = await _supabaseClient

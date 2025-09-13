@@ -29,6 +29,13 @@ namespace Kdx.Infrastructure.Repositories
         Task<List<Cycle>> GetCyclesAsync();
 
         /// <summary>
+        /// CylinderとCycleの中間テーブルをplcIdを元に取得します。
+        /// </summary>
+        /// <param name="plcId"></param>
+        /// <returns></returns>
+        Task<List<CylinderCycle>> GetCylinderCyclesByPlcIdAsync(int plcId);
+
+        /// <summary>
         /// 全ての工程情報を取得します。
         /// </summary>
         Task<List<Process>> GetProcessesAsync();

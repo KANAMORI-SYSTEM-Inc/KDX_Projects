@@ -2,13 +2,15 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
+using DocumentFormat.OpenXml.Bibliography;
+
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
+using Kdx.Contracts.Interfaces;
 
 using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services;
-using Kdx.Contracts.Interfaces;
 using KdxDesigner.Services.Authentication;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.ErrorService;
@@ -19,8 +21,8 @@ using KdxDesigner.Services.MnemonicDevice;
 using KdxDesigner.Services.MnemonicSpeedDevice;
 using KdxDesigner.Utils;
 using KdxDesigner.Utils.Cylinder;
-using KdxDesigner.Utils.ProcessDetail;
 using KdxDesigner.Utils.Operation;
+using KdxDesigner.Utils.ProcessDetail;
 using KdxDesigner.Views;
 
 using Microsoft.Extensions.Configuration;
@@ -42,12 +44,12 @@ namespace KdxDesigner.ViewModels
         protected private readonly IAccessRepository _repository = null!; // コンストラクタで初期化される
         protected private IMnemonicDeviceService? _mnemonicService;
         protected private IMnemonicTimerDeviceService? _timerService;
-        protected private ErrorService? _errorService;
         protected private IProsTimeDeviceService? _prosTimeService;
         protected private IMnemonicSpeedDeviceService? _speedService;
         protected private IMemoryService? _memoryService;
+        protected private IMnemonicDeviceMemoryStore _mnemonicMemoryStore = null!;
+        protected private ErrorService? _errorService;
         protected private WpfIOSelectorService? _ioSelectorService;
-        protected private IMnemonicDeviceMemoryStore _mnemonicMemoryStore = null!; // InitializeServicesで初期化される
 
         // 開いているProcessFlowDetailWindowのリスト
         private readonly List<Window> _openProcessFlowWindows = new();
@@ -71,7 +73,6 @@ namespace KdxDesigner.ViewModels
         [ObservableProperty] private Process? _selectedProcess;
         [ObservableProperty] private ProcessDetail? _selectedProcessDetail;
 
-        // ﾗｲﾝ
         [ObservableProperty] private int _processDeviceStartL = 14000;
         [ObservableProperty] private int _detailDeviceStartL = 15000;
         [ObservableProperty] private int _operationDeviceStartM = 20000;
@@ -117,6 +118,7 @@ namespace KdxDesigner.ViewModels
         private List<ProcessDetail> _allDetails = new();
         private List<Process> _allProcesses = new();
         public List<Servo> _selectedServo = new(); // 選択されたサーボのリスト
+        public List<CylinderCycle>? _selectedCylinderCycles = new(); // 選択されたシリンダーサイクルのリスト
 
         // DIコンストラクタ（推奨）
         public MainViewModel(IAccessRepository repository, IAuthenticationService authService, SupabaseConnectionHelper? supabaseHelper = null)
@@ -957,7 +959,7 @@ namespace KdxDesigner.ViewModels
                   List<MnemonicDeviceWithCylinder> JoinedCylinderList,
                   List<MnemonicTimerDeviceWithOperation> JoinedOperationWithTimerList,
                   List<MnemonicTimerDeviceWithCylinder> JoinedCylinderWithTimerList,
-                  List<Kdx.Contracts.DTOs.MnemonicSpeedDevice> SpeedDevice,
+                  List<MnemonicSpeedDevice> SpeedDevice,
                   List<ProcessError> MnemonicErrors,
                   List<ProsTime> ProsTime,
                   List<IO> IoList) Data, List<OutputError> Errors) PrepareDataForOutput()
@@ -974,7 +976,7 @@ namespace KdxDesigner.ViewModels
                      new List<MnemonicDeviceWithCylinder>(),
                      new List<MnemonicTimerDeviceWithOperation>(),
                      new List<MnemonicTimerDeviceWithCylinder>(),
-                     new List<Kdx.Contracts.DTOs.MnemonicSpeedDevice>(),
+                     new List<MnemonicSpeedDevice>(),
                      new List<ProcessError>(),
                      new List<ProsTime>(),
                      new List<IO>()),
@@ -984,32 +986,36 @@ namespace KdxDesigner.ViewModels
 
             var plcId = SelectedPlc!.Id;
             var cycleId = SelectedCycle!.Id;
-
             var devices = _mnemonicMemoryStore.GetMnemonicDevices(plcId);
             var operations = _repository.GetOperations();
+            _selectedCylinderCycles = _repository.GetCylinderCyclesByPlcId(plcId);
 
+            if(_selectedCylinderCycles == null || _selectedCylinderCycles.Count == 0)
+            {
+                MessageBox.Show("CylinderCycleのデータが存在しません。CylinderCycleの設定を確認してください。", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                return (
+                    (new List<MnemonicDeviceWithProcess>(),
+                     new List<MnemonicDeviceWithProcessDetail>(),
+                     new List<MnemonicTimerDeviceWithDetail>(),
+                     new List<MnemonicDeviceWithOperation>(),
+                     new List<MnemonicDeviceWithCylinder>(),
+                     new List<MnemonicTimerDeviceWithOperation>(),
+                     new List<MnemonicTimerDeviceWithCylinder>(),
+                     new List<MnemonicSpeedDevice>(),
+                     new List<ProcessError>(),
+                     new List<ProsTime>(),
+                     new List<IO>()),
+                    new List<OutputError>()
+                );
+            }
 
-            // 1. まずPlcIdで絞り込む
             var cylindersForPlc = _repository.GetCYs().Where(c => c.PlcId == plcId).OrderBy(c => c.SortNumber);
-
-            // 2. さらに、ProcessStartCycle に cycleId が含まれるものでフィルタリング
-            var filteredCylinders = cylindersForPlc
-                .Where(c =>
-                    // ProcessStartCycle が null や空でないことを最初に確認
-                    !string.IsNullOrWhiteSpace(c.ProcessStartCycle) &&
-
-                    // 文字列をセミコロンで分割し、空の要素は除去
-                    c.ProcessStartCycle.Split(';', StringSplitOptions.RemoveEmptyEntries)
-
-                    // 分割された各ID文字列のいずれか(Any)が cycleId と一致するかチェック
-                    .Any(idString =>
-                        // 安全に数値に変換し、cycleId と比較する
-                        int.TryParse(idString.Trim(), out int parsedId) && parsedId == cycleId
-                    )
-                )
-                .ToList().OrderBy(c => c.SortNumber);
-
-            var cylinders = filteredCylinders;
+            var cylinders = cylindersForPlc.Join(
+                _selectedCylinderCycles,
+                c => c.Id,
+                cc => cc.CylinderId,
+                (c, cc) => new { Cylinder = c, CylinderCycle = cc }
+            ).Where(cc => cc.CylinderCycle.CycleId == cycleId).Select(cc => cc.Cylinder);
 
             var details = _repository.GetProcessDetails().Where(d => d.CycleId == cycleId).ToList();
             var ioList = _repository.GetIoList();
@@ -1144,24 +1150,25 @@ namespace KdxDesigner.ViewModels
             List<ProcessDetail> details = _repository
                 .GetProcessDetails()
                 .Where(d => d.CycleId == SelectedCycle.Id).OrderBy(d => d.SortNumber).ToList();
-            List<Cylinder> cylinders = _repository.GetCYs().Where(o => o.PlcId == SelectedPlc.Id).OrderBy(c => c.SortNumber).ToList();
+            List<Cylinder> cylinders = _repository.GetCYs()
+                .Where(o => o.PlcId == SelectedPlc.Id).OrderBy(c => c.SortNumber).ToList();
+            _selectedCylinderCycles = _repository.GetCylinderCyclesByPlcId(SelectedPlc.Id);
 
-            var filteredCylinders = cylinders
-                .Where(c =>
-                    // ProcessStartCycle が null や空でないことを最初に確認
-                    !string.IsNullOrWhiteSpace(c.ProcessStartCycle) &&
+            List<Cylinder> filteredCylinders = new List<Cylinder>();
 
-                    // 文字列をセミコロンで分割し、空の要素は除去
-                    c.ProcessStartCycle.Split(';', StringSplitOptions.RemoveEmptyEntries)
-
-                    // 分割された各ID文字列のいずれか(Any)が cycleId と一致するかチェック
-                    .Any(idString =>
-                        // 安全に数値に変換し、cycleId と比較する
-                        int.TryParse(idString.Trim(), out int parsedId) && parsedId == SelectedCycle.Id
-                    )
-                )
-                .ToList();
-
+            if (_selectedCylinderCycles == null || _selectedCylinderCycles.Count == 0)
+            {
+                MessageBox.Show("CylinderCycleのデータが存在しません。CylinderCycleの設定を確認してください。", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                filteredCylinders = cylinders.Join(
+                    _selectedCylinderCycles,
+                    c => c.Id,
+                    cc => cc.CylinderId,
+                    (c, cc) => new { Cylinder = c, CylinderCycle = cc }
+                ).Where(cc => cc.CylinderCycle.CycleId == SelectedCycle.Id).Select(cc => cc.Cylinder).ToList();
+            }
 
             var operationIds = details.Select(c => c.OperationId).ToHashSet();
             List<Operation> operations = _repository.GetOperations().ToList();
@@ -1289,6 +1296,7 @@ namespace KdxDesigner.ViewModels
 
         #endregion
 
+        // Memory Status
         #region Memory Status Methods
 
         /// <summary>
@@ -1359,9 +1367,10 @@ namespace KdxDesigner.ViewModels
         }
 
         #endregion
-        
+
+        // Authentication
         #region Authentication Commands
-        
+
         [RelayCommand]
         private async Task SignOutAsync()
         {

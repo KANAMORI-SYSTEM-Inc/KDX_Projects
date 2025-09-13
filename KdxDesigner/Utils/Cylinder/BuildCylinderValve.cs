@@ -109,7 +109,7 @@ namespace KdxDesigner.Utils.Cylinder
             else
             {
                 result.AddRange(functions.OutputRetention());
-                result.AddRange(functions.Retention(sensors));
+                result.AddRange(functions.Retention(sensors, _mainViewModel.SelectedCycle!.StartDevice));
             }
 
             // マニュアル
@@ -124,12 +124,10 @@ namespace KdxDesigner.Utils.Cylinder
             if (cylinder.Cylinder.CYNameSub != null)
             {
                 result.AddRange(functions.SingleValve(sensors, cylinder.Cylinder.CYNameSub));
-
             }
             else
             {
                 result.AddRange(functions.SingleValve(sensors, null));
-
             }
 
             return result;
@@ -162,7 +160,6 @@ namespace KdxDesigner.Utils.Cylinder
             string cyName = cyNum + cyNumSub;                               // シリンダー名の組み合わせ  
 
             result.Add(LadderRow.AddStatement(id + ":" + cyName + " ダブルバルブ"));
-
             var label = cylinder.Mnemonic.DeviceLabel; // ラベルの取得  
             var startNum = cylinder.Mnemonic.StartNum; // ラベルの取得  
 
@@ -178,30 +175,24 @@ namespace KdxDesigner.Utils.Cylinder
             if (goOperation.Count != 0 && activeOperation.Count == 0)
             {
                 result.AddRange(functions.GoOperation(goOperation));
-                // 帰り方向自動指令
                 result.AddRange(functions.BackOperation(backOperation));
                 result.AddRange(functions.GoManualOperation(goOperation));
                 result.AddRange(functions.BackManualOperation(backOperation));
-
             }
             // 行き方向自動指令がない場合は、行き方向手動指令を使用
             else if (goOperation.Count == 0 && activeOperation.Count != 0)
             {
-
                 result.AddRange(functions.GoOperation(activeOperation));
-                // 帰り方向自動指令
                 result.AddRange(functions.BackOperation(backOperation));
                 result.AddRange(functions.GoManualOperation(activeOperation));
                 result.AddRange(functions.BackManualOperation(backOperation));
-
             }
 
+            // 励磁切指令
             if (offOperation.Count != 0)
             {
-                // 励磁切指令
                 result.AddRange(functions.OffOperation(offOperation));
             }
-
 
             result.AddRange(functions.ManualReset());
 
@@ -210,7 +201,7 @@ namespace KdxDesigner.Utils.Cylinder
 
             // 保持出力
             result.AddRange(functions.OutputRetention());
-            result.AddRange(functions.Retention(sensors));
+            result.AddRange(functions.Retention(sensors, _mainViewModel.SelectedCycle!.StartDevice));
 
             // マニュアル
             result.AddRange(functions.ManualButton());
@@ -324,7 +315,7 @@ namespace KdxDesigner.Utils.Cylinder
             else
             {
                 result.AddRange(functions.OutputRetention());
-                result.AddRange(functions.Retention(sensors));
+                result.AddRange(functions.Retention(sensors, _mainViewModel.SelectedCycle!.StartDevice));
             }
 
             // マニュアル

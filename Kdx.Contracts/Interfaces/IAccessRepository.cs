@@ -34,6 +34,11 @@ namespace Kdx.Contracts.Interfaces
         List<Cycle> GetCycles();
 
         /// <summary>
+        /// 全てのサイクル情報を取得します。
+        /// </summary>
+        List<CylinderCycle>? GetCylinderCyclesByPlcId(int plcId);
+
+        /// <summary>
         /// 全ての工程情報を取得します。
         /// </summary>
         List<Process> GetProcesses();

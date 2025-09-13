@@ -34,8 +34,6 @@ namespace Kdx.Contracts.DTOs
         [Column("FlowType")]
         public string? FlowType { get; set; }
         [Column("ProcessStartCycle")]
-        public string? ProcessStartCycle { get; set; }
-        [Column("GoSensorCount")]
         public int? GoSensorCount { get; set; }
         [Column("BackSensorCount")]
         public int? BackSensorCount { get; set; }
@@ -45,8 +43,6 @@ namespace Kdx.Contracts.DTOs
         public string? RetentionSensorBack { get; set; }
         [Column("SortNumber")]
         public int? SortNumber { get; set; }
-        [Column("CycleId")]
-        public int? CycleId { get; set; }
         [Column("FlowCount")]
         public int? FlowCount { get; set; }
         [Column("ManualButton")]

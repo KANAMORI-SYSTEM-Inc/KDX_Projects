@@ -170,7 +170,7 @@ namespace KdxDesigner.Utils.Cylinder
 
         public List<LadderCsvRow> OutputRetention()
         {
-            List<LadderCsvRow> result = new(); // 生成されるLadderCsvRowのリスト
+            List<LadderCsvRow> result = new();
 
             // 行き方向自動保持
             result.Add(LadderRow.AddLDP(_label + (_startNum + 0).ToString()));
@@ -193,24 +193,21 @@ namespace KdxDesigner.Utils.Cylinder
             result.Add(LadderRow.AddORP(SettingsManager.Settings.SoftResetSignal));
             result.Add(LadderRow.AddRST(_label + (_startNum + 6).ToString()));
 
-            return result; // 生成されたLadderCsvRowのリストを返す
+            return result;
         }
 
         public List<LadderCsvRow> CyclePulse()
         {
-            List<LadderCsvRow> result = new(); // 生成されるLadderCsvRowのリスト
+            List<LadderCsvRow> result = new();
+            var cylinderCycles = _mainViewModel._selectedCylinderCycles;
 
-            if (!string.IsNullOrWhiteSpace(_cylinder.Cylinder.ProcessStartCycle))
+            if (cylinderCycles != null
+                || cylinderCycles!.Count != 0)
             {
                 // ★ 1. Split と int.Parse を安全に行う
-                List<int> startCycles = _cylinder.Cylinder.ProcessStartCycle
-                    .Split(';', StringSplitOptions.RemoveEmptyEntries) // 空の要素を自動で削除
-                    .Select(idString =>
-                    {
-                        int.TryParse(idString.Trim(), out int id); // 空白を除去し、変換を試みる
-                        return id;
-                    })
-                    .Where(id => id != 0) // 変換に失敗した(0になった)要素を除外
+                List<int> startCycles = cylinderCycles
+                    .Where(cc => cc.CylinderId == _cylinder.Cylinder.Id) // 変換に失敗した(0になった)要素を除外
+                    .Select(cc => cc.CycleId)
                     .ToList();
 
                 // ★ 2. isFirst のロジックを foreach ループの外側で扱う方がシンプル
@@ -248,7 +245,7 @@ namespace KdxDesigner.Utils.Cylinder
 
         public List<LadderCsvRow> Excitation(List<IO> sensors)
         {
-            List<LadderCsvRow> result = new(); // 生成されるLadderCsvRowのリスト
+            List<LadderCsvRow> result = new();
             result.Add(LadderRow.AddLDI(_label + (_startNum + 0).ToString()));
             result.Add(LadderRow.AddANI(_label + (_startNum + 2).ToString()));
             result.Add(LadderRow.AddAND(_label + (_startNum + 5).ToString()));
@@ -259,10 +256,10 @@ namespace KdxDesigner.Utils.Cylinder
             result.Add(LadderRow.AddAND(_label + (_startNum + 6).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_startNum + 20).ToString()));
 
-            return result; // 生成されたLadderCsvRowのリストを返す
+            return result;
         }
 
-        public List<LadderCsvRow> Retention(List<IO> sensors)
+        public List<LadderCsvRow> Retention(List<IO> sensors, string cycleDevice)
         {
             // ■■■ 1. ヘルパーメソッドを使って、Go/Backセンサーのアドレスリストをシンプルに取得 ■■■
             var goSensorAddresses = GetSensorAddresses(sensors, _cylinder.Cylinder.RetentionSensorGo, _cylinder.Cylinder.GoSensorCount, false); // isOutput: false
@@ -299,6 +296,7 @@ namespace KdxDesigner.Utils.Cylinder
                 }
             }
             result.Add(LadderRow.AddAND(_label + (_startNum + 5)));
+            result.Add(LadderRow.AddAND(cycleDevice));
             result.Add(LadderRow.AddOUT(_label + (_startNum + 19)));
 
 
@@ -329,6 +327,7 @@ namespace KdxDesigner.Utils.Cylinder
                 }
             }
             result.Add(LadderRow.AddAND(_label + (_startNum + 6)));
+            result.Add(LadderRow.AddAND(cycleDevice));
             result.Add(LadderRow.AddOUT(_label + (_startNum + 20)));
 
             // 行きチェック

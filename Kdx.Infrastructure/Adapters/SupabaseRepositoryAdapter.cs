@@ -57,6 +57,11 @@ namespace Kdx.Infrastructure.Adapters
             return Task.Run(async () => await _supabaseRepository.GetCyclesAsync()).GetAwaiter().GetResult();
         }
 
+        public List<CylinderCycle> GetCylinderCyclesByPlcId(int plcId)
+        {
+            return Task.Run(async () => await _supabaseRepository.GetCylinderCyclesByPlcIdAsync(plcId)).GetAwaiter().GetResult();
+        }
+
         public List<Kdx.Contracts.DTOs.Process> GetProcesses()
         {
             return Task.Run(async () => await _supabaseRepository.GetProcessesAsync()).GetAwaiter().GetResult();

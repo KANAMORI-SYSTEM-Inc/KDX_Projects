@@ -86,9 +86,9 @@ namespace KdxDesigner.ViewModels
 
         // ズーム機能用のプロパティ
         [ObservableProperty] private double _zoomScale = 1.0;
-        private const double MinZoomScale = 0.1;
-        private const double MaxZoomScale = 5.0;
-        private const double ZoomStep = 0.1;
+        private const double _minZoomScale = 0.1;
+        private const double _maxZoomScale = 5.0;
+        private const double _zoomStep = 0.1;
 
         public bool ShowNodeId
         {
@@ -1551,7 +1551,7 @@ namespace KdxDesigner.ViewModels
         [RelayCommand]
         private void FilterBySelectedNode()
         {
-            if (SelectedNode == null) return;
+            if (SelectedNode == null || SelectedNode.ProcessDetail == null) return;
 
             FilterNode = SelectedNode;
             IsFiltered = true;
@@ -1835,19 +1835,19 @@ namespace KdxDesigner.ViewModels
         // ズーム機能のメソッド
         public void ZoomIn()
         {
-            var newScale = Math.Min(ZoomScale + ZoomStep, MaxZoomScale);
+            var newScale = Math.Min(ZoomScale + _zoomStep, _maxZoomScale);
             ZoomScale = Math.Round(newScale, 2);
         }
 
         public void ZoomOut()
         {
-            var newScale = Math.Max(ZoomScale - ZoomStep, MinZoomScale);
+            var newScale = Math.Max(ZoomScale - _zoomStep, _minZoomScale);
             ZoomScale = Math.Round(newScale, 2);
         }
 
         public void SetZoom(double scale)
         {
-            ZoomScale = Math.Round(Math.Max(MinZoomScale, Math.Min(MaxZoomScale, scale)), 2);
+            ZoomScale = Math.Round(Math.Max(_minZoomScale, Math.Min(_maxZoomScale, scale)), 2);
         }
 
         [RelayCommand]

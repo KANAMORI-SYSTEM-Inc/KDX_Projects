@@ -21,21 +21,6 @@
         "resolved": "8.4.0",
         "contentHash": "tqVU8yc/ADO9oiTRyTnwhFN68hCwvkliMierptWOudIAvWY1mWCh5VFh+guwHJmpMwfg0J0rY+yyd5Oy7ty9Uw=="
       },
-      "Dapper": {
-        "type": "Direct",
-        "requested": "[2.1.66, )",
-        "resolved": "2.1.66",
-        "contentHash": "/q77jUgDOS+bzkmk3Vy9SiWMaetTw+NOoPAV0xPBsGVAyljd5S6P+4RUW7R3ZUGGr9lDRyPKgAMj2UAOwvqZYw=="
-      },
-      "Dapper.SqlBuilder": {
-        "type": "Direct",
-        "requested": "[2.1.66, )",
-        "resolved": "2.1.66",
-        "contentHash": "9IXuQtNy/+74NyTeiV1pug++zO0yDXn0UxnEjg8sfXn8wPou/hsRdlrMPkKdmqhp+fxd0qJA6Dd91plu1AHVBw==",
-        "dependencies": {
-          "Dapper": "2.1.66"
-        }
-      },
       "Microsoft.CodeAnalysis.NetAnalyzers": {
         "type": "Direct",
         "requested": "[8.0.0, )",
@@ -54,11 +39,11 @@
       },
       "Microsoft.Extensions.Configuration.Abstractions": {
         "type": "Direct",
-        "requested": "[9.0.8, )",
-        "resolved": "9.0.8",
-        "contentHash": "yNou2KM35RvzOh4vUFtl2l33rWPvOCoba+nzEDJ+BgD8aOL/jew4WPCibQvntRfOJ2pJU8ARygSMD+pdjvDHuA==",
+        "requested": "[9.0.9, )",
+        "resolved": "9.0.9",
+        "contentHash": "p5RKAY9POvs3axwA/AQRuJeM8AHuE8h4qbP1NxQeGm0ep46aXz1oCLAp/oOYxX1GsjStgdhHrN3XXLLXr0+b3w==",
         "dependencies": {
-          "Microsoft.Extensions.Primitives": "9.0.8"
+          "Microsoft.Extensions.Primitives": "9.0.9"
         }
       },
       "Microsoft.Extensions.Configuration.Binder": {
@@ -238,8 +223,8 @@
       },
       "Microsoft.Extensions.Primitives": {
         "type": "Transitive",
-        "resolved": "9.0.8",
-        "contentHash": "tizSIOEsIgSNSSh+hKeUVPK7xmTIjR8s+mJWOu1KXV3htvNQiPMFRMO17OdI1y/4ZApdBVk49u/08QGC9yvLug=="
+        "resolved": "9.0.9",
+        "contentHash": "z4pyMePOrl733ltTowbN565PxBw1oAr8IHmIXNDiDqd22nFpYltX9KhrNC/qBWAG1/Zx5MHX+cOYhWJQYCO/iw=="
       },
       "Microsoft.IdentityModel.Abstractions": {
         "type": "Transitive",
@@ -381,7 +366,7 @@
         "type": "Project",
         "dependencies": {
           "CommunityToolkit.Mvvm": "[8.4.0, )",
-          "Microsoft.Extensions.Configuration.Abstractions": "[9.0.8, )",
+          "Microsoft.Extensions.Configuration.Abstractions": "[9.0.9, )",
           "Microsoft.Extensions.Logging.Abstractions": "[8.0.2, )",
           "Npgsql": "[9.0.3, )",
           "postgrest-csharp": "[3.5.1, )"
@@ -391,7 +376,7 @@
         "type": "Project",
         "dependencies": {
           "Kdx.Contracts": "[1.0.0, )",
-          "Microsoft.Extensions.Configuration.Abstractions": "[9.0.8, )",
+          "Microsoft.Extensions.Configuration.Abstractions": "[9.0.9, )",
           "Microsoft.Extensions.Logging.Abstractions": "[8.0.2, )",
           "Npgsql": "[9.0.3, )"
         }
@@ -399,10 +384,9 @@
       "kdx.infrastructure": {
         "type": "Project",
         "dependencies": {
-          "Dapper": "[2.1.66, )",
           "Kdx.Contracts": "[1.0.0, )",
           "Kdx.Core": "[1.0.0, )",
-          "Microsoft.Extensions.Configuration.Abstractions": "[9.0.8, )",
+          "Microsoft.Extensions.Configuration.Abstractions": "[9.0.9, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.0.0, )",
           "Microsoft.Extensions.Logging.Abstractions": "[8.0.2, )",
           "Microsoft.Extensions.Options": "[8.0.0, )",

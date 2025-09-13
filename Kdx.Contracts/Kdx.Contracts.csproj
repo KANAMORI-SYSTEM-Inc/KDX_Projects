@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.8" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
   </ItemGroup>
 
 </Project>

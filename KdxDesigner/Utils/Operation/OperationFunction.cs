@@ -1,4 +1,4 @@
-﻿using Kdx.Contracts.DTOs;
+using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
@@ -165,7 +165,7 @@ namespace KdxDesigner.Utils.Operation
                     _operation.Operation.OperationName!,
                     _operation.Operation.Id);
 
-                if (ioSensorMulti! == null)
+                if (ioSensorMulti != null)
                 {
                     foreach (var io in ioSensorMulti)
                     {

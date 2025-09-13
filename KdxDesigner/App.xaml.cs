@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using KdxDesigner.ViewModels;
-using KdxDesigner.Services.MnemonicDevice;
-using KdxDesigner.Services.Authentication;
-using KdxDesigner.Services;
 using Kdx.Contracts.Interfaces;
-using Kdx.Infrastructure.Repositories;
 using Kdx.Infrastructure.Adapters;
 using Kdx.Infrastructure.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Kdx.Infrastructure.Repositories;
+
+using KdxDesigner.Services;
+using KdxDesigner.Services.Authentication;
+using KdxDesigner.Services.MnemonicDevice;
+using KdxDesigner.ViewModels;
+
 using Microsoft.Extensions.Configuration;
-using System.Windows;
-using System.IO;
+using Microsoft.Extensions.DependencyInjection;
+
 using Supabase;
+
+using System.IO;
+using System.Windows;
 
 namespace KdxDesigner
 {
@@ -38,9 +37,9 @@ namespace KdxDesigner
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
                 .Build();
-            
+
             services.AddSingleton<IConfiguration>(configuration);
-            
+
             // Supabase設定を登録
             var supabaseConfig = configuration.GetSection("Supabase").Get<SupabaseConfiguration>();
             if (supabaseConfig != null)
@@ -53,7 +52,7 @@ namespace KdxDesigner
             {
                 System.Diagnostics.Debug.WriteLine("WARNING: Supabase configuration not found!");
             }
-            
+
             // Supabaseクライアントを登録（初期化は遅延実行）
             services.AddSingleton<Supabase.Client>(sp =>
             {
@@ -65,33 +64,33 @@ namespace KdxDesigner
                     AutoRefreshToken = true
                 };
                 var client = new Supabase.Client(config.Url, config.AnonKey, options);
-                
+
                 // 初期化はここでは行わない（遅延実行）
                 System.Diagnostics.Debug.WriteLine("Supabase Client created (not initialized yet)");
-                
+
                 return client;
             });
-            
+
             // Repository層の登録
             services.AddScoped<ISupabaseRepository, SupabaseRepository>();
             services.AddScoped<IAccessRepository, SupabaseRepositoryAdapter>();
-            
+
             // Service層の登録（Infrastructure）
             services.AddScoped<IProsTimeDeviceService, Kdx.Infrastructure.Services.ProsTimeDeviceService>();
             services.AddScoped<IMemoryService, Kdx.Infrastructure.Services.MemoryService>();
-            
+
             // Supabase接続ヘルパーの登録
             services.AddSingleton<SupabaseConnectionHelper>();
-            
+
             // 認証サービスの登録
             services.AddSingleton<ISessionStorageService, SessionStorageService>();
             services.AddSingleton<IAuthenticationService, AuthenticationService>();
             services.AddSingleton<IOAuthCallbackListener, OAuthCallbackListener>();
-            
+
             // ViewModelの登録
             services.AddTransient<LoginViewModel>();
             services.AddSingleton<MainViewModel>();
-            
+
             // MnemonicDeviceMemoryStoreをシングルトンとして登録
             // アプリケーション全体で共有されるメモリストア
             services.AddSingleton<IMnemonicDeviceMemoryStore, MnemonicDeviceMemoryStore>();

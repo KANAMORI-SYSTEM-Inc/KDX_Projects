@@ -30,7 +30,6 @@ namespace KdxDesigner.Utils.Operation
             result.Add(LadderRow.AddAND(SettingsManager.Settings.Clock01));
             result.Add(LadderRow.AddPLS(label + (outNum + 3).ToString()));
 
-
             foreach (var pros in prosTimeList)
             {
                 if (string.IsNullOrEmpty(pros.CurrentDevice) || string.IsNullOrEmpty(pros.PreviousDevice)) continue;
@@ -61,16 +60,25 @@ namespace KdxDesigner.Utils.Operation
 
             // CYタイム 全体
             var cylinderDevice = prosTimeList.SingleOrDefault(p => p.SortId == 0)?.CylinderDevice ?? "";
+            var cylinderDeviceSecond = prosTimeList.SingleOrDefault(p => p.SortId == 1)?.CylinderDevice ?? "";
+
             var finalProsDevice = prosTimeList.OrderByDescending(p => p.SortId).FirstOrDefault()?.PreviousDevice ?? "";
+            var firstProsDevice = prosTimeList.Where(p => p.SortId == 1).FirstOrDefault()!.PreviousDevice ?? "";
+
 
             result.Add(LadderRow.AddLDP(label + (outNum + 19).ToString()));
             result.AddRange(LadderRow.AddMOVPSet(
                 finalProsDevice,
                 cylinderDevice));
 
+            result.Add(LadderRow.AddLDP(label + (outNum + 19).ToString()));
+            result.AddRange(LadderRow.AddMOVPSet(
+                firstProsDevice,
+                cylinderDeviceSecond));
+
             foreach (var pros in prosTimeList)
             {
-                if (pros.SortId == 0) continue; // SortId 0は全体のCYタイムなのでスキップ
+                if (pros.SortId == 0 || pros.SortId == 1) continue; // SortId 0は全体のCYタイムなのでスキップ
                 var previousDevice1 = pros.PreviousDevice;
                 var previousDevice2 = prosTimeList.SingleOrDefault(p => p.SortId == pros.SortId - 1)?.PreviousDevice ?? "";
                 var cylinderDeviceSort = prosTimeList.SingleOrDefault(p => p.SortId == pros.SortId)?.CylinderDevice ?? "";

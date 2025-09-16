@@ -1,10 +1,10 @@
-using KdxDesigner.Models;
+using Kdx.Contracts.DTOs;
+
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
-using Kdx.Contracts.DTOs;
 
 namespace KdxDesigner.Utils.Operation
 
@@ -34,9 +34,9 @@ namespace KdxDesigner.Utils.Operation
             List<IO> ioList)
         {
             // ここに単一工程の処理を実装
-            var result = new List<LadderCsvRow>(); // 生成されるLadderCsvRowのリスト
-            var label = operation.Mnemonic.DeviceLabel; // ラベルの取得
-            var outNum = operation.Mnemonic.StartNum; // スタート番号の取得
+            var result = new List<LadderCsvRow>();
+            var label = operation.Mnemonic.DeviceLabel;
+            var outNum = operation.Mnemonic.StartNum;
             var operationTimers = timers.Where(t => t.Operation.Id == operation.Operation.Id).ToList();
             var operationDetails = details.Where(d => d.Detail.OperationId == operation.Operation.Id).ToList();
             OperationFunction operationFunction = new(operation, operationTimers, cylinders, ioList, operationDetails, _mainViewModel, _errorAggregator, _ioAddressService);
@@ -68,10 +68,7 @@ namespace KdxDesigner.Utils.Operation
             result.AddRange(operationFunction.GenerateM6());
 
             // M7
-            if (operation.Operation.Start != null)
-            {
-                result.AddRange(operationFunction.GenerateM7());
-            }
+            result.AddRange(operationFunction.GenerateM7());
 
             // M16
             if (operation.Operation.Finish != null)
@@ -80,7 +77,6 @@ namespace KdxDesigner.Utils.Operation
             }
 
             // M17
-
             var thisTimer = timers.Where(t => t.Timer.RecordId == operation.Operation.Id).ToList();
             var operationTimerONWait = thisTimer.FirstOrDefault(t => t.Timer.TimerCategoryId == 5);
             // 深当たりタイマがある場合
@@ -239,7 +235,7 @@ namespace KdxDesigner.Utils.Operation
 
             result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
             result.Add(LadderRow.AddOR(label + (outNum + 2).ToString()));
-            
+
             // 深当たりタイマがある場合
             if (operationTimerONWait != null && operationTimerONWait.Timer.TimerDeviceT != null)
             {

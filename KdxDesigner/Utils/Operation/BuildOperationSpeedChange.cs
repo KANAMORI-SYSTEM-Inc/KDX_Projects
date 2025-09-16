@@ -125,11 +125,8 @@ namespace KdxDesigner.Utils.Operation
 
             }
 
-            if (operation.Operation.Start != null)
-            {
-                // ★★★ 修正: GenerateM7 がエラーを直接 _errorAggregator に追加するように変更 (OperationFunction側の修正も必要)
-                result.AddRange(operationFunction.GenerateM7());
-            }
+            // M7 : 出力開始の処理
+            result.AddRange(operationFunction.GenerateM7());
 
             if (operation.Operation.Con != null && operation.Operation.Con != string.Empty)
             {

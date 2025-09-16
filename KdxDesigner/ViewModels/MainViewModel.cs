@@ -119,6 +119,7 @@ namespace KdxDesigner.ViewModels
         private List<Process> _allProcesses = new();
         public List<Servo> _selectedServo = new(); // 選択されたサーボのリスト
         public List<CylinderCycle>? _selectedCylinderCycles = new(); // 選択されたシリンダーサイクルのリスト
+        public List<ControlBox> _selectedControlBoxes = new(); // 選択されたコントロールボックスのリスト
 
         // DIコンストラクタ（推奨）
         public MainViewModel(IAccessRepository repository, IAuthenticationService authService, SupabaseConnectionHelper? supabaseHelper = null)
@@ -988,9 +989,12 @@ namespace KdxDesigner.ViewModels
             var cycleId = SelectedCycle!.Id;
             var devices = _mnemonicMemoryStore.GetMnemonicDevices(plcId);
             var operations = _repository.GetOperations();
-            _selectedCylinderCycles = _repository.GetCylinderCyclesByPlcId(plcId);
 
-            if(_selectedCylinderCycles == null || _selectedCylinderCycles.Count == 0)
+            // mainViewModelのフィールドを使用
+            _selectedCylinderCycles = _repository.GetCylinderCyclesByPlcId(plcId);
+            _selectedControlBoxes = _repository.GetControlBoxesByPlcId(plcId);
+
+            if (_selectedCylinderCycles == null || _selectedCylinderCycles.Count == 0)
             {
                 MessageBox.Show("CylinderCycleのデータが存在しません。CylinderCycleの設定を確認してください。", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
                 return (

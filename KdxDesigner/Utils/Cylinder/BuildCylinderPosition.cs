@@ -65,7 +65,26 @@ namespace KdxDesigner.Utils.Cylinder
             {
                 speedDevice = cySpeedDevice.Device; // スピードデバイスの取得
             }
-            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, speedDevice);
+
+            // 手動ボタンデバイスの取得
+            var manualButton = _mainViewModel._selectedControlBoxes
+                .Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber)
+                .FirstOrDefault()!.ManualButton;
+
+            if (manualButton == null || manualButton == string.Empty)
+            {
+                _errorAggregator.AddError(new OutputError
+                {
+                    MnemonicId = (int)MnemonicType.CY,
+                    RecordId = cylinder.Cylinder.Id,
+                    RecordName = cylinder.Cylinder.CYNum,
+                    Message = $"CY{cylinder.Cylinder.CYNum}の手動操作盤が見つかりません。",
+                });
+                manualButton = SettingsManager.Settings.AlwaysOFF;
+            }
+
+            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, manualButton, speedDevice);
+
 
             // CYNumを含むIOの取得
             var sensors = ioList.Where(i => i.IOName != null

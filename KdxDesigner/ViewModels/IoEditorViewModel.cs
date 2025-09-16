@@ -532,7 +532,6 @@ namespace KdxDesigner.ViewModels
                 string searchTerm = CyFilterText.ToLower();
                 return (cy.CYNum?.ToLower().Contains(searchTerm) ?? false) ||
                        (cy.PUCO?.ToLower().Contains(searchTerm) ?? false) ||
-                       (cy.ManualButton?.ToLower().Contains(searchTerm) ?? false) ||
                        (cy.Go?.ToLower().Contains(searchTerm) ?? false) ||
                        (cy.Back?.ToLower().Contains(searchTerm) ?? false) ||
                        (cy.OilNum?.ToLower().Contains(searchTerm) ?? false);

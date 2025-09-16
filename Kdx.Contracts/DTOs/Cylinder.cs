@@ -45,8 +45,8 @@ namespace Kdx.Contracts.DTOs
         public int? SortNumber { get; set; }
         [Column("FlowCount")]
         public int? FlowCount { get; set; }
-        [Column("ManualButton")]
-        public string ManualButton { get; set; } = string.Empty;
+        [Column("ManualNumber")]
+        public int ManualNumber { get; set; } = 0;
         [Column("FlowCYGo")]
         public string? FlowCYGo { get; set; } = string.Empty;
         [Column("FlowCYBack")]

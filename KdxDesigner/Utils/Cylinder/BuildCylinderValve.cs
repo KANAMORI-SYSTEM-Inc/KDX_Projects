@@ -1,11 +1,13 @@
+using Kdx.Contracts.DTOs;
+using Kdx.Contracts.Enums;
+using Kdx.Contracts.Interfaces;
+
 using KdxDesigner.Models;
 using KdxDesigner.Models.Define;
 using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
-using Kdx.Contracts.DTOs;
-using Kdx.Contracts.Interfaces;
 
 namespace KdxDesigner.Utils.Cylinder
 {
@@ -35,7 +37,25 @@ namespace KdxDesigner.Utils.Cylinder
         {
             // ここに単一工程の処理を実装  
             var result = new List<LadderCsvRow>();
-            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, null);
+            // 手動ボタンデバイスの取得
+            var manualButton = _mainViewModel._selectedControlBoxes
+                .Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber)
+                .FirstOrDefault().ManualButton;
+
+            if (manualButton == null || manualButton == string.Empty)
+            {
+                _errorAggregator.AddError(new OutputError
+                {
+                    MnemonicId = (int)MnemonicType.CY,
+                    RecordId = cylinder.Cylinder.Id,
+                    RecordName = cylinder.Cylinder.CYNum,
+                    Message = $"CY{cylinder.Cylinder.CYNum}の手動操作盤が見つかりません。",
+                });
+                manualButton = SettingsManager.Settings.AlwaysOFF;
+            }
+
+            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, manualButton, null);
+
 
             // CYNumを含むIOの取得
             var sensors = ioList.Where(i => i.IOName != null
@@ -146,7 +166,25 @@ namespace KdxDesigner.Utils.Cylinder
         {
             // ここに単一工程の処理を実装  
             var result = new List<LadderCsvRow>();
-            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, null);
+            // 手動ボタンデバイスの取得
+            var manualButton = _mainViewModel._selectedControlBoxes
+                .Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber)
+                .FirstOrDefault().ManualButton;
+
+            if (manualButton == null || manualButton == string.Empty)
+            {
+                _errorAggregator.AddError(new OutputError
+                {
+                    MnemonicId = (int)MnemonicType.CY,
+                    RecordId = cylinder.Cylinder.Id,
+                    RecordName = cylinder.Cylinder.CYNum,
+                    Message = $"CY{cylinder.Cylinder.CYNum}の手動操作盤が見つかりません。",
+                });
+                manualButton = SettingsManager.Settings.AlwaysOFF;
+            }
+
+            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, manualButton, null);
+
 
             // CYNumを含むIOの取得
             var sensors = ioList.Where(i => i.IOName != null
@@ -239,7 +277,25 @@ namespace KdxDesigner.Utils.Cylinder
         {
             // ここに単一工程の処理を実装  
             var result = new List<LadderCsvRow>();
-            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, null);
+            // 手動ボタンデバイスの取得
+            var manualButton = _mainViewModel._selectedControlBoxes
+                .Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber)
+                .FirstOrDefault().ManualButton;
+
+            if (manualButton == null || manualButton == string.Empty)
+            {
+                _errorAggregator.AddError(new OutputError
+                {
+                    MnemonicId = (int)MnemonicType.CY,
+                    RecordId = cylinder.Cylinder.Id,
+                    RecordName = cylinder.Cylinder.CYNum,
+                    Message = $"CY{cylinder.Cylinder.CYNum}の手動操作盤が見つかりません。",
+                });
+                manualButton = SettingsManager.Settings.AlwaysOFF;
+            }
+
+            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, manualButton, null);
+
 
             // CYNumを含むIOの取得
             var sensors = ioList.Where(i => i.IOName != null

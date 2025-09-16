@@ -110,6 +110,15 @@ namespace Kdx.Infrastructure.Repositories
             return response.Models;
         }
 
+        public async Task<List<ControlBox>> GetControlBoxesByPlcIdAsync(int plcId)
+        {
+            var response = await _supabaseClient
+                .From<ControlBox>()
+                .Where(c => c.PlcId == plcId)
+                .Get();
+            return response.Models;
+        }
+
         public async Task<List<Kdx.Contracts.DTOs.Process>> GetProcessesAsync()
         {
             var response = await _supabaseClient

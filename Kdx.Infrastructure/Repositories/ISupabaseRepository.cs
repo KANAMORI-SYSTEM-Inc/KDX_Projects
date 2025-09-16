@@ -35,6 +35,8 @@ namespace Kdx.Infrastructure.Repositories
         /// <returns></returns>
         Task<List<CylinderCycle>> GetCylinderCyclesByPlcIdAsync(int plcId);
 
+        Task<List<ControlBox>> GetControlBoxesByPlcIdAsync(int plcId);
+
         /// <summary>
         /// 全ての工程情報を取得します。
         /// </summary>

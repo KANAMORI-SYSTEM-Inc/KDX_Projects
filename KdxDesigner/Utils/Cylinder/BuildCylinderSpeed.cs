@@ -55,7 +55,24 @@ namespace KdxDesigner.Utils.Cylinder
                 speedDevice = cySpeedDevice.Device; // スピードデバイスの取得
             }
 
-            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, speedDevice);
+            var manualButton = _mainViewModel._selectedControlBoxes
+                .Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber)
+                .FirstOrDefault()!.ManualButton;
+
+            if (manualButton == null || manualButton == string.Empty)
+            {
+                _errorAggregator.AddError(new OutputError
+                {
+                    MnemonicId = (int)MnemonicType.CY,
+                    RecordId = cylinder.Cylinder.Id,
+                    RecordName = cylinder.Cylinder.CYNum,
+                    Message = $"CY{cylinder.Cylinder.CYNum}の手動操作盤が見つかりません。",
+                });
+                manualButton = SettingsManager.Settings.AlwaysOFF;
+            }
+
+            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, manualButton, speedDevice);
+
 
             // CYNumを含むIOの取得
             var sensors = ioList.Where(i => i.IOName != null
@@ -233,7 +250,24 @@ namespace KdxDesigner.Utils.Cylinder
                 speedDevice = cySpeedDevice.Device; // スピードデバイスの取得
             }
 
-            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, speedDevice);
+            // 手動ボタンデバイスの取得
+            var manualButton = _mainViewModel._selectedControlBoxes
+                .Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber)
+                .FirstOrDefault().ManualButton;
+
+            if (manualButton == null || manualButton == string.Empty)
+            {
+                _errorAggregator.AddError(new OutputError
+                {
+                    MnemonicId = (int)MnemonicType.CY,
+                    RecordId = cylinder.Cylinder.Id,
+                    RecordName = cylinder.Cylinder.CYNum,
+                    Message = $"CY{cylinder.Cylinder.CYNum}の手動操作盤が見つかりません。",
+                });
+                manualButton = SettingsManager.Settings.AlwaysOFF;
+            }
+
+            var functions = new CylinderFunction(_mainViewModel, _errorAggregator, cylinder, _ioAddressService, manualButton, speedDevice);
 
             // CYNumを含むIOの取得
             var sensors = ioList.Where(i => i.IOName != null
@@ -335,12 +369,12 @@ namespace KdxDesigner.Utils.Cylinder
 
                     // 手動JOG指令 行き
                     result.Add(LadderRow.AddLD(label + (startNum + 7).ToString()));
-                    result.Add(LadderRow.AddAND(cylinder.Cylinder.ManualButton));
+                    result.Add(LadderRow.AddAND(manualButton));
                     result.AddRange(LadderRow.AddMOVSet("K1", speedDevice));
 
                     // 手動JOG指令 帰り
                     result.Add(LadderRow.AddLD(label + (startNum + 8).ToString()));
-                    result.Add(LadderRow.AddAND(cylinder.Cylinder.ManualButton));
+                    result.Add(LadderRow.AddAND(manualButton));
                     result.AddRange(LadderRow.AddMOVSet("K5", speedDevice));
                 }
                 else
@@ -362,7 +396,7 @@ namespace KdxDesigner.Utils.Cylinder
             if (speedDevice != null)
             {
                 result.Add(LadderRow.AddLD(label + (startNum + 10).ToString()));
-                result.Add(LadderRow.AddAND(cylinder.Cylinder.ManualButton));
+                result.Add(LadderRow.AddAND(manualButton));
                 result.Add(LadderRow.AddAND(label + (startNum + 12).ToString()));
                 result.Add(LadderRow.AddAND(label + (startNum + 13).ToString()));
                 result.AddRange(LadderRow.AddMOVSet("K1", speedDevice));

@@ -215,12 +215,12 @@ namespace KdxDesigner.Utils.Operation
 
                     if (isFirst)
                     {
-                        result.Add(LadderRow.AddLD(detailLabel + (detailOutNum + 2).ToString()));
+                        result.Add(LadderRow.AddLDP(detailLabel + (detailOutNum + 2).ToString()));
                         isFirst = false;
                     }
                     else
                     {
-                        result.Add(LadderRow.AddOR(detailLabel + (detailOutNum + 2).ToString()));
+                        result.Add(LadderRow.AddORP(detailLabel + (detailOutNum + 2).ToString()));
                     }
                 }
 

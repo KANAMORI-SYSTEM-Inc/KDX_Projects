@@ -129,8 +129,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
 
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
 
             return result;
         }
@@ -268,8 +268,10 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
             result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
+
+
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
 
             return result;
         }
@@ -377,8 +379,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
 
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
 
             return result;
         }
@@ -464,9 +466,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
 
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
-
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
 
             return result;
         }
@@ -478,6 +479,7 @@ namespace KdxDesigner.Utils.ProcessDetail
         public List<LadderCsvRow> BuildMerge()
         {
             var result = new List<LadderCsvRow>();
+            var detailFunctions = CreateDetailFunctions();
 
             // 行間ステートメントを追加
             string id = _detail.Detail.Id.ToString();
@@ -533,8 +535,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(LadderRow.AddAND(label + (deviceNum + 0).ToString()));
             result.Add(LadderRow.AddOUT(label + (deviceNum + 4).ToString()));
 
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
             return result;
 
         }
@@ -611,8 +613,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
 
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
 
             return result;
         }
@@ -704,8 +706,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
 
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
 
             return result;
         }
@@ -829,8 +831,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(LadderRow.AddAND(_label + (_deviceNum + 2).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
 
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
 
             return result;
         }
@@ -916,8 +918,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(LadderRow.AddAND(_label + (_deviceNum + 2).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
 
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
 
             return result;
         }
@@ -994,8 +996,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
             result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
 
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
 
             return result;
         }
@@ -1052,8 +1054,8 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             }
 
-            result.Add(LadderRow.AddLDP(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_deviceNum + 3).ToString()));
+            // Manualリセット
+            result.AddRange(detailFunctions.ManualReset());
 
             return result;
         }

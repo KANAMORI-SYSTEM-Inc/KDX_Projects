@@ -148,7 +148,9 @@ namespace Kdx.Infrastructure.Repositories
         {
             await _supabaseClient
                 .From<CylinderControlBox>()
-                .Where(c => c.PlcId == plcId && c.CylinderId == cylinderId && c.ManualNumber == boxId)
+                .Where(c => c.PlcId == plcId)
+                .Where(c => c.CylinderId == cylinderId)
+                .Where(c => c.ManualNumber == boxId)
                 .Delete();
         }
 

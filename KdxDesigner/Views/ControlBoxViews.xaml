@@ -45,10 +45,12 @@
         <DockPanel Grid.Row="1" Grid.Column="1" LastChildFill="True">
             <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6" >
                 <TextBlock Text="選択中:" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding SelectedCylinder.Cylinder.CYNum, FallbackValue=—}" 
+                <TextBlock Text="{Binding SelectedCylinder.Cylinder.CYNum, FallbackValue=—}"
                  FontWeight="Bold" Margin="4,0"/>
-                <Button Content="行を追加" Command="{Binding AddMappingCommand}" />
-                <Button Content="すべて保存" Command="{Binding SaveAllMappingsCommand}" />
+                <Button Content="行を追加" Command="{Binding AddMappingCommand}" Margin="4,0,0,0"/>
+                <Button Content="すべて保存" Command="{Binding SaveAllMappingsCommand}" Margin="4,0,0,0"/>
+                <Button Content="すべて削除" Command="{Binding DeleteAllMappingsCommand}" Margin="4,0,0,0"
+                        Background="#FFF0E0E0" Foreground="Red"/>
             </StackPanel>
 
             <DataGrid ItemsSource="{Binding Mappings}"

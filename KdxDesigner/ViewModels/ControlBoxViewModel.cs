@@ -82,6 +82,7 @@ namespace KdxDesigner.ViewModels
         public ICommand AddMappingCommand { get; }
         public ICommand RemoveMappingCommand { get; }
         public ICommand SaveAllMappingsCommand { get; }
+        public ICommand DeleteAllMappingsCommand { get; }
 
         public ControlBoxViewModel(IAccessRepository repo, int plcId)
         {
@@ -145,6 +146,7 @@ namespace KdxDesigner.ViewModels
             }, _ => SelectedCylinder != null);
 
             SaveAllMappingsCommand = new RelayCommand(_ => SaveAllMappings(), _ => SelectedCylinder != null);
+            DeleteAllMappingsCommand = new RelayCommand(_ => DeleteAllMappings(), _ => SelectedCylinder != null && Mappings.Count > 0);
         }
 
         private void LoadMappingsForSelection()
@@ -232,6 +234,32 @@ namespace KdxDesigner.ViewModels
 
             // 再読込して同期
             LoadMappingsForSelection();
+        }
+
+        private void DeleteAllMappings()
+        {
+            if (SelectedCylinder == null) return;
+
+            // 確認ダイアログ
+            var result = MessageBox.Show(
+                $"CY#{SelectedCylinder.Cylinder.CYNum} のControlBox設定をすべて削除しますか？",
+                "削除確認",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            var cylId = SelectedCylinder.Cylinder.Id;
+
+            // 現在DBにある全リンクを削除
+            var existing = _repo.GetCylinderControlBoxes(_plcId, cylId);
+            foreach (var row in existing)
+            {
+                _repo.DeleteCylinderControlBox(row.PlcId, row.CylinderId, row.ManualNumber);
+            }
+
+            // 画面をクリア
+            Mappings.Clear();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

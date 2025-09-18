@@ -119,6 +119,39 @@ namespace Kdx.Infrastructure.Repositories
             return response.Models;
         }
 
+        public async Task<List<CylinderControlBox>> GetCylinderControlBoxesByPlcIdAsync(int plcId)
+        {
+            var response = await _supabaseClient
+                .From<CylinderControlBox>()
+                .Where(c => c.PlcId == plcId)
+                .Get();
+            return response.Models;
+        }
+
+        public async Task<List<CylinderControlBox>> GetCylinderControlBoxesAsync(int plcId, int cylinderId)
+        {
+            var response = await _supabaseClient
+                .From<CylinderControlBox>()
+                .Where(c => c.PlcId == plcId && c.CylinderId == cylinderId)
+                .Get();
+            return response.Models;
+        }
+
+        public async Task UpsertCylinderControlBoxAsync(CylinderControlBox item)
+        {
+            await _supabaseClient
+                .From<CylinderControlBox>()
+                .Upsert(item);
+        }
+
+        public async Task DeleteCylinderControlBoxAsync(int plcId, int cylinderId, int boxId)
+        {
+            await _supabaseClient
+                .From<CylinderControlBox>()
+                .Where(c => c.PlcId == plcId && c.CylinderId == cylinderId && c.ManualNumber == boxId)
+                .Delete();
+        }
+
         public async Task<List<Kdx.Contracts.DTOs.Process>> GetProcessesAsync()
         {
             var response = await _supabaseClient
@@ -151,11 +184,42 @@ namespace Kdx.Infrastructure.Repositories
             return response.Models;
         }
 
+        public async Task<List<MachineName>> GetMachineNamesAsync()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("Calling Supabase API for MachineNames...");
+
+                var response = await _supabaseClient
+                    .From<MachineName>()
+                    .Select("*")
+                    .Get();
+
+                System.Diagnostics.Debug.WriteLine($"Supabase returned {response?.Models?.Count ?? 0} machine names");
+
+                if (response?.Models != null)
+                {
+                    foreach (var mn in response.Models)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"MachineName: Id={mn.Id}, FullName={mn.FullName}, ShortName={mn.ShortName}");
+                    }
+                }
+
+                return response?.Models ?? new List<MachineName>();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting machine names: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                return new List<MachineName>();
+            }
+        }
+
         public async Task<Machine?> GetMachineByIdAsync(int nameId, int driveSubId)
         {
             var response = await _supabaseClient
                 .From<Machine>()
-                .Where(m => m.MacineNameId == nameId && m.DriveSubId == driveSubId)
+                .Where(m => m.MachineNameId == nameId && m.DriveSubId == driveSubId)
                 .Single();
             return response;
         }

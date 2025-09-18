@@ -38,9 +38,13 @@ namespace KdxDesigner.Utils.Cylinder
             // ここに単一工程の処理を実装  
             var result = new List<LadderCsvRow>();
             // 手動ボタンデバイスの取得
+            var manualNumber = _mainViewModel._selectedCylinderControlBoxes
+                .Where(cb => cb.CylinderId == cylinder.Cylinder.Id)
+                .FirstOrDefault()!.ManualNumber;
+
             var manualButton = _mainViewModel._selectedControlBoxes
-                .Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber)
-                .FirstOrDefault().ManualButton;
+                .Where(cb => cb.BoxNumber == manualNumber)
+                .FirstOrDefault()!.ManualButton;
 
             if (manualButton == null || manualButton == string.Empty)
             {
@@ -167,9 +171,13 @@ namespace KdxDesigner.Utils.Cylinder
             // ここに単一工程の処理を実装  
             var result = new List<LadderCsvRow>();
             // 手動ボタンデバイスの取得
+            var manualNumber = _mainViewModel._selectedCylinderControlBoxes
+                .Where(cb => cb.CylinderId == cylinder.Cylinder.Id)
+                .FirstOrDefault()!.ManualNumber;
+
             var manualButton = _mainViewModel._selectedControlBoxes
-                .Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber)
-                .FirstOrDefault().ManualButton;
+                .Where(cb => cb.BoxNumber == manualNumber)
+                .FirstOrDefault()!.ManualButton;
 
             if (manualButton == null || manualButton == string.Empty)
             {
@@ -278,9 +286,13 @@ namespace KdxDesigner.Utils.Cylinder
             // ここに単一工程の処理を実装  
             var result = new List<LadderCsvRow>();
             // 手動ボタンデバイスの取得
+            var manualNumber = _mainViewModel._selectedCylinderControlBoxes
+                .Where(cb => cb.CylinderId == cylinder.Cylinder.Id)
+                .FirstOrDefault()!.ManualNumber;
+
             var manualButton = _mainViewModel._selectedControlBoxes
-                .Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber)
-                .FirstOrDefault().ManualButton;
+                .Where(cb => cb.BoxNumber == manualNumber)
+                .FirstOrDefault()!.ManualButton;
 
             if (manualButton == null || manualButton == string.Empty)
             {

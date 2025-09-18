@@ -37,6 +37,14 @@ namespace Kdx.Infrastructure.Repositories
 
         Task<List<ControlBox>> GetControlBoxesByPlcIdAsync(int plcId);
 
+        Task<List<CylinderControlBox>> GetCylinderControlBoxesByPlcIdAsync(int plcId);
+
+        Task<List<CylinderControlBox>> GetCylinderControlBoxesAsync(int plcId, int cylinderId);
+
+        Task UpsertCylinderControlBoxAsync(CylinderControlBox item);
+
+        Task DeleteCylinderControlBoxAsync(int plcId, int cylinderId, int boxId);
+
         /// <summary>
         /// 全ての工程情報を取得します。
         /// </summary>
@@ -59,6 +67,11 @@ namespace Kdx.Infrastructure.Repositories
         /// 全ての機械情報を取得します。
         /// </summary>
         Task<List<Machine>> GetMachinesAsync();
+
+        /// <summary>
+        /// 全ての機械名称情報を取得します。
+        /// </summary>
+        Task<List<MachineName>> GetMachineNamesAsync();
 
         /// <summary>
         /// idで指定された機械情報を取得します。

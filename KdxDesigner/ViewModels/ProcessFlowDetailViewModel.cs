@@ -1194,8 +1194,6 @@ namespace KdxDesigner.ViewModels
                                 c.FromProcessDetailId == connection.FromNode.ProcessDetail.Id &&
                                 c.ToProcessDetailId == connection.ToNode.ProcessDetail.Id);
 
-                            // StartSensor is now stored in ProcessDetail, not in ProcessDetailConnection
-                            // No need to update StartSensor on connection
                         }
                         // ProcessDetail -> Process の通常接続
                         else if (connection.FromNode.NodeType == ProcessFlowNodeType.ProcessDetail && 
@@ -1206,9 +1204,6 @@ namespace KdxDesigner.ViewModels
                             var dbConnection = _dbConnections.FirstOrDefault(c =>
                                 c.FromProcessDetailId == connection.FromNode.ProcessDetail.Id &&
                                 c.ToProcessId == connection.ToNode.Process.Id);
-
-                            // StartSensor is now stored in ProcessDetail, not in ProcessDetailConnection
-                            // No need to update StartSensor on connection
                         }
                     }
 

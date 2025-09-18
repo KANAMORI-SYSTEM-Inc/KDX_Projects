@@ -10,8 +10,88 @@ using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
 
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace KdxDesigner.Utils.Cylinder
 {
+    internal interface IControlBoxResolver
+    {
+        // 見つかれば ControlBox、見つからなければ null とエラー
+        bool TryResolve(MnemonicDeviceWithCylinder cylinder, out ControlBox controlBox, out OutputError? error);
+    }
+
+    internal sealed class ControlBoxResolver : IControlBoxResolver
+    {
+        private readonly IReadOnlyDictionary<int, CylinderControlBox> _cylinderToCtrl;
+        private readonly IReadOnlyDictionary<int, ControlBox> _boxNumberToCtrl;
+
+        public ControlBoxResolver(MainViewModel vm)
+        {
+            // 初期化時に辞書化（重いLINQの都度実行を回避）
+            _cylinderToCtrl = vm._selectedCylinderControlBoxes
+                .GroupBy(x => x.CylinderId)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            _boxNumberToCtrl = vm._selectedControlBoxes
+                .GroupBy(x => x.BoxNumber)
+                .ToDictionary(g => g.Key, g => g.First());
+        }
+
+        public bool TryResolve(MnemonicDeviceWithCylinder cylinder, out ControlBox controlBox, out OutputError? error)
+        {
+            error = null;
+
+            if (!_cylinderToCtrl.TryGetValue(cylinder.Cylinder.Id, out var cyCtrl))
+            {
+                error = OutputErrorFactory.MissingControlPanelForCylinder(cylinder);
+                controlBox = NullControlBox.Create(); // Null Object
+                return false;
+            }
+
+            if (!_boxNumberToCtrl.TryGetValue(cyCtrl.ManualNumber, out var found))
+            {
+                error = OutputErrorFactory.MissingControlPanelNumber(cylinder, cyCtrl.ManualNumber);
+                controlBox = NullControlBox.Create();
+                return false;
+            }
+
+            controlBox = found;
+            return true;
+        }
+    }
+
+    internal static class NullControlBox
+    {
+        public static ControlBox Create(string? manualButton = null, string? manualMode = null)
+            => new ControlBox
+            {
+                BoxNumber = -1,
+                ManualButton = manualButton ?? "UNASSIGNED",
+                ManualMode = manualMode ?? SettingsManager.Settings.AlwaysON
+            };
+    }
+
+    internal static class OutputErrorFactory
+    {
+        public static OutputError MissingControlPanelForCylinder(MnemonicDeviceWithCylinder c) => new()
+        {
+            RecordName = c.Cylinder.CYNum ?? "",
+            Message = $"シリンダー '{c.Cylinder.CYNum}' に対応する操作盤が設定されていません。",
+            MnemonicId = (int)MnemonicType.CY,
+            RecordId = c.Cylinder.Id,
+            IsCritical = true
+        };
+
+        public static OutputError MissingControlPanelNumber(MnemonicDeviceWithCylinder c, int manualNumber) => new()
+        {
+            RecordName = c.Cylinder.CYNum ?? "",
+            Message = $"操作盤番号 '{manualNumber}' の操作盤が見つかりません。",
+            MnemonicId = (int)MnemonicType.CY,
+            RecordId = c.Cylinder.Id,
+            IsCritical = true
+        };
+    }
+
     internal class CylinderFunction
     {
         private readonly MainViewModel _mainViewModel;
@@ -29,17 +109,42 @@ namespace KdxDesigner.Utils.Cylinder
             MnemonicDeviceWithCylinder cylinder,
             IIOAddressService ioAddressService,
             string manualButton,
-            string? speedDevice
-            )
+            string? speedDevice)
         {
+            // ---- Guard clauses
+            if (mainViewModel is null) throw new ArgumentNullException(nameof(mainViewModel));
+            if (errorAggregator is null) throw new ArgumentNullException(nameof(errorAggregator));
+            if (cylinder is null) throw new ArgumentNullException(nameof(cylinder));
+            if (ioAddressService is null) throw new ArgumentNullException(nameof(ioAddressService));
+            if (string.IsNullOrWhiteSpace(manualButton)) throw new ArgumentException("manualButton is required.", nameof(manualButton));
+
             _mainViewModel = mainViewModel;
             _errorAggregator = errorAggregator;
+            _ioAddressService = ioAddressService;
             _cylinder = cylinder;
-            _ioAddressService = ioAddressService; // IIOAddressServiceのインジェクト
-            _startNum = cylinder.Mnemonic.StartNum; // ラベルの取得
-            _label = cylinder.Mnemonic.DeviceLabel; // ラベルの取得
+            _startNum = cylinder.Mnemonic.StartNum;
+            _label = cylinder.Mnemonic.DeviceLabel;
             _speedDevice = speedDevice;
-            _controlBox = _mainViewModel._selectedControlBoxes.Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber).FirstOrDefault();
+
+            // ---- 操作盤の解決（責務をResolverに委譲）
+            var resolver = new ControlBoxResolver(_mainViewModel);
+            if (resolver.TryResolve(_cylinder, out var ctrl, out var err))
+            {
+                _controlBox = ctrl;
+            }
+            else
+            {
+                _controlBox = NullControlBox.Create(manualButton);
+                if (err != null) _errorAggregator.AddError(err);
+            }
+
+            // NullControlBox の場合でも ManualButton/ManualMode を補正
+            if (_controlBox.BoxNumber == -1)
+            {
+                // 最小限のフォールバック
+                _controlBox.ManualButton = manualButton;
+                _controlBox.ManualMode ??= SettingsManager.Settings.AlwaysON;
+            }
         }
 
         public List<LadderCsvRow> GoOperation(List<MnemonicDeviceWithOperation> goOperation)

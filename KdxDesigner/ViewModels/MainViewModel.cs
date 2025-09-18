@@ -120,6 +120,8 @@ namespace KdxDesigner.ViewModels
         public List<Servo> _selectedServo = new(); // 選択されたサーボのリスト
         public List<CylinderCycle>? _selectedCylinderCycles = new(); // 選択されたシリンダーサイクルのリスト
         public List<ControlBox> _selectedControlBoxes = new(); // 選択されたコントロールボックスのリスト
+        public List<CylinderControlBox> _selectedCylinderControlBoxes = new(); // 選択されたコントロールボックスのリスト
+
 
         // DIコンストラクタ（推奨）
         public MainViewModel(IAccessRepository repository, IAuthenticationService authService, SupabaseConnectionHelper? supabaseHelper = null)
@@ -156,7 +158,7 @@ namespace KdxDesigner.ViewModels
                 _supabaseHelper = supabaseHelper;
                 InitializeServices();
                 LoadInitialData();
-                
+
                 // Supabase接続を非同期で初期化
                 if (_supabaseHelper != null)
                 {
@@ -380,6 +382,21 @@ namespace KdxDesigner.ViewModels
 
         // その他ボタン処理
         #region Properties for Process Details
+        [RelayCommand]
+        public void OpenControllBoxView()
+        {
+            if (SelectedPlc == null)
+            {
+                MessageBox.Show("PLCを選択してください。", "エラー", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            var window = new KdxDesigner.Views.ControlBoxViews(_repository, SelectedPlc.Id)
+            {
+                Owner = Application.Current.MainWindow // 親ウィンドウ設定
+            };
+            window.ShowDialog();
+        }
+
         [RelayCommand]
         public void UpdateSelectedProcesses(List<Process> selectedProcesses)
         {
@@ -800,6 +817,8 @@ namespace KdxDesigner.ViewModels
 
         #endregion
 
+
+
         // 出力処理
         #region ProcessOutput
         [RelayCommand]
@@ -993,6 +1012,8 @@ namespace KdxDesigner.ViewModels
             // mainViewModelのフィールドを使用
             _selectedCylinderCycles = _repository.GetCylinderCyclesByPlcId(plcId);
             _selectedControlBoxes = _repository.GetControlBoxesByPlcId(plcId);
+            _selectedCylinderControlBoxes = _repository.GetCylinderControlBoxesByPlcId(plcId);
+
 
             if (_selectedCylinderCycles == null || _selectedCylinderCycles.Count == 0)
             {

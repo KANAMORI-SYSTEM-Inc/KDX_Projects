@@ -1,4 +1,4 @@
-﻿<Window x:Class="KdxDesigner.Views.MainView"
+<Window x:Class="KdxDesigner.Views.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -89,6 +89,8 @@
                 <MenuItem Header="リンクデバイス管理" Command="{Binding OpenLinkDeviceManagerCommand}" />
                 <MenuItem Header="タイマー設定" Command="{Binding OpenTimerEditorCommand}" />
                 <MenuItem Header="メモリプロファイル管理" Command="{Binding OpenMemoryProfileManagerCommand}" />
+                <MenuItem Header="操作盤選択" Command="{Binding OpenControllBoxViewCommand}" />
+
                 <Separator/>
                 <MenuItem Header="工程フロー詳細" Command="{Binding OpenProcessFlowDetailCommand}" />
                 <MenuItem Header="全ての工程フロー詳細を閉じる" Command="{Binding CloseAllProcessFlowWindowsCommand}" />

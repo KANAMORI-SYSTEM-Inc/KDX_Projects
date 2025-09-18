@@ -22,7 +22,6 @@ namespace KdxDesigner.Utils.Operation
             _ioAddressService = ioAddressService;
         }
 
-
         public List<LadderCsvRow> Retention(
             MnemonicDeviceWithOperation operation,
             List<MnemonicDeviceWithProcessDetail> details,
@@ -113,10 +112,6 @@ namespace KdxDesigner.Utils.Operation
                 result.Add(LadderRow.AddAND(label + (outNum + 6).ToString()));
             }
             result.Add(LadderRow.AddOUT(label + (outNum + 17).ToString()));
-
-
-
-
 
             // M19
             result.AddRange(operationFunction.GenerateM19());
@@ -364,7 +359,6 @@ namespace KdxDesigner.Utils.Operation
 
             // M18
             var operationTimerONWait = operationTimers.FirstOrDefault(t => t.Timer.TimerCategoryId == 5);
-            // 深当たりタイマがある場合
             if (operationTimerONWait != null)
             {
                 result.Add(LadderRow.AddLD(label + (outNum + 8).ToString()));

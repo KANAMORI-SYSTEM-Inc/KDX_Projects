@@ -8,10 +8,10 @@ namespace Kdx.Contracts.DTOs
     {
         [PrimaryKey("MachineNameId")]
         [Column("MachineNameId")]
-        public int MacineNameId { get; set; }
+        public int MachineNameId { get; set; }
 
         [PrimaryKey("DriveSubId")]
-        [Column("DriveSubIdId")]
+        [Column("DriveSubId")]
         public int DriveSubId { get; set; }
 
         [Column("UseValveRetention")]

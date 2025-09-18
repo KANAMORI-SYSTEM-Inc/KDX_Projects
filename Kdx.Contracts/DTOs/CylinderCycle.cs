@@ -13,7 +13,7 @@ namespace Kdx.Contracts.DTOs
         [Column("PlcId")]
         public int PlcId { get; set; }
 
-        [PrimaryKey("CylinderId")]
+        [PrimaryKey("CycleId")]
         [Column("CycleId")]
         public int CycleId { get; set; }
     }

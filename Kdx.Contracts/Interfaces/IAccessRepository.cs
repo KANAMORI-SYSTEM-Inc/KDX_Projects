@@ -40,6 +40,15 @@ namespace Kdx.Contracts.Interfaces
 
         List<ControlBox> GetControlBoxesByPlcId(int plcId);
 
+        List<CylinderControlBox> GetCylinderControlBoxesByPlcId(int plcId);
+
+        List<CylinderControlBox> GetCylinderControlBoxes(int plcId, int cylinderId);
+
+        void UpsertCylinderControlBox(CylinderControlBox list);
+
+        void DeleteCylinderControlBox(int plcId, int cylinderId, int boxId);
+
+
         /// <summary>
         /// 全ての工程情報を取得します。
         /// </summary>
@@ -63,12 +72,14 @@ namespace Kdx.Contracts.Interfaces
         /// </summary>
         List<Machine> GetMachines();
 
+        List<MachineName> GetMachineNames();
+
         /// <summary>
         /// idで指定された機械情報を取得します。
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-       MachineName? GetMachineNameById(int id);
+        MachineName? GetMachineNameById(int id);
 
         Machine? GetMachineById(int nameId, int driveSubId);
 

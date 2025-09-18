@@ -67,8 +67,13 @@ namespace KdxDesigner.Utils.Cylinder
             }
 
             // 手動ボタンデバイスの取得
+
+            var manualNumber = _mainViewModel._selectedCylinderControlBoxes
+                .Where(cb => cb.CylinderId == cylinder.Cylinder.Id)
+                .FirstOrDefault()!.ManualNumber;
+
             var manualButton = _mainViewModel._selectedControlBoxes
-                .Where(cb => cb.BoxNumber == cylinder.Cylinder.ManualNumber)
+                .Where(cb => cb.BoxNumber == manualNumber)
                 .FirstOrDefault()!.ManualButton;
 
             if (manualButton == null || manualButton == string.Empty)

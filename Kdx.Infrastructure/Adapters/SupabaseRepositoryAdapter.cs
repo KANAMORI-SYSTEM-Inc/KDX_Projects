@@ -67,6 +67,27 @@ namespace Kdx.Infrastructure.Adapters
             return Task.Run(async () => await _supabaseRepository.GetControlBoxesByPlcIdAsync(plcId)).GetAwaiter().GetResult();
         }
 
+        public List<CylinderControlBox> GetCylinderControlBoxesByPlcId(int plcId)
+        {
+            return Task.Run(async () => await _supabaseRepository.GetCylinderControlBoxesByPlcIdAsync(plcId)).GetAwaiter().GetResult();
+        }
+
+        public List<CylinderControlBox> GetCylinderControlBoxes(int plcId, int cylinderId)
+        {
+            return Task.Run(async () => await _supabaseRepository.GetCylinderControlBoxesAsync(plcId, cylinderId)).GetAwaiter().GetResult();
+        }
+
+        public void UpsertCylinderControlBox(CylinderControlBox list)
+        {
+           Task.Run(async () => await _supabaseRepository.UpsertCylinderControlBoxAsync(list)).GetAwaiter().GetResult();
+        }
+
+        public void DeleteCylinderControlBox(int plcId, int cylinderId, int controlBoxId)
+        {
+            Task.Run(async () => await _supabaseRepository.DeleteCylinderControlBoxAsync(plcId, cylinderId, controlBoxId)).GetAwaiter().GetResult();
+        }
+
+
         public List<Kdx.Contracts.DTOs.Process> GetProcesses()
         {
             return Task.Run(async () => await _supabaseRepository.GetProcessesAsync()).GetAwaiter().GetResult();
@@ -85,6 +106,11 @@ namespace Kdx.Infrastructure.Adapters
         public List<Machine> GetMachines()
         {
             return Task.Run(async () => await _supabaseRepository.GetMachinesAsync()).GetAwaiter().GetResult();
+        }
+
+        public List<MachineName> GetMachineNames()
+        {
+            return Task.Run(async () => await _supabaseRepository.GetMachineNamesAsync()).GetAwaiter().GetResult();
         }
 
         public Machine? GetMachineById(int nameId, int driveSubId)

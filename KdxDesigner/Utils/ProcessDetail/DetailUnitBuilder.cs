@@ -35,7 +35,7 @@ namespace KdxDesigner.Utils.ProcessDetail
         // --- 派生したフィールド ---
         private readonly MnemonicDeviceWithProcess _process;
         private readonly string _label;
-        private readonly int _deviceNum;
+        private readonly int _outNum;
 
         /// <summary>
         /// コンストラクタで、ビルドに必要なすべての情報を受け取る
@@ -70,7 +70,7 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             // --- 派生データ (コンストラクタで一度だけ計算) ---
             _label = detail.Mnemonic.DeviceLabel ?? string.Empty;
-            _deviceNum = detail.Mnemonic.StartNum;
+            _outNum = detail.Mnemonic.StartNum;
             if (_processes == null)
             {
                 throw new ArgumentNullException(nameof(processes), "Processes list cannot be null");
@@ -93,17 +93,12 @@ namespace KdxDesigner.Utils.ProcessDetail
             result.Add(CreateStatement("通常工程"));
 
             var detailFunctions = CreateDetailFunctions();
-
             var timer = GetTimerForOperation();
+
+            // L0 工程開始
             result.AddRange(detailFunctions.L0(timer));
 
-            // L1 操作開始
-            result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 1).ToString()));
-
-            // L4 工程完了
+            // L1 工程開始
             var operationFinish = _operations.FirstOrDefault(o => o.Mnemonic.RecordId == _detail.Detail.OperationId);
             var opFinishNum = operationFinish?.Mnemonic.StartNum ?? 0;
             var opFinishLabel = operationFinish?.Mnemonic.DeviceLabel ?? string.Empty;
@@ -125,9 +120,12 @@ namespace KdxDesigner.Utils.ProcessDetail
             }
 
             result.Add(LadderRow.AddAND(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
+
+            // L4 工程完了
+            result.AddRange(detailFunctions.L4());
 
             // Manualリセット
             result.AddRange(detailFunctions.ManualReset());
@@ -145,14 +143,13 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             // 行間ステートメントを追加
             result.Add(CreateStatement("工程まとめ"));
-            // L0 工程開始
             var detailFunctions = CreateDetailFunctions();
+
             // L0 工程開始
             if (_detail.Detail.OperationId != null)
             {
                 var timer = GetTimerForOperation();
                 result.AddRange(detailFunctions.L0(timer));
-
             }
             else
             {
@@ -160,18 +157,14 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             }
 
-
-            //3行目 M3300
+            // L1 操作開始
             result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
 
-            //4行目この工程の最終の出力番号算出と LDコマンド発行
-
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-            //3行目 M3300後の　L0初期値　AND
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-
-            //3行目 OUT出力
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+            // L4 工程完了
+            result.AddRange(detailFunctions.L4());
 
             return result;
 
@@ -259,16 +252,12 @@ namespace KdxDesigner.Utils.ProcessDetail
                 result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
             }
 
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 1).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
 
             // L4 工程完了
-            result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
-
+            result.AddRange(detailFunctions.L4());
 
             // Manualリセット
             result.AddRange(detailFunctions.ManualReset());
@@ -300,7 +289,6 @@ namespace KdxDesigner.Utils.ProcessDetail
                 result.AddRange(detailFunctions.L0(null));
 
             }
-
 
             //3行目　センサー名称からIOリスト参照
 
@@ -360,24 +348,12 @@ namespace KdxDesigner.Utils.ProcessDetail
                 result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
             }
 
-            //4行目 
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 1).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
 
-            //3行目　M3300　の後
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-
-            //3行目 OUT
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 1).ToString()));
-
-            //5行目
-            result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
-
-            //6行目
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-
-            //5行目
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+            // L4 工程完了
+            result.AddRange(detailFunctions.L4());
 
             // Manualリセット
             result.AddRange(detailFunctions.ManualReset());
@@ -454,17 +430,14 @@ namespace KdxDesigner.Utils.ProcessDetail
                 });
             }
 
-            result.Add(LadderRow.AddANI(_label + (_deviceNum + 2).ToString()));
+            result.Add(LadderRow.AddANI(_label + (_outNum + 2).ToString()));
             result.Add(LadderRow.AddAND(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 1).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
 
             // L4 工程完了
-            result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+            result.AddRange(detailFunctions.L4());
 
             // Manualリセット
             result.AddRange(detailFunctions.ManualReset());
@@ -595,23 +568,20 @@ namespace KdxDesigner.Utils.ProcessDetail
                     result.Add(LadderRow.AddOR(skipDevice));
                 }
             }
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 1).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
 
 
             if (!string.IsNullOrEmpty(_detail.Detail.ILStart))
             {
-                result.Add(LadderRow.AddLD(_label + (_deviceNum + 0).ToString()));
-                result.Add(LadderRow.AddANI(_label + (_deviceNum + 1).ToString()));
+                result.Add(LadderRow.AddLD(_label + (_outNum + 0).ToString()));
+                result.Add(LadderRow.AddANI(_label + (_outNum + 1).ToString()));
                 result.Add(LadderRow.AddOUT(_detail.Detail.ILStart));
             }
 
             // L4 工程完了
-            result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+            result.AddRange(detailFunctions.L4());
 
             // Manualリセット
             result.AddRange(detailFunctions.ManualReset());
@@ -693,18 +663,18 @@ namespace KdxDesigner.Utils.ProcessDetail
                 }
 
                 result.Add(LadderRow.AddAND(SettingsManager.Settings.PauseSignal));
-                result.Add(LadderRow.AddOR(_label + (_deviceNum + 1).ToString()));
-                result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-                result.Add(LadderRow.AddOUT(_label + (_deviceNum + 1).ToString()));
+                result.Add(LadderRow.AddOR(_label + (_outNum + 1).ToString()));
+                result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+                result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
 
                 
                 
             }
-            result.Add(LadderRow.AddLD(_label + (_deviceNum + 1).ToString()));
+            result.Add(LadderRow.AddLD(_label + (_outNum + 1).ToString()));
             result.Add(LadderRow.AddAND(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 4).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 4).ToString()));
 
             // Manualリセット
             result.AddRange(detailFunctions.ManualReset());
@@ -739,9 +709,9 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             // L1 操作開始
             result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 1).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
 
             // L2 操作停止
             // FinishSensorが設定されている場合は、IOリストからセンサーを取得
@@ -816,9 +786,9 @@ namespace KdxDesigner.Utils.ProcessDetail
                 }
             }
 
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 2).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 2).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 2).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 2).ToString()));
 
             // L4 工程完了
             // detailのoperationIdからOperationの先頭デバイスを取得
@@ -827,9 +797,9 @@ namespace KdxDesigner.Utils.ProcessDetail
             var operationFinishDeviceLabel = operationFinish?.Mnemonic.DeviceLabel ?? string.Empty;
 
             result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 2).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 4).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 2).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 4).ToString()));
 
             // Manualリセット
             result.AddRange(detailFunctions.ManualReset());
@@ -869,7 +839,7 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             if (timers != null)
             {
-                result.Add(LadderRow.AddLDP(_label + (_deviceNum + 0).ToString()));
+                result.Add(LadderRow.AddLDP(_label + (_outNum + 0).ToString()));
 
                 foreach (var timer in timers)
                 {
@@ -885,9 +855,9 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             // L1 操作開始
             result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 1).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
 
             // L2 タイマ開始
             var stopTimer = detailTimers.FirstOrDefault(t => t.Timer.RecordId == _detail.Detail.Id);
@@ -898,25 +868,16 @@ namespace KdxDesigner.Utils.ProcessDetail
                 return result; // エラーがある場合は、空のリストを返す
             }
 
-            result.Add(LadderRow.AddLD(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddANI(_label + (_deviceNum + 2).ToString()));
+            result.Add(LadderRow.AddLD(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddANI(_label + (_outNum + 2).ToString()));
             result.AddRange(LadderRow.AddTimer(stopTimer.Timer.TimerDeviceT, stopTimer.Timer.TimerDeviceZR));
             result.Add(LadderRow.AddLD(stopTimer.Timer.TimerDeviceT));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 2).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 2).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 2).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 2).ToString()));
 
             // L4 工程完了
-            // detailのoperationIdからOperationの先頭デバイスを取得
-            var operationFinish = _operations.FirstOrDefault(o => o.Mnemonic.RecordId == _detail.Detail.OperationId);
-            var operationFinishStartNum = operationFinish?.Mnemonic.StartNum ?? 0;
-            var operationFinishDeviceLabel = operationFinish?.Mnemonic.DeviceLabel ?? string.Empty;
-
-            result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
-
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 2).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+            result.AddRange(detailFunctions.L4());
 
             // Manualリセット
             result.AddRange(detailFunctions.ManualReset());
@@ -957,7 +918,7 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             if (timers != null)
             {
-                result.Add(LadderRow.AddLDP(_label + (_deviceNum + 0).ToString()));
+                result.Add(LadderRow.AddLDP(_label + (_outNum + 0).ToString()));
 
                 foreach (var timer in timers)
                 {
@@ -973,9 +934,9 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             // L1 操作開始
             result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 1).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
 
             // L2 タイマ開始
             var stopTimer = detailTimers.FirstOrDefault(t => t.Timer.RecordId == _detail.Detail.Id);
@@ -986,15 +947,15 @@ namespace KdxDesigner.Utils.ProcessDetail
                 return result; // エラーがある場合は、空のリストを返す
             }
 
-            result.Add(LadderRow.AddLD(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddANI(_label + (_deviceNum + 4).ToString()));
+            result.Add(LadderRow.AddLD(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddANI(_label + (_outNum + 4).ToString()));
             result.AddRange(LadderRow.AddTimer(stopTimer.Timer.TimerDeviceT, stopTimer.Timer.TimerDeviceZR));
             result.Add(LadderRow.AddLD(stopTimer.Timer.TimerDeviceT));
             result.Add(LadderRow.AddAND(SettingsManager.Settings.PauseSignal));
 
-            result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-            result.Add(LadderRow.AddAND(_label + (_deviceNum + 1).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 4).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 4).ToString()));
 
             // Manualリセット
             result.AddRange(detailFunctions.ManualReset());
@@ -1028,8 +989,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             }
 
             // L1 操作実行
-            result.Add(LadderRow.AddLD(_label + (_deviceNum + 0).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 1).ToString()));
+            result.Add(LadderRow.AddLD(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 1).ToString()));
 
             var processDetailFinishDevices = detailFunctions.FinishDevices();
             if (processDetailFinishDevices.Count == 0)
@@ -1048,9 +1009,9 @@ namespace KdxDesigner.Utils.ProcessDetail
                 var finishNum = processDetailFinishDevices.First().Mnemonic.StartNum;    
                 result.Add(LadderRow.AddLD(finishLabel + (finishNum + 4).ToString()));
                 result.Add(LadderRow.AddAND(SettingsManager.Settings.PauseSignal));
-                result.Add(LadderRow.AddOR(_label + (_deviceNum + 4).ToString()));
-                result.Add(LadderRow.AddAND(_label + (_deviceNum + 0).ToString()));
-                result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+                result.Add(LadderRow.AddOR(_label + (_outNum + 4).ToString()));
+                result.Add(LadderRow.AddAND(_label + (_outNum + 0).ToString()));
+                result.Add(LadderRow.AddOUT(_label + (_outNum + 4).ToString()));
 
             }
 
@@ -1086,8 +1047,8 @@ namespace KdxDesigner.Utils.ProcessDetail
             }
 
             // L4 操作実行
-            result.Add(LadderRow.AddLD(_label + (_deviceNum + 0).ToString()));
-            result.Add(LadderRow.AddOUT(_label + (_deviceNum + 4).ToString()));
+            result.Add(LadderRow.AddLD(_label + (_outNum + 0).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 4).ToString()));
 
             return result;
         }

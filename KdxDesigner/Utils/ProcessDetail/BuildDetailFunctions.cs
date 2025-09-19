@@ -432,6 +432,18 @@ namespace KdxDesigner.Utils.ProcessDetail
             return result;
         }
 
+        public List<LadderCsvRow> L4()
+        {
+            List<LadderCsvRow> result = new();
+
+            result.Add(LadderRow.AddLD(SettingsManager.Settings.PauseSignal));
+            result.Add(LadderRow.AddOR(_label + (_outNum + 4).ToString()));
+            result.Add(LadderRow.AddAND(_label + (_outNum + 1).ToString()));
+            result.Add(LadderRow.AddOUT(_label + (_outNum + 4).ToString()));
+
+            return result;
+        }
+
         /// <summary>
         /// 
         /// </summary>

@@ -1,5 +1,3 @@
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 
@@ -9,8 +7,6 @@ using KdxDesigner.Services.Error;
 using KdxDesigner.Services.IOAddress;
 using KdxDesigner.Utils.MnemonicCommon;
 using KdxDesigner.ViewModels;
-
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace KdxDesigner.Utils.Cylinder
 {
@@ -102,6 +98,10 @@ namespace KdxDesigner.Utils.Cylinder
         private int _startNum; // ラベルの取得
         private string? _speedDevice;
         private ControlBox _controlBox;
+        private string _bJogGo;
+        private string _bJogBack;
+        private string? _wJogGoSpeed;
+        private string? _wJogBackSpeed;
 
         public CylinderFunction(
             MainViewModel mainViewModel,
@@ -145,6 +145,17 @@ namespace KdxDesigner.Utils.Cylinder
                 _controlBox.ManualButton = manualButton;
                 _controlBox.ManualMode ??= SettingsManager.Settings.AlwaysON;
             }
+
+            // stKDX_****.Jog.bGo           手動操作行きJOG
+            // stKDX_****.Jog.bBack         手動操作帰りJOG
+            // stKDX_****.Jog.wGoSpeed      手動操作行き速度
+            // stKDX_****.Jog.wBackSpeed    手動操作帰り速度
+            string prefix = $"{Label.PREFIX}{cylinder.Cylinder.CYNum}";
+            _bJogGo = $"{prefix}.Jog.bGo";
+            _bJogBack = $"{prefix}.Jog.bBack";
+            _wJogGoSpeed = $"{prefix}.Jog.wGoSpeed";
+            _wJogBackSpeed = $"{prefix}.Jog.wBackSpeed";
+
         }
 
         public List<LadderCsvRow> GoOperation(List<MnemonicDeviceWithOperation> goOperation)
@@ -475,7 +486,6 @@ namespace KdxDesigner.Utils.Cylinder
 
             result.Add(LadderRow.AddLDI(_label + (_startNum + 0).ToString()));
             result.Add(LadderRow.AddANI(_label + (_startNum + 2).ToString()));
-            result.Add(LadderRow.AddANI(_label + (_startNum + 7).ToString()));
             if (goSensor != null)
             {
                 result.Add(LadderRow.AddAND(goSensor));
@@ -507,7 +517,6 @@ namespace KdxDesigner.Utils.Cylinder
             // 保持出力行き
             result.Add(LadderRow.AddLDI(_label + (_startNum + 1).ToString()));
             result.Add(LadderRow.AddANI(_label + (_startNum + 3).ToString()));
-            result.Add(LadderRow.AddANI(_label + (_startNum + 8).ToString()));
             if (backSensor != null)
             {
                 result.Add(LadderRow.AddAND(backSensor));
@@ -575,14 +584,19 @@ namespace KdxDesigner.Utils.Cylinder
 
         public List<LadderCsvRow> ManualReset()
         {
-            List<LadderCsvRow> result = new(); // 生成されるLadderCsvRowのリスト
+            List<LadderCsvRow> result = new();
+
+            // 操作盤「実行」ボタンと「各個」モードの対応デバイス
+            // 「実行」ボタンを離した時と、「各個」がOFFになったときにリセットする。
             result.Add(LadderRow.AddLDF(_controlBox.ManualButton));
             result.Add(LadderRow.AddLDF(_controlBox.ManualMode));
-            result.Add(LadderRow.AddRST(_label + (_startNum + 7).ToString()));
-            result.Add(LadderRow.AddRST(_label + (_startNum + 8).ToString()));
+
+            // JOGスイッチのリセット処理
+            result.Add(LadderRow.AddRST(_bJogGo));
+            result.Add(LadderRow.AddRST(_bJogBack));
 
             return result;
-            
+
         }
 
         public List<LadderCsvRow> ManualButton()
@@ -590,7 +604,7 @@ namespace KdxDesigner.Utils.Cylinder
             List<LadderCsvRow> result = new(); // 生成されるLadderCsvRowのリスト
 
             // JOG
-            result.Add(LadderRow.AddLD(_label + (_startNum + 7).ToString()));
+            result.Add(LadderRow.AddLD(_bJogGo));
             // マニュアル出力
             result.Add(LadderRow.AddOR(_label + (_startNum + 2).ToString()));
             result.Add(LadderRow.AddAND(_controlBox.ManualButton));
@@ -608,7 +622,7 @@ namespace KdxDesigner.Utils.Cylinder
             result.Add(LadderRow.AddOUT(_label + (_startNum + 12).ToString()));
 
             // JOG
-            result.Add(LadderRow.AddLD(_label + (_startNum + 8).ToString()));
+            result.Add(LadderRow.AddLD(_bJogBack));
             // マニュアル出力
             result.Add(LadderRow.AddOR(_label + (_startNum + 3).ToString()));
             result.Add(LadderRow.AddAND(_controlBox.ManualButton));

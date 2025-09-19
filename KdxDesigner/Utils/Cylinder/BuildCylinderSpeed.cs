@@ -34,7 +34,12 @@ namespace KdxDesigner.Utils.Cylinder
                 List<ProsTime> prosTimes,
                 List<IO> ioList)
         {
-            // ここに単一工程の処理を実装  
+            string prefix = $"{Label.PREFIX}{cylinder.Cylinder.CYNum}";
+            string _bJogGo = $"{prefix}.Jog.bGo";
+            string _bJogBack = $"{prefix}.Jog.bBack";
+            string _wJogGoSpeed = $"{prefix}.Jog.wGoSpeed";
+            string _wJogBackSpeed = $"{prefix}.Jog.wBackSpeed";
+
             var result = new List<LadderCsvRow>();
 
             var cySpeedDevice = speed.Where(s => s.CylinderId == cylinder.Cylinder.Id).SingleOrDefault(); // スピードデバイスの取得
@@ -233,7 +238,12 @@ namespace KdxDesigner.Utils.Cylinder
                 List<ProsTime> prosTimes,
                 List<IO> ioList)
         {
-            // ここに単一工程の処理を実装  
+            string prefix = $"{Label.PREFIX}{cylinder.Cylinder.CYNum}";
+            string _bJogGo = $"{prefix}.Jog.bGo";
+            string _bJogBack = $"{prefix}.Jog.bBack";
+            string _wJogGoSpeed = $"{prefix}.Jog.wGoSpeed";
+            string _wJogBackSpeed = $"{prefix}.Jog.wBackSpeed";
+
             var result = new List<LadderCsvRow>();
 
             var cySpeedDevice = speed.Where(s => s.CylinderId == cylinder.Cylinder.Id).SingleOrDefault(); // スピードデバイスの取得
@@ -375,12 +385,12 @@ namespace KdxDesigner.Utils.Cylinder
                     result.AddRange(LadderRow.AddMOVSet("K5", speedDevice));
 
                     // 手動JOG指令 行き
-                    result.Add(LadderRow.AddLD(label + (startNum + 7).ToString()));
+                    result.Add(LadderRow.AddLD(_bJogGo));
                     result.Add(LadderRow.AddAND(manualButton));
                     result.AddRange(LadderRow.AddMOVSet("K1", speedDevice));
 
                     // 手動JOG指令 帰り
-                    result.Add(LadderRow.AddLD(label + (startNum + 8).ToString()));
+                    result.Add(LadderRow.AddLD(_bJogBack));
                     result.Add(LadderRow.AddAND(manualButton));
                     result.AddRange(LadderRow.AddMOVSet("K5", speedDevice));
                 }

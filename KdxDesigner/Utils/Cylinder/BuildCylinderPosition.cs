@@ -15,6 +15,7 @@ namespace KdxDesigner.Utils.Cylinder
         private readonly MainViewModel _mainViewModel;
         private readonly IErrorAggregator _errorAggregator;
         private readonly IIOAddressService _ioAddressService;
+
         public BuildCylinderPosition(MainViewModel mainViewModel, IErrorAggregator errorAggregator, IIOAddressService ioAddressService)
         {
             _mainViewModel = mainViewModel;
@@ -34,6 +35,12 @@ namespace KdxDesigner.Utils.Cylinder
                 List<ProsTime> prosTimes,
                 List<IO> ioList)
         {
+            string prefix = $"{Label.PREFIX}{cylinder.Cylinder.CYNum}";
+            string _bJogGo = $"{prefix}.Jog.bGo";
+            string _bJogBack = $"{prefix}.Jog.bBack";
+            string _wJogGoSpeed = $"{prefix}.Jog.wGoSpeed";
+            string _wJogBackSpeed = $"{prefix}.Jog.wBackSpeed";
+
             var result = new List<LadderCsvRow>();
             var servo = _mainViewModel._selectedServo.FirstOrDefault(s => s.CylinderId == cylinder.Cylinder.Id); // 選択されたサーボの取得
             if (servo == null)
@@ -170,8 +177,8 @@ namespace KdxDesigner.Utils.Cylinder
             // サーボ軸停止
             result.Add(LadderRow.AddLD(label + (startNum + 10).ToString()));
             result.Add(LadderRow.AddANI(SettingsManager.Settings.PauseSignal));
-            result.Add(LadderRow.AddLDI(label + (startNum + 7).ToString()));
-            result.Add(LadderRow.AddANI(label + (startNum + 8).ToString()));
+            result.Add(LadderRow.AddLDI(_bJogGo));
+            result.Add(LadderRow.AddANI(_bJogBack));
             result.Add(LadderRow.AddORB());
             result.Add(LadderRow.AddAND(servo.Busy));
             result.Add(LadderRow.AddANI(servo.OriginalPosition));
@@ -191,14 +198,14 @@ namespace KdxDesigner.Utils.Cylinder
             result.Add(LadderRow.AddOUT(label + (startNum + 41).ToString()));
 
             // JOG正転OK
-            result.Add(LadderRow.AddLD(label + (startNum + 7).ToString()));
+            result.Add(LadderRow.AddLD(_bJogGo));
             result.Add(LadderRow.AddAND(label + (startNum + 17).ToString()));
             result.Add(LadderRow.AddANI(SettingsManager.Settings.PauseSignal));
             result.Add(LadderRow.AddANI(label + (startNum + 41).ToString()));
             result.Add(LadderRow.AddOUT(label + (startNum + 42).ToString()));
 
             // JOG逆転OK
-            result.Add(LadderRow.AddLD(label + (startNum + 8).ToString()));
+            result.Add(LadderRow.AddLD(_bJogBack));
             result.Add(LadderRow.AddAND(label + (startNum + 18).ToString()));
             result.Add(LadderRow.AddANI(SettingsManager.Settings.PauseSignal));
             result.Add(LadderRow.AddANI(label + (startNum + 41).ToString()));

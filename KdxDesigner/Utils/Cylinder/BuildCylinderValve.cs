@@ -17,7 +17,11 @@ namespace KdxDesigner.Utils.Cylinder
         private readonly IErrorAggregator _errorAggregator;
         private readonly IIOAddressService _ioAddressService;
         private readonly IAccessRepository _repository;
-        public BuildCylinderValve(MainViewModel mainViewModel, IErrorAggregator errorAggregator, IIOAddressService ioAddressService, IAccessRepository accessRepository)
+        public BuildCylinderValve(
+            MainViewModel mainViewModel,
+            IErrorAggregator errorAggregator,
+            IIOAddressService ioAddressService,
+            IAccessRepository accessRepository)
         {
             _mainViewModel = mainViewModel;
             _errorAggregator = errorAggregator;

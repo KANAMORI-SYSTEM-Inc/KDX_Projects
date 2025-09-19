@@ -30,7 +30,6 @@ namespace KdxDesigner.Utils.ProcessDetail
         private readonly MnemonicDeviceWithProcess _process;
         private readonly string _label;
         private readonly int _outNum;
-        private readonly string _labelPrefix = "stKDX";
 
         /// <summary>
         /// 新しい BuildDetailFunctions のインスタンスを初期化します。
@@ -104,7 +103,7 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             // ⑥ 1始まりに変換してラベル生成（0始まりにしたいなら +1 を外す）
             int detailNumber = index + 1;
-            string prefix = $"{_labelPrefix}_{cylinder.Cylinder.CYNum}";
+            string prefix = $"{Label.PREFIX}{cylinder.Cylinder.CYNum}";
             string manualButton = $"{prefix}.Process[{detailNumber}].bStart";
 
             return manualButton;
@@ -141,7 +140,7 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             // ⑥ 1始まりに変換してラベル生成（0始まりにしたいなら +1 を外す）
             int detailNumber = index + 1;
-            string prefix = $"{_labelPrefix}_{cylinder.Cylinder.CYNum}";
+            string prefix = $"{Label.PREFIX}{cylinder.Cylinder.CYNum}";
             string manualButton = $"{prefix}.Process[{detailNumber}].bReset";
 
             return manualButton;
@@ -178,7 +177,7 @@ namespace KdxDesigner.Utils.ProcessDetail
 
             // ⑥ 1始まりに変換してラベル生成（0始まりにしたいなら +1 を外す）
             int detailNumber = index + 1;
-            string prefix = $"{_labelPrefix}_{cylinder.Cylinder.CYNum}";
+            string prefix = $"{Label.PREFIX}{cylinder.Cylinder.CYNum}";
             string manualButton = $"{prefix}.Process[{detailNumber}].bOperate";
 
             return manualButton;

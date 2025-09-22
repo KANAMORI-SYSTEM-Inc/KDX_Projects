@@ -33,5 +33,12 @@ namespace Kdx.Contracts.DTOs
 
         [Column("Category")]
         public string Category { get; set; } = "Nan";
+
+        [Column("MnemonicId")]
+        public int MnemonicId { get; set; }
+
+        [Column("MemoryCategoryId")]
+        public int MemoryCategoryId { get; set; }
+
     }
 }

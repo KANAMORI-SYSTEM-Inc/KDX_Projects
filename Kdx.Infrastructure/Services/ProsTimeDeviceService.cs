@@ -91,19 +91,19 @@ namespace Kdx.Infrastructure.Services
                 Debug.WriteLine($"Error loading ProsTime definitions: {ex.Message}");
                 return GetDefaultConfigs();
             }
-            
+
             if (!configs.Any())
             {
                 return GetDefaultConfigs();
             }
-            
+
             return configs;
         }
-        
+
         private Dictionary<int, OperationProsTimeConfig> GetDefaultConfigs()
         {
             var configs = new Dictionary<int, OperationProsTimeConfig>();
-            
+
             // 各CategoryIdに対してデフォルト設定を生成（5個のProsTime）
             for (int categoryId = 1; categoryId <= 20; categoryId++)
             {
@@ -116,7 +116,7 @@ namespace Kdx.Infrastructure.Services
                     }
                 };
             }
-            
+
             return configs;
         }
 
@@ -132,8 +132,15 @@ namespace Kdx.Infrastructure.Services
                     g => g.ToDictionary(pt => pt.SortId, pt => pt)
                 );
 
+            var difinitions = _repository.GetDifinitions("Operation");
+            var cylinders = _repository.GetCYs().Where(c => c.PlcId == plcId).ToList();
+
             var prosTimesToSave = new List<ProsTime>();
             int count = 0;
+            List<Memory> currentMemories = new List<Memory>();
+            List<Memory> previousMemories = new List<Memory>();
+            List<Memory> cylinderMemories = new List<Memory>();
+
 
             foreach (Operation operation in operations)
             {
@@ -173,6 +180,81 @@ namespace Kdx.Infrastructure.Services
                         CategoryId = currentConfig.SortIdToCategoryIdMap.TryGetValue(i, out var catId) ? catId : 0
                     };
 
+                    var difinition = difinitions.FirstOrDefault(d => d.OutCoilNumber == operation.Id);
+                    var cylinder = cylinders.FirstOrDefault(c => c.Id == operation.CYId);
+                    string row2 = cylinder != null ? cylinder.CYNum ?? "NaN" : "NaN";
+                    string row3 = difinition != null ? difinition.Comment1 ?? "" : "";
+                    string row4 = difinition != null ? difinition.Comment2 ?? "" : "";
+
+                    Memory currentMemory = new()
+                    {
+                        PlcId = plcId,
+                        Device = currentDevice,
+                        MemoryCategory = 5,     // ZR
+                        DeviceNumber = startCurrent + count,
+                        DeviceNumber1 = (startPrevious + count).ToString(),
+                        DeviceNumber2 = "",
+                        Category = "工程ﾀｲﾑ",
+                        Row_1 = "ﾀｲﾑ現在",
+                        Row_2 = row2,
+                        Row_3 = row3,
+                        Row_4 = row4,
+                        Direct_Input = "",
+                        Confirm = "",
+                        Note = "",
+                        GOT = "true",
+                        MnemonicId = (int)MnemonicType.Operation,
+                        RecordId = operation.Id,
+                        OutcoilNumber = 0
+                    };
+
+                    Memory previousMemory = new()
+                    {
+                        PlcId = plcId,
+                        Device = previousDevice,
+                        MemoryCategory = 5,     // ZR
+                        DeviceNumber = startPrevious + count,
+                        DeviceNumber1 = (startCurrent + count).ToString(),
+                        DeviceNumber2 = "",
+                        Category = "前工程ﾀｲﾑ",
+                        Row_1 = "ﾀｲﾑ前回",
+                        Row_2 = row2,
+                        Row_3 = row3,
+                        Row_4 = row4,
+                        Direct_Input = "",
+                        Confirm = "",
+                        Note = "",
+                        GOT = "true",
+                        MnemonicId = (int)MnemonicType.Operation,
+                        RecordId = operation.Id,
+                        OutcoilNumber = 0
+                    };
+
+                    Memory cylinderMemory = new()
+                    {
+                        PlcId = plcId,
+                        Device = cylinderDevice,
+                        MemoryCategory = 5,     // ZR
+                        DeviceNumber = startCylinder + count,
+                        DeviceNumber1 = "",
+                        DeviceNumber2 = "",
+                        Category = "ｼﾘﾝﾀﾞ",
+                        Row_1 = "CYﾀｲﾑ",
+                        Row_2 = row2,
+                        Row_3 = row3,
+                        Row_4 = row4,
+                        Direct_Input = "",
+                        Confirm = "",
+                        Note = "",
+                        GOT = "true",
+                        MnemonicId = (int)MnemonicType.Operation,
+                        RecordId = operation.Id,
+                        OutcoilNumber = 0
+                    };
+
+                    currentMemories.Add(currentMemory);
+                    previousMemories.Add(previousMemory);
+                    cylinderMemories.Add(cylinderMemory);
                     prosTimesToSave.Add(prosTime);
                 }
             }
@@ -182,11 +264,14 @@ namespace Kdx.Infrastructure.Services
                 .GroupBy(pt => new { pt.PlcId, pt.MnemonicId, pt.RecordId, pt.SortId })
                 .Select(g => g.First())
                 .ToList();
-            
+
             // 一括で保存
             if (uniqueProsTimes.Any())
             {
                 _repository.SaveOrUpdateProsTimesBatch(uniqueProsTimes);
+                _repository.SaveOrUpdateMemoriesBatch(currentMemories);
+                _repository.SaveOrUpdateMemoriesBatch(previousMemories);
+                _repository.SaveOrUpdateMemoriesBatch(cylinderMemories);
             }
         }
     }

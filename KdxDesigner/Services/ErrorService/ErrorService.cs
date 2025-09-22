@@ -1,6 +1,7 @@
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using Kdx.Contracts.Interfaces;
+using KdxDesigner.ViewModels;
 
 namespace KdxDesigner.Services.ErrorService
 {
@@ -28,13 +29,12 @@ namespace KdxDesigner.Services.ErrorService
 
         // Operationのリストを受け取り、Errorテーブルに保存する
         public void SaveMnemonicDeviceOperation(
-            List<Kdx.Contracts.DTOs.Operation> operations,
-            List<Kdx.Contracts.DTOs.IO> iOs,
+            List<Operation> operations,
+            List<IO> iOs,
             int startNum,
             int startNumTimer,
             int plcId,
-            int cycleId
-            )
+            int cycleId)
         {
             // MnemonicDeviceテーブルの既存データを取得
             var allExisting = GetErrors(plcId, cycleId, (int)MnemonicType.Operation);
@@ -77,14 +77,15 @@ namespace KdxDesigner.Services.ErrorService
                         break;
                 }
 
-                List<Kdx.Contracts.DTOs.ProcessError> insertErrors = new();
-                List<Kdx.Contracts.DTOs.ProcessError> updateErrors = new();
+                List<ProcessError> insertErrors = new();
+                List<ProcessError> updateErrors = new();
+                List<Memory> insertMemoriesM = new();
+                List<Memory> insertMemoriesT = new();
 
                 foreach (int id in AlarmIds)
                 {
-                    string device = "M" + (startNum + alarmCount).ToString(); // 例: 01A01, 01A02, ...
-                    string timerDevice = "T" + (startNumTimer + alarmCount).ToString(); // 例: T01A01, T01A02, ...
-
+                    string device = "M" + (startNum + alarmCount).ToString();
+                    string timerDevice = "T" + (startNumTimer + alarmCount).ToString();
 
                     string comment = messages.FirstOrDefault(m => m.AlarmId == id)?.BaseMessage ?? string.Empty;
                     string alarm = messages.FirstOrDefault(m => m.AlarmId == id)?.BaseAlarm ?? string.Empty;
@@ -94,7 +95,7 @@ namespace KdxDesigner.Services.ErrorService
                     var comment3 = messages.FirstOrDefault(m => m.AlarmId == id)?.Category2 ?? string.Empty;
                     var comment4 = messages.FirstOrDefault(m => m.AlarmId == id)?.Category3 ?? string.Empty;
 
-                    Kdx.Contracts.DTOs.ProcessError saveError = new()
+                    ProcessError saveError = new()
                     {
                         PlcId = plcId,
                         CycleId = cycleId,
@@ -113,10 +114,55 @@ namespace KdxDesigner.Services.ErrorService
                         ErrorTimeDevice = timerDevice
                     };
 
+                    Memory memoryM = new()
+                    {
+                        PlcId = plcId,
+                        Device = device,
+                        MemoryCategory = 2,     // M
+                        DeviceNumber = startNum + alarmCount,
+                        DeviceNumber1 = (startNum + alarmCount).ToString(),
+                        DeviceNumber2 = "",
+                        Category = "操作ｴﾗｰ",
+                        Row_1 = "操作ｴﾗｰ",
+                        Row_2 = comment2,
+                        Row_3 = comment3,
+                        Row_4 = comment4,
+                        Direct_Input = "",
+                        Confirm = "",
+                        Note = "",
+                        GOT = "false",
+                        MnemonicId = (int)MnemonicType.Operation,
+                        RecordId = operation.Id,
+                        OutcoilNumber = 0
+                    };
+
+                    Memory memoryT = new()
+                    {
+                        PlcId = plcId,
+                        Device = device,
+                        MemoryCategory = 7,     // M
+                        DeviceNumber = startNum + alarmCount,
+                        DeviceNumber1 = (startNum + alarmCount).ToString(),
+                        DeviceNumber2 = "",
+                        Category = "操作ｴﾗｰ",
+                        Row_1 = "操作ｴﾗｰ",
+                        Row_2 = comment2,
+                        Row_3 = comment3,
+                        Row_4 = comment4,
+                        Direct_Input = "",
+                        Confirm = "",
+                        Note = "",
+                        GOT = "false",
+                        MnemonicId = (int)MnemonicType.Operation,
+                        RecordId = operation.Id,
+                        OutcoilNumber = 0
+                    };
+
+                    insertMemoriesM.Add(memoryM);
+                    insertMemoriesT.Add(memoryT);
 
                     if (existing != null)
                     {
-                        // 既存のレコードがある場合はIDを引き継ぐ
                         updateErrors.Add(saveError);
                     }
                     else
@@ -124,12 +170,12 @@ namespace KdxDesigner.Services.ErrorService
                         insertErrors.Add(saveError);
                     }
 
-                    // 将来的にメッセージの代入処理を追加する。
-
                     alarmCount++;
                 }
 
                 _repository.SaveErrors(insertErrors);
+                _repository.SaveOrUpdateMemoriesBatch(insertMemoriesM);
+                _repository.SaveOrUpdateMemoriesBatch(insertMemoriesT);
                 _repository.UpdateErrors(updateErrors);
             }
         }

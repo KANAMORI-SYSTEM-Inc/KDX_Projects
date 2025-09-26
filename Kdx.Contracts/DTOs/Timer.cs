@@ -1,10 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Postgrest.Attributes;
 using Postgrest.Models;
 
@@ -14,25 +7,25 @@ namespace Kdx.Contracts.DTOs
     public class Timer : BaseModel
     {
         [PrimaryKey("ID")]
-        [Postgrest.Attributes.Column("ID")]
+        [Column("ID")]
         public int ID { get; set; }
-        
-        [Postgrest.Attributes.Column("CycleId")]
+
+        [Column("CycleId")]
         public int? CycleId { get; set; }
-        
-        [Postgrest.Attributes.Column("TimerCategoryId")]
+
+        [Column("TimerCategoryId")]
         public int? TimerCategoryId { get; set; }
-        
-        [Postgrest.Attributes.Column("TimerNum")]
+
+        [Column("TimerNum")]
         public int? TimerNum { get; set; }
-        
-        [Postgrest.Attributes.Column("TimerName")]
+
+        [Column("TimerName")]
         public string? TimerName { get; set; }
-        
-        [Postgrest.Attributes.Column("MnemonicId")]
+
+        [Column("MnemonicId")]
         public int? MnemonicId { get; set; }
-        
-        [Postgrest.Attributes.Column("Example")]
+
+        [Column("Example")]
         public int? Example { get; set; }
     }
 }

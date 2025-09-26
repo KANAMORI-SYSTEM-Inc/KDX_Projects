@@ -190,20 +190,20 @@ namespace Kdx.Infrastructure.Repositories
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("Calling Supabase API for MachineNames...");
+                Debug.WriteLine("Calling Supabase API for MachineNames...");
 
                 var response = await _supabaseClient
                     .From<MachineName>()
                     .Select("*")
                     .Get();
 
-                System.Diagnostics.Debug.WriteLine($"Supabase returned {response?.Models?.Count ?? 0} machine names");
+                Debug.WriteLine($"Supabase returned {response?.Models?.Count ?? 0} machine names");
 
                 if (response?.Models != null)
                 {
                     foreach (var mn in response.Models)
                     {
-                        System.Diagnostics.Debug.WriteLine($"MachineName: Id={mn.Id}, FullName={mn.FullName}, ShortName={mn.ShortName}");
+                        Debug.WriteLine($"MachineName: Id={mn.Id}, FullName={mn.FullName}, ShortName={mn.ShortName}");
                     }
                 }
 
@@ -211,8 +211,8 @@ namespace Kdx.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error getting machine names: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                Debug.WriteLine($"Error getting machine names: {ex.Message}");
+                Debug.WriteLine($"Inner exception: {ex.InnerException?.Message}");
                 return new List<MachineName>();
             }
         }
@@ -611,11 +611,11 @@ namespace Kdx.Infrastructure.Repositories
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine($"[UpsertMnemonicTimerDeviceAsync] 開始");
-                System.Diagnostics.Debug.WriteLine($"  MnemonicId: {device.MnemonicId}, RecordId: {device.RecordId}, TimerId: {device.TimerId}");
-                System.Diagnostics.Debug.WriteLine($"  PlcId: {device.PlcId}, CycleId: {device.CycleId}");
-                System.Diagnostics.Debug.WriteLine($"  TimerDeviceT: {device.TimerDeviceT}, TimerDeviceZR: {device.TimerDeviceZR}");
-                System.Diagnostics.Debug.WriteLine($"  Comment1: {device.Comment1}");
+                Debug.WriteLine($"[UpsertMnemonicTimerDeviceAsync] 開始");
+                Debug.WriteLine($"  MnemonicId: {device.MnemonicId}, RecordId: {device.RecordId}, TimerId: {device.TimerId}");
+                Debug.WriteLine($"  PlcId: {device.PlcId}, CycleId: {device.CycleId}");
+                Debug.WriteLine($"  TimerDeviceT: {device.TimerDeviceT}, TimerDeviceZR: {device.TimerDeviceZR}");
+                Debug.WriteLine($"  Comment1: {device.Comment1}");
 
                 // Supabaseのupsert機能を使用
                 // upsertは自動的に主キーで競合を検出して更新または挿入を行う
@@ -625,11 +625,11 @@ namespace Kdx.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[UpsertMnemonicTimerDeviceAsync] エラー発生: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"  スタックトレース: {ex.StackTrace}");
+                Debug.WriteLine($"[UpsertMnemonicTimerDeviceAsync] エラー発生: {ex.Message}");
+                Debug.WriteLine($"  スタックトレース: {ex.StackTrace}");
                 if (ex.InnerException != null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"  内部エラー: {ex.InnerException.Message}");
+                    Debug.WriteLine($"  内部エラー: {ex.InnerException.Message}");
                 }
                 throw;
             }
@@ -1396,6 +1396,7 @@ namespace Kdx.Infrastructure.Repositories
 
         #endregion
 
+
         #region Difinitions Methods
 
         public async Task<List<Difinitions>> GetDifinitionsAsync(string category)
@@ -1415,6 +1416,106 @@ namespace Kdx.Infrastructure.Repositories
                 .Single();
 
             return response;
+        }
+
+        #endregion
+
+        #region Interlock Methods
+
+        public async Task<List<Interlock>> GetInterlocksByPlcIdAsync(int plcId)
+        {
+            var response = await _supabaseClient
+                .From<Interlock>()
+                .Where(i => i.PlcId == plcId)
+                .Get();
+            return response.Models;
+        }
+
+        public async Task<List<Interlock>> GetInterlocksByCylindrIdAsync(int cylinderId)
+        {
+                        var response = await _supabaseClient
+                .From<Interlock>()
+                .Where(i => i.CylinderId == cylinderId)
+                .Get();
+            return response.Models;
+        }
+
+        public async Task UpsertInterlockAsync(Interlock interlock) { 
+            await _supabaseClient
+                .From<Interlock>()
+                .Upsert(interlock);
+        }
+
+        public async Task UpsertInterlocksAsync(List<Interlock> interlocks)
+        {
+            await _supabaseClient
+                .From<Interlock>()
+                .Upsert(interlocks);
+        }
+
+        public async Task DeleteInterlockAsync(Interlock interlock)
+        {
+            await _supabaseClient
+                .From<Interlock>()
+                .Where(i => i.Id == interlock.Id)
+                .Delete();
+        }
+
+        public async Task DeleteInterlocksAsync(List<Interlock> interlocks)
+        {
+            var ids = interlocks.Select(i => i.Id).ToList();
+            await _supabaseClient
+                .From<Interlock>()
+                .Where(i => ids.Contains(i.Id))
+                .Delete();
+        }
+
+        // InterlockCondition
+        public async Task<List<InterlockCondition>> GetInterlockConditionsByInterlockIdAsync(int interlockId)
+        {
+            var response = await _supabaseClient
+                .From<InterlockCondition>()
+                .Where(ic => ic.InterlockId == interlockId)
+                .Get();
+            return response.Models;
+        }
+
+        public async Task UpsertInterlockConditionAsync(InterlockCondition interlockCondition)
+        {
+            await _supabaseClient
+                .From<InterlockCondition>()
+                .Upsert(interlockCondition);
+        }
+
+        public async Task UpsertInterlockConditionsAsync(List<InterlockCondition> interlockConditions) { 
+            await _supabaseClient
+                .From<InterlockCondition>()
+                .Upsert(interlockConditions);
+        }
+
+        public async Task DeleteInterlockConditionAsync(InterlockCondition interlockCondition)
+        {
+            await _supabaseClient
+                .From<InterlockCondition>()
+                .Where(ic => ic.Id == interlockCondition.Id)
+                .Delete();
+        }
+
+        public async Task DeleteInterlockConditionsAsync(List<InterlockCondition> interlockConditions)
+        {
+            await _supabaseClient
+                .From<InterlockCondition>()
+                .Where(ic => interlockConditions.Select(c => c.Id).Contains(ic.Id))
+                .Delete();
+        }
+
+        public async Task<List<ViewInterlockConditions>> GetViewInterlockConditionsByPlcIdAsync(int plcId)
+        {
+            var response = await _supabaseClient
+                .From<ViewInterlockConditions>()
+                .Where(vic => vic.PlcId == plcId)
+                .Get();
+            return response.Models;
         }
 
         #endregion

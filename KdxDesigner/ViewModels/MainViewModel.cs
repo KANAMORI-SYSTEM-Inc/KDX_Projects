@@ -2,8 +2,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-using DocumentFormat.OpenXml.Bibliography;
-
 using Kdx.Contracts.DTOs;
 using Kdx.Contracts.Enums;
 using Kdx.Contracts.Interfaces;
@@ -24,8 +22,6 @@ using KdxDesigner.Utils.Cylinder;
 using KdxDesigner.Utils.Operation;
 using KdxDesigner.Utils.ProcessDetail;
 using KdxDesigner.Views;
-
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using System.Collections.ObjectModel;
@@ -111,7 +107,7 @@ namespace KdxDesigner.ViewModels
         [ObservableProperty] private string _memoryConfigurationStatus = "未設定";
         [ObservableProperty] private bool _isMemoryConfigured = false;
         [ObservableProperty] private string _lastMemoryConfigTime = string.Empty;
-        
+
         // 認証関連
         [ObservableProperty] private string _currentUserEmail = string.Empty;
 
@@ -131,14 +127,14 @@ namespace KdxDesigner.ViewModels
             _supabaseHelper = supabaseHelper;
             InitializeServices();
             LoadInitialData();
-            
+
             // Supabase接続を非同期で初期化
             if (_supabaseHelper != null)
             {
                 _ = InitializeSupabaseAsync();
             }
         }
-        
+
         private readonly IAuthenticationService _authService = null!; // コンストラクタで初期化される
         private readonly SupabaseConnectionHelper? _supabaseHelper;
 
@@ -150,7 +146,7 @@ namespace KdxDesigner.ViewModels
             var repository = App.Services?.GetService<IAccessRepository>();
             var authService = App.Services?.GetService<IAuthenticationService>();
             var supabaseHelper = App.Services?.GetService<SupabaseConnectionHelper>();
-            
+
             if (repository != null && authService != null)
             {
                 _repository = repository;
@@ -177,10 +173,10 @@ namespace KdxDesigner.ViewModels
             try
             {
                 if (_supabaseHelper == null) return;
-                
+
                 Debug.WriteLine("Starting Supabase initialization from MainViewModel...");
                 var success = await _supabaseHelper.InitializeAsync();
-                
+
                 if (success)
                 {
                     Debug.WriteLine("Supabase initialized successfully from MainViewModel");
@@ -202,7 +198,7 @@ namespace KdxDesigner.ViewModels
         private void InitializeServices()
         {
             // サービスの初期化
-            _prosTimeService = App.Services?.GetService<IProsTimeDeviceService>() 
+            _prosTimeService = App.Services?.GetService<IProsTimeDeviceService>()
                 ?? new Kdx.Infrastructure.Services.ProsTimeDeviceService(_repository);
             _memoryService = App.Services?.GetService<IMemoryService>()
                 ?? new Kdx.Infrastructure.Services.MemoryService(_repository);
@@ -249,7 +245,7 @@ namespace KdxDesigner.ViewModels
                 MessageBox.Show("システムの初期化が不完全なため、処理を実行できません。", "エラー");
                 return;
             }
-            
+
             // 現在のユーザー情報を設定
             if (_authService?.CurrentSession != null)
             {
@@ -816,8 +812,6 @@ namespace KdxDesigner.ViewModels
         }
 
         #endregion
-
-
 
         // 出力処理
         #region ProcessOutput
@@ -1402,13 +1396,13 @@ namespace KdxDesigner.ViewModels
             try
             {
                 await _authService.SignOutAsync();
-                
+
                 // ログイン画面を表示
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     var loginWindow = new Views.LoginView();
                     loginWindow.Show();
-                    
+
                     // メインウィンドウを閉じる
                     foreach (Window window in Application.Current.Windows)
                     {
@@ -1425,7 +1419,7 @@ namespace KdxDesigner.ViewModels
                 MessageBox.Show($"サインアウトに失敗しました: {ex.Message}", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-        
+
         #endregion
 
     }

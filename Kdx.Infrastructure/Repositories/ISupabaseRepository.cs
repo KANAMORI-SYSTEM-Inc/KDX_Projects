@@ -571,5 +571,36 @@ namespace Kdx.Infrastructure.Repositories
 
 
         #endregion
+
+        #region Interlock Methods
+
+        // Interlock
+        Task<List<Interlock>> GetInterlocksByPlcIdAsync(int plcId);
+
+        Task<List<Interlock>> GetInterlocksByCylindrIdAsync(int cylinderId);
+
+        Task UpsertInterlockAsync(Interlock interlock);
+
+        Task UpsertInterlocksAsync(List<Interlock> interlocks);
+
+        Task DeleteInterlockAsync(Interlock interlock);
+
+        Task DeleteInterlocksAsync(List<Interlock> interlocks);
+
+        // InterlockCondition
+        Task<List<InterlockCondition>> GetInterlockConditionsByInterlockIdAsync(int interlockId);
+        
+        Task UpsertInterlockConditionAsync(InterlockCondition interlockCondition);
+
+        Task UpsertInterlockConditionsAsync(List<InterlockCondition> interlockConditions);
+
+        Task DeleteInterlockConditionAsync(InterlockCondition interlockCondition);
+
+        Task DeleteInterlockConditionsAsync(List<InterlockCondition> interlockConditions);
+
+        Task<List<ViewInterlockConditions>> GetViewInterlockConditionsByPlcIdAsync(int plcId);
+
+
+        #endregion
     }
 }
